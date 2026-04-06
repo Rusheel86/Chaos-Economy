@@ -18,7 +18,7 @@ from vsr_env.models import (
     VSRState,
 )
 from vsr_env.engine.option_chain import OptionChainEngine
-from vsr_env.engine.market_sim import advance_market, trigger_regime_shift
+from vsr_env.engine.market_sim import advance_market, trigger_regime_shift, trigger_vol_crush, inject_oscillation
 from vsr_env.engine.portfolio import (
     add_position,
     compute_portfolio_greeks,
@@ -26,16 +26,16 @@ from vsr_env.engine.portfolio import (
     update_positions_on_market_move,
 )
 from vsr_env.reward.reward_computer import RewardComputer
-from vsr_env.tasks.iv_reading import IVReadingTask, IVReadingGrader
 from vsr_env.tasks.delta_hedging import DeltaHedgingTask, DeltaHedgingGrader
-from vsr_env.tasks.arb_capture import ArbCaptureTask, ArbCaptureGrader
+from vsr_env.tasks.earnings_vol_crush import EarningsVolCrushTask, EarningsVolCrushGrader
+from vsr_env.tasks.gamma_scalping import GammaScalpingTask, GammaScalpingGrader
 
 
 # Task configurations
 TASK_CONFIG = {
-    "iv_reading": {"max_steps": 3, "task_class": IVReadingTask, "grader_class": IVReadingGrader},
     "delta_hedging": {"max_steps": 5, "task_class": DeltaHedgingTask, "grader_class": DeltaHedgingGrader},
-    "arb_capture": {"max_steps": 8, "task_class": ArbCaptureTask, "grader_class": ArbCaptureGrader},
+    "earnings_vol_crush": {"max_steps": 8, "task_class": EarningsVolCrushTask, "grader_class": EarningsVolCrushGrader},
+    "gamma_scalping": {"max_steps": 10, "task_class": GammaScalpingTask, "grader_class": GammaScalpingGrader},
 }
 
 
@@ -63,9 +63,9 @@ class VSREnvironment:
     """Volatility Surface Reasoning Environment.
 
     Simulates options portfolio management with 3 tasks:
-    - iv_reading (easy): Identify mispriced options on a vol surface
-    - delta_hedging (medium): Neutralize portfolio delta cost-efficiently
-    - arb_capture (hard): Full arb workflow with regime shifts
+    - delta_hedging (medium): Neutralize portfolio delta through market shock
+    - earnings_vol_crush (hard): Position for and recover from earnings vol crush
+    - gamma_scalping (expert): Profit from gamma scalping through spot oscillations
     """
 
     def __init__(self):
@@ -80,11 +80,11 @@ class VSREnvironment:
         self._prev_delta: float = 0.0
         self._prev_pnl: float = 0.0
 
-    def reset(self, task_name: str = "iv_reading", seed: int = 42) -> VSRObservation:
+    def reset(self, task_name: str = "delta_hedging", seed: int = 42) -> VSRObservation:
         """Initialize a new episode for the specified task.
 
         Args:
-            task_name: One of 'iv_reading', 'delta_hedging', 'arb_capture'
+            task_name: One of 'delta_hedging', 'earnings_vol_crush', 'gamma_scalping'
             seed: Random seed for reproducibility
 
         Returns:
@@ -92,7 +92,7 @@ class VSREnvironment:
         """
         # Validate task name
         if task_name not in TASK_CONFIG:
-            task_name = "iv_reading"
+            task_name = "delta_hedging"
 
         config = TASK_CONFIG[task_name]
 
@@ -123,6 +123,14 @@ class VSREnvironment:
 
         # Store mispriced_cells in state for grading
         self._state.mispriced_cells = mispriced_cells
+
+        # Inject expected outcome per task
+        if task_name == "delta_hedging":
+            self._state.expected_outcome = "Agent must neutralize delta to within +/- 0.05 before market shock."
+        elif task_name == "earnings_vol_crush":
+            self._state.expected_outcome = "Agent must hold negative vega position before vol crush event."
+        elif task_name == "gamma_scalping":
+            self._state.expected_outcome = "Agent must re-hedge delta when price jumps while maintaining long gamma."
 
         # Generate IV surface
         self._iv_surface = self.engine.generate_iv_surface(
@@ -172,12 +180,26 @@ class VSREnvironment:
 
         # Advance market
         if self._rng is not None:
-            advance_market(self._state, self._rng)
-
-            # Check for regime shift (arb_capture task only)
-            if (self._state.task_name == "arb_capture"
+            # Check for task-specific market events
+            
+            # Delta hedging: trigger regime shift at step 2 or 3
+            if (self._state.task_name == "delta_hedging"
+                    and hasattr(self._state, 'regime_shift_step')
                     and self._state.step_count == self._state.regime_shift_step):
                 trigger_regime_shift(self._state, self._rng)
+            
+            # Earnings vol crush: trigger vol crush at step 3-6
+            if (self._state.task_name == "earnings_vol_crush"
+                    and hasattr(self._state, 'vol_crush_step')
+                    and self._state.step_count == self._state.vol_crush_step):
+                trigger_vol_crush(self._state, self._rng)
+            
+            # Gamma scalping: inject oscillation every step
+            if self._state.task_name == "gamma_scalping":
+                inject_oscillation(self._state, self._rng, magnitude=0.025)
+            
+            # Standard market advance
+            advance_market(self._state, self._rng)
 
         # Update positions after market move
         if self._state.positions:
@@ -255,6 +277,7 @@ class VSREnvironment:
             task_name=self._state.task_name,
             task_description=self._current_task.get_description() if self._current_task else "",
             last_action_error=error,
+            expected_outcome=self._state.expected_outcome,
         )
 
     def _compute_reward(
@@ -272,18 +295,18 @@ class VSREnvironment:
 
         task = self._state.task_name
 
-        if task == "iv_reading":
-            return self.reward_computer.compute_iv_reading_reward(
-                action, self._state, obs
-            )
-        elif task == "delta_hedging":
+        if task == "delta_hedging":
             trade_cost = abs(action.quantity) * 0.01 if action.direction != TradeDirection.HOLD else 0.0
             return self.reward_computer.compute_delta_hedging_reward(
                 action, self._state, obs, prev_delta, trade_cost
             )
-        elif task == "arb_capture":
-            return self.reward_computer.compute_arb_capture_reward(
+        elif task == "earnings_vol_crush":
+            return self.reward_computer.compute_earnings_crush_reward(
                 action, self._state, obs, prev_pnl
+            )
+        elif task == "gamma_scalping":
+            return self.reward_computer.compute_gamma_scalping_reward(
+                action, self._state, obs, prev_delta, prev_pnl
             )
         else:
             return VSRReward(total=0.0)

@@ -4,10 +4,12 @@
 
 VSR-Env is an OpenEnv-compliant reinforcement learning environment that simulates options portfolio management on implied volatility surfaces. The environment targets the Meta PyTorch OpenEnv Hackathon and provides a realistic simulation of quantitative trading workflows used in the $600T+ notional derivatives market.
 
-The system enables LLM agents to act as junior options traders, performing three core tasks:
-1. **IV Reading (Easy)**: Identify mispriced options by analyzing volatility surface anomalies
-2. **Delta Hedging (Medium)**: Neutralize portfolio risk by managing Greek exposures cost-efficiently
-3. **Arbitrage Capture (Hard)**: Execute full arbitrage workflows including detection, trading, hedging, and profit-taking through regime shifts
+The system enables LLM agents to act as junior options traders, performing five core tasks with progressive difficulty:
+1. **Vol Regime Detection (Easy)**: Classify volatility regimes by observing surface changes over 3 steps
+2. **Delta Hedging (Medium)**: Neutralize portfolio risk through a market shock over 5 steps
+3. **Earnings Vol Crush (Hard)**: Position for and recover from an earnings volatility crush event over 8 steps
+4. **Gamma Scalping (Expert)**: Exploit convexity by scalping gamma through spot oscillations over 10 steps
+5. **Vega-Gamma Stress (Super-Boss)**: Manage multi-Greek portfolio through extreme stress event over 12 steps
 
 The environment provides meaningful per-step rewards, deterministic grading with seeded RNG, and runs entirely on CPU using NumPy/SciPy for mathematical computations. It deploys via Docker to HuggingFace Spaces and includes a baseline inference script using the OpenAI client.
 

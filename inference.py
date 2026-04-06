@@ -32,20 +32,20 @@ from vsr_env.models import TradeDirection, VSRAction, VSRObservation, VSRState
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.groq.com/openai/v1")
 HF_TOKEN = os.getenv("HF_TOKEN") or os.getenv("API_KEY") or os.getenv("GROQ_API_KEY")
 # Model name for Groq (common models: llama-3.3-70b-versatile, mixtral-8x7b-32768)
-MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.1-8b-instant")
+MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
 BENCHMARK = "vsr_env"
 
 # Task configurations (Requirements: 12.2, 12.6)
-TASKS = ["iv_reading", "delta_hedging", "arb_capture"]
+TASKS = ["delta_hedging", "earnings_vol_crush", "gamma_scalping"]
 MAX_STEPS_PER_TASK = {
-    "iv_reading": 3,
     "delta_hedging": 5,
-    "arb_capture": 8,
+    "earnings_vol_crush": 8,
+    "gamma_scalping": 10,
 }
 TASK_SEEDS = {
-    "iv_reading": 42,
     "delta_hedging": 123,
-    "arb_capture": 456,
+    "earnings_vol_crush": 456,
+    "gamma_scalping": 789,
 }
 
 # LLM configuration
@@ -58,65 +58,66 @@ SUCCESS_SCORE_THRESHOLD = 0.1
 
 # System prompts for each task (Requirement: 12.1)
 SYSTEM_PROMPTS = {
-    "iv_reading": textwrap.dedent(
-        """
-        You are an options trader analyzing an implied volatility surface.
-        
-        Your task is to identify 2 deliberately mispriced options on the IV surface.
-        For each mispriced option, determine if it is overpriced or underpriced.
-        
-        The IV surface is an 8×3 matrix:
-        - 8 strikes: [85, 90, 95, 97.5, 100, 102.5, 105, 110]
-        - 3 maturities: [30, 90, 180] days
-        
-        If an option is OVERPRICED, respond with direction "sell" (you sell overpriced things).
-        If an option is UNDERPRICED, respond with direction "buy" (you buy underpriced things).
-        
-        Respond ONLY with a valid JSON object (no markdown, no extra text):
-        {"strike_idx": 0, "maturity_idx": 0, "direction": "sell", "quantity": 1.0, "reasoning": "your analysis citing specific IV values and spot price"}
-        
-        Focus on identifying IV values that deviate from the typical skew and term structure.
-        """
-    ).strip(),
-    
     "delta_hedging": textwrap.dedent(
         """
-        You are managing an options portfolio with non-zero delta exposure.
+        You are a portfolio risk manager at an options trading desk.
         
-        Your objective is to neutralize the portfolio delta to within ±0.05
-        while minimizing transaction costs.
+        Your portfolio has non-zero delta exposure. Your objective is to achieve
+        and maintain delta neutrality (|delta| < 0.05) by trading options. A market
+        shock event will occur at some point during the episode, disrupting your hedge.
         
-        If portfolio delta is POSITIVE, SELL calls to reduce it.
-        If portfolio delta is NEGATIVE, BUY calls to increase it.
-        Choose strikes near ATM (indices 3-5) for best hedging efficiency.
+        You must analyze the portfolio Greeks, the IV surface, and current market
+        conditions to decide what to trade. Consider the cost-efficiency of your
+        hedges — over-trading is penalized.
         
         The option chain has:
         - 8 strikes: [85, 90, 95, 97.5, 100, 102.5, 105, 110] (indices 0-7)
         - 3 maturities: [30, 90, 180] days (indices 0-2)
         
         Respond ONLY with a valid JSON object (no markdown, no extra text):
-        {"strike_idx": 4, "maturity_idx": 1, "direction": "sell", "quantity": 2.0, "reasoning": "Portfolio delta is 0.55, selling ATM call to reduce by ~0.5. Spot at 100."}
+        {"strike_idx": 4, "maturity_idx": 1, "direction": "sell", "quantity": 2.0, "reasoning": "Your detailed analysis here. Reference specific numbers from the observation."}
         """
     ).strip(),
     
-    "arb_capture": textwrap.dedent(
+    "earnings_vol_crush": textwrap.dedent(
         """
-        You are an options arbitrage trader.
+        You are a volatility trader managing a portfolio around an earnings event.
         
-        Identify and exploit mispricings on the implied volatility surface.
-        Execute trades to capture arbitrage profits while managing portfolio risk.
-        Be prepared for regime shifts that may occur mid-episode.
+        The implied volatility surface is currently elevated due to an upcoming
+        earnings announcement. At some point during this episode, earnings will
+        be released and IV will drop significantly (a "vol crush").
         
-        If you detect an OVERPRICED option (IV too high vs neighbors), SELL it.
-        If you detect an UNDERPRICED option (IV too low vs neighbors), BUY it.
-        Always hedge your delta exposure.
+        Your job is to position the portfolio optimally before the event and manage
+        risk after it. Analyze the IV surface levels, your Greek exposures, and
+        determine the best strategy. You must manage both vega and delta risk.
         
         The option chain has:
         - 8 strikes: [85, 90, 95, 97.5, 100, 102.5, 105, 110] (indices 0-7)
         - 3 maturities: [30, 90, 180] days (indices 0-2)
         
         Respond ONLY with a valid JSON object (no markdown, no extra text):
-        {"strike_idx": 2, "maturity_idx": 0, "direction": "sell", "quantity": 2.0, "reasoning": "IV at strike 95/1M is 0.27 vs neighbors 0.23 - overpriced by ~4 vol points. Selling. Spot at 98.75, delta is 0.12."}
+        {"strike_idx": 4, "maturity_idx": 1, "direction": "sell", "quantity": 2.0, "reasoning": "Your detailed analysis here. Reference specific numbers from the observation."}
+        """
+    ).strip(),
+    
+    "gamma_scalping": textwrap.dedent(
+        """
+        You are a derivatives trader managing a long ATM straddle position.
+        
+        Your position has significant gamma exposure. The spot price is oscillating
+        with large moves each step. Your goal is to maximize profit by dynamically
+        managing your delta through these oscillations while managing theta decay.
+        
+        Analyze the portfolio Greeks, spot price movement, and IV surface to decide
+        when to trade and when to hold. Not every step requires a trade — timing
+        and trade sizing matter.
+        
+        The option chain has:
+        - 8 strikes: [85, 90, 95, 97.5, 100, 102.5, 105, 110] (indices 0-7)
+        - 3 maturities: [30, 90, 180] days (indices 0-2)
+        
+        Respond ONLY with a valid JSON object (no markdown, no extra text):
+        {"strike_idx": 4, "maturity_idx": 0, "direction": "sell", "quantity": 1.5, "reasoning": "Your detailed analysis here. Reference specific numbers from the observation."}
         """
     ).strip(),
 }
@@ -369,7 +370,7 @@ def get_model_response(
     import time
     import sys
 
-    system_prompt = SYSTEM_PROMPTS.get(task_name, SYSTEM_PROMPTS["iv_reading"])
+    system_prompt = SYSTEM_PROMPTS.get(task_name, SYSTEM_PROMPTS["delta_hedging"])
     user_prompt = build_prompt(observation, step)
 
     max_retries = 3
@@ -432,15 +433,16 @@ def create_action(parsed: Dict[str, Any]) -> VSRAction:
     else:
         direction = TradeDirection.HOLD
     
-    # Fallback to 0 if the LLM output 'null' for strike or maturity
+    # Clamp strike/maturity indices to valid ranges (prevent Pydantic crash)
     strike_idx = parsed.get("strike_idx")
-    strike_idx = int(strike_idx) if strike_idx is not None else 0
+    strike_idx = max(0, min(7, int(strike_idx))) if strike_idx is not None else 0
     
     maturity_idx = parsed.get("maturity_idx")
-    maturity_idx = int(maturity_idx) if maturity_idx is not None else 0
+    maturity_idx = max(0, min(2, int(maturity_idx))) if maturity_idx is not None else 0
     
+    # Clamp quantity to [0, 10] — models sometimes output larger values
     quantity = parsed.get("quantity")
-    quantity = float(quantity) if quantity is not None else 0.0
+    quantity = max(0.0, min(10.0, float(quantity))) if quantity is not None else 0.0
 
     return VSRAction(
         selected_strike=strike_idx,

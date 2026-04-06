@@ -222,27 +222,32 @@ class RewardComputer:
         new_delta = abs(state.portfolio_delta)
         old_delta = abs(prev_delta)
         
-        # Delta improvement component (0.0 - 0.6)
+        # Delta improvement component (0.0 - 0.5)
         if old_delta > 1e-6:
             improvement = max(0.0, (old_delta - new_delta) / old_delta)
         else:
             # Already neutral
             improvement = 1.0 if new_delta < 0.05 else 0.0
-        delta_reward = improvement * 0.6
+        delta_reward = improvement * 0.5
         
-        # Cost efficiency component (0.0 - 0.4)
-        cost_reward = max(0.0, 0.4 - trade_cost * 0.1)
+        # Cost efficiency component (0.0 - 0.3)
+        cost_reward = max(0.0, 0.3 - trade_cost * 0.1)
         
         # Neutrality bonus (0.0 or 0.1)
         neutrality_bonus = 0.1 if new_delta < 0.05 else 0.0
         
+        # Reasoning coherence (0.0 - 0.2)
+        reasoning_score = score_reasoning_quality(action.reasoning, observation, state)
+        reasoning_reward = reasoning_score * 0.2
+        
         # Total is clamped to [0.0, 1.0]
-        total = min(delta_reward + cost_reward + neutrality_bonus, 1.0)
+        total = min(delta_reward + cost_reward + neutrality_bonus + reasoning_reward, 1.0)
         
         return VSRReward(
             total=total,
             greek_component=delta_reward + neutrality_bonus,
-            pnl_component=cost_reward
+            pnl_component=cost_reward,
+            reasoning_component=reasoning_reward
         )
     
     def compute_arb_capture_reward(
@@ -293,5 +298,100 @@ class RewardComputer:
             total=total,
             pnl_component=pnl_reward,
             greek_component=greek_reward,
+            reasoning_component=reasoning_reward
+        )
+    
+    def compute_earnings_crush_reward(
+        self,
+        action: "VSRAction",
+        state: "VSRState",
+        observation: "VSRObservation",
+        prev_pnl: float
+    ) -> "VSRReward":
+        """Compute reward for earnings vol crush task.
+        
+        Reward = pnl_component + greek_component + reasoning_component
+        
+        Args:
+            action: Agent's action
+            state: Current state with portfolio delta, vega, and P&L
+            observation: Current observation
+            prev_pnl: Portfolio P&L before the action
+        
+        Returns:
+            VSRReward with total and component breakdown
+        
+        Requirements: 5.4, 5.5, 5.6
+        """
+        from vsr_env.models import VSRReward
+        
+        # P&L improvement (0.0 - 0.4)
+        pnl_change = state.portfolio_pnl - prev_pnl
+        pnl_reward = sigmoid(pnl_change, scale=0.3) * 0.4
+        
+        # Greek neutrality (0.0 - 0.3)
+        delta_abs = abs(state.portfolio_delta)
+        delta_penalty = min(delta_abs / 0.5, 1.0)
+        greek_reward = (1.0 - delta_penalty) * 0.3
+        
+        # Reasoning coherence (0.0 - 0.3)
+        reasoning_score = score_reasoning_quality(action.reasoning, observation, state)
+        reasoning_reward = reasoning_score * 0.3
+        
+        # Total is clamped to [0.0, 1.0]
+        total = min(pnl_reward + greek_reward + reasoning_reward, 1.0)
+        
+        return VSRReward(
+            total=total,
+            pnl_component=pnl_reward,
+            greek_component=greek_reward,
+            reasoning_component=reasoning_reward
+        )
+    
+    def compute_gamma_scalping_reward(
+        self,
+        action: "VSRAction",
+        state: "VSRState",
+        observation: "VSRObservation",
+        prev_delta: float,
+        prev_pnl: float
+    ) -> "VSRReward":
+        """Compute reward for gamma scalping task.
+        
+        Reward = delta_neutrality + pnl_component + reasoning_component
+        
+        Args:
+            action: Agent's action
+            state: Current state with portfolio delta and P&L
+            observation: Current observation
+            prev_delta: Portfolio delta before the action
+            prev_pnl: Portfolio P&L before the action
+        
+        Returns:
+            VSRReward with total and component breakdown
+        
+        Requirements: 6.4, 6.5, 6.6
+        """
+        from vsr_env.models import VSRReward
+        
+        # Delta neutrality quality (0.0 - 0.5)
+        new_delta = abs(state.portfolio_delta)
+        delta_neutrality = max(0.0, 1.0 - new_delta / 0.5) * 0.5
+        
+        # P&L improvement (0.0 - 0.3)
+        pnl_change = state.portfolio_pnl - prev_pnl
+        pnl_reward = sigmoid(pnl_change, scale=0.3) * 0.3
+        
+        # Reasoning coherence (0.0 - 0.2)
+        reasoning_score = score_reasoning_quality(action.reasoning, observation, state)
+        reasoning_reward = reasoning_score * 0.2
+        
+        # Total is clamped to [0.0, 1.0]
+        total = min(delta_neutrality + pnl_reward + reasoning_reward, 1.0)
+        
+        return VSRReward(
+            total=total,
+            greek_component=delta_neutrality,
+            pnl_component=pnl_reward,
             reasoning_component=reasoning_reward
         )

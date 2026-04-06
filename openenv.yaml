@@ -7,18 +7,18 @@ description: Volatility Surface Reasoning Environment for options portfolio mana
 
 # Task definitions (Requirements: 2.1, 2.2, 2.3)
 tasks:
-  - name: iv_reading
-    description: Identify mispriced options on the implied volatility surface
-    max_steps: 3
-    difficulty: easy
   - name: delta_hedging
-    description: Neutralize portfolio delta cost-efficiently
+    description: Neutralize portfolio delta through a market shock event
     max_steps: 5
     difficulty: medium
-  - name: arb_capture
-    description: Execute full arbitrage workflow with regime shifts
+  - name: earnings_vol_crush
+    description: Position for and recover from an earnings volatility crush event
     max_steps: 8
     difficulty: hard
+  - name: gamma_scalping
+    description: Profit from gamma scalping through spot oscillations
+    max_steps: 10
+    difficulty: expert
 
 # Type definitions (Requirement 1.6)
 action_type: VSRAction

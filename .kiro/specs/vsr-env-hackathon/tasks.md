@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation plan breaks down the VSR-Env hackathon project into actionable tasks organized by the 3-day sprint timeline. The environment simulates options portfolio management with three graded tasks (IV Reading, Delta Hedging, Arbitrage Capture) and must pass `openenv validate`, deploy to HuggingFace Spaces, and complete in <20 min runtime.
+This implementation plan breaks down the VSR-Env hackathon project into actionable tasks organized by the 3-day sprint timeline. The environment simulates options portfolio management with five graded tasks (Vol Regime Detection, Delta Hedging, Earnings Vol Crush, Gamma Scalping, Vega-Gamma Stress) and must pass `openenv validate`, deploy to HuggingFace Spaces, and complete in <20 min runtime.
 
 **Critical Path:**
 - Day 1 (April 5): Skeleton that passes validation
@@ -133,20 +133,42 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
     - Risk-neutral drift μ = 0.0, dt = 1/252 (one trading day)
     - Use seeded RNG for dW = rng.normal(0, sqrt(dt))
     - Clamp spot_price to [50.0, 150.0]
-    - _Requirements: 21.1, 21.2, 21.6_
+    - _Requirements: 23.1, 23.2, 23.6_
   
   - [x] 6.2 Implement mean-reverting variance dynamics
     - Ornstein-Uhlenbeck: dV = θ*(var_mean - variance)*dt + var_vol*dW
     - Parameters: θ = 0.1, var_mean = 0.04, var_vol = 0.01
     - Clamp variance to [0.01, 0.16]
-    - _Requirements: 21.5, 21.7_
+    - _Requirements: 23.5, 23.7_
   
   - [x] 6.3 Implement trigger_regime_shift function
     - Randomly choose "vol_spike" or "vol_crash"
     - vol_spike: multiply variance by 1.2-1.4
     - vol_crash: multiply variance by 0.7-0.8
     - Update state.regime field
-    - _Requirements: 21.4_
+    - _Requirements: 23.4_
+  
+  - [ ] 6.4 Implement inject_regime function
+    - Force specific regime at initialization (low-vol-expanding, high-vol-compressing, stable)
+    - Set variance and drift parameters accordingly
+    - _Requirements: 3.1_
+  
+  - [ ] 6.5 Implement trigger_vol_crush function
+    - Specialized regime shift for earnings events
+    - Reduce variance by 30-50% (multiply by 0.5-0.7)
+    - Update state.regime to "post_earnings"
+    - _Requirements: 5.2_
+  
+  - [ ] 6.6 Implement inject_oscillation function
+    - Force larger spot price oscillations for gamma scalping
+    - Increase GBM volatility or inject deterministic oscillation pattern
+    - _Requirements: 6.2_
+  
+  - [ ] 6.7 Implement trigger_stress_event function
+    - Combined vol spike (40-60%) AND spot crash (5-8%)
+    - Apply both simultaneously
+    - Update state.regime to "crisis"
+    - _Requirements: 7.2_
 
 - [x] 7. Portfolio Manager (vsr_env/engine/portfolio.py)
   - [x] 7.1 Implement add_position function
@@ -224,61 +246,103 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
     - _Requirements: 20.1, 20.2, 20.3, 20.4, 20.5_
 
 - [x] 10. Task Implementations
-  - [x] 10.1 Create IVReadingTask class (vsr_env/tasks/iv_reading.py)
-    - Implement initialize method: generate surface with 2 mispricings
-    - Store mispriced_cells, true_mispriced_strikes, true_mispriced_directions in state
+  - [ ] 10.1 Create VolRegimeDetectionTask class (vsr_env/tasks/vol_regime_detection.py)
+    - Implement initialize method: inject specific regime (low-vol-expanding, high-vol-compressing, stable)
+    - Store regime type in state for grading
     - Implement get_description method: return task objective
     - _Requirements: 2.1, 3.1_
   
-  - [x] 10.2 Create DeltaHedgingTask class (vsr_env/tasks/delta_hedging.py)
-    - Implement initialize method: create initial position with delta 0.2-0.8
-    - Store initial_delta in state for grading
-    - Implement get_description method
-    - _Requirements: 2.2, 4.1_
+  - [x] 10.2 Create DeltaHedgingTask class (vsr_env/tasks/delta_hedging.py) - UPGRADE
+    - Add regime_shift_step randomization (step 2 or 3)
+    - Trigger market shock at regime_shift_step
+    - Track pre-shock and post-shock delta neutrality
+    - Update get_description method to mention event-driven risk management
+    - _Requirements: 2.2, 4.1, 4.2_
   
-  - [x] 10.3 Create ArbCaptureTask class (vsr_env/tasks/arb_capture.py)
-    - Implement initialize method: generate surface with 1 exploitable mispricing
-    - Set regime_shift_step to 4-5
+  - [ ] 10.3 Create EarningsVolCrushTask class (vsr_env/tasks/earnings_vol_crush.py)
+    - Implement initialize method: set elevated IV (base_vol × 1.3-1.5)
+    - Set vol_crush_step to random 3-6
     - Implement get_description method
     - _Requirements: 2.3, 5.1, 5.2_
+  
+  - [ ] 10.4 Create GammaScalpingTask class (vsr_env/tasks/gamma_scalping.py)
+    - Implement initialize method: create long ATM straddle position
+    - Configure market for spot oscillations ±2-3%
+    - Implement get_description method
+    - _Requirements: 2.4, 6.1_
+  
+  - [ ] 10.5 Create VegaGammaStressTask class (vsr_env/tasks/vega_gamma_stress.py)
+    - Implement initialize method: create multi-leg portfolio (long 90-day + short 30-day straddles)
+    - Set stress_event_step to random 4-7
+    - Implement get_description method
+    - _Requirements: 2.5, 7.1, 7.2_
 
 
 - [x] 11. Grader Implementations
-  - [x] 11.1 Create IVReadingGrader class (vsr_env/tasks/iv_reading.py)
+  - [ ] 11.1 Create VolRegimeDetectionGrader class (vsr_env/tasks/vol_regime_detection.py)
     - Implement score method
-    - Count correct identifications (correct strike + correct direction)
-    - Return correct_identifications / 2.0, clamped to [0.0, 1.0]
-    - _Requirements: 3.5, 3.6, 6.4_
+    - Check regime classification correctness (0.6 weight)
+    - Check trade consistency with regime (0.25 weight)
+    - Check reasoning quality (0.15 weight)
+    - Return regime_correct × 0.6 + trade_consistency × 0.25 + reasoning × 0.15
+    - _Requirements: 3.5, 3.6, 8.4_
   
-  - [ ]*11.2 Write unit tests for IVReadingGrader
+  - [ ]*11.2 Write unit tests for VolRegimeDetectionGrader
     - Test score returns values in [0.0, 1.0]
-    - Test partial credit for 1 of 2 correct
-    - _Requirements: 24.2_
+    - Test correct regime classification
+    - _Requirements: 26.2_
   
-  - [x] 11.3 Create DeltaHedgingGrader class (vsr_env/tasks/delta_hedging.py)
-    - Implement score method
-    - neutralization_quality = max(0, 1.0 - |final_delta| / |initial_delta|)
-    - cost_efficiency = max(0, 1.0 - total_cost / max_cost)
-    - Return neutralization * 0.7 + cost_efficiency * 0.3
+  - [x] 11.3 Create DeltaHedgingGrader class (vsr_env/tasks/delta_hedging.py) - UPGRADE
+    - Update score method for pre/post shock scoring
+    - pre_shock_neutrality: was delta neutral before shock?
+    - post_shock_neutrality: was delta neutral after shock?
+    - Return pre_shock × 0.30 + post_shock × 0.40 + cost_efficiency × 0.30
     - _Requirements: 4.5, 4.6_
   
   - [ ]*11.4 Write unit tests for DeltaHedgingGrader
-    - Test perfect neutralization gives high score (>0.8)
+    - Test pre/post shock neutralization scoring
     - Test score in [0.0, 1.0]
-    - _Requirements: 24.2_
+    - _Requirements: 26.2_
   
-  - [x] 11.5 Create ArbCaptureGrader class (vsr_env/tasks/arb_capture.py)
+  - [ ] 11.5 Create EarningsVolCrushGrader class (vsr_env/tasks/earnings_vol_crush.py)
     - Implement score method
-    - pnl_score = sigmoid(final_pnl, scale=0.3)
-    - neutrality_score = max(0, 1.0 - avg_delta / 0.5)
-    - reasoning_score = average reasoning quality across steps
-    - Return pnl_score * 0.4 + neutrality_score * 0.3 + reasoning_score * 0.3
-    - _Requirements: 5.4, 5.5, 5.6, 5.7_
+    - pre_crush_positioning: was vega negative before crush?
+    - post_crush_rehedge: did agent re-hedge within 2 steps?
+    - pnl_outcome: sigmoid-normalized final P&L
+    - Return pre_crush × 0.40 + post_crush × 0.35 + pnl × 0.25
+    - _Requirements: 5.4, 5.5, 5.6_
   
-  - [ ]*11.6 Write unit tests for ArbCaptureGrader
-    - Test component weighting is correct
+  - [ ]*11.6 Write unit tests for EarningsVolCrushGrader
+    - Test pre-crush vega positioning
     - Test score in [0.0, 1.0]
-    - _Requirements: 24.2_
+    - _Requirements: 26.2_
+  
+  - [ ] 11.7 Create GammaScalpingGrader class (vsr_env/tasks/gamma_scalping.py)
+    - Implement score method
+    - rehedge_quality: delta neutrality at each step
+    - pnl_above_theta: was P&L positive after theta decay?
+    - timing_score: correlation between spot moves and hedge quantities
+    - Return rehedge × 0.40 + pnl_above_theta × 0.35 + timing × 0.25
+    - _Requirements: 6.4, 6.5, 6.6_
+  
+  - [ ]*11.8 Write unit tests for GammaScalpingGrader
+    - Test timing correlation scoring
+    - Test score in [0.0, 1.0]
+    - _Requirements: 26.2_
+  
+  - [ ] 11.9 Create VegaGammaStressGrader class (vsr_env/tasks/vega_gamma_stress.py)
+    - Implement score method
+    - survival: is final P&L > -2.0?
+    - greek_management: delta + vega neutrality weighted post-stress
+    - reasoning: enhanced scoring requiring vega, gamma, stress keywords
+    - Return survival × 0.35 + greek_management × 0.35 + reasoning × 0.30
+    - _Requirements: 7.4, 7.5, 7.6_
+  
+  - [ ]*11.10 Write unit tests for VegaGammaStressGrader
+    - Test survival threshold
+    - Test enhanced reasoning scoring
+    - Test score in [0.0, 1.0]
+    - _Requirements: 26.2_
 
 - [x] 12. Core Environment Implementation (vsr_env/server/vsr_environment.py)
   - [x] 12.1 Create VSREnvironment class inheriting from Environment
@@ -377,43 +441,45 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
   - [x] 15.1 Set up OpenAI client configuration
     - Read API_BASE_URL, HF_TOKEN, MODEL_NAME from environment
     - Initialize OpenAI client with base_url and api_key
-    - _Requirements: 12.1_
+    - _Requirements: 14.1_
   
-  - [x] 15.2 Define task configurations
-    - TASKS = ["iv_reading", "delta_hedging", "arb_capture"]
-    - MAX_STEPS_PER_TASK = {"iv_reading": 3, "delta_hedging": 5, "arb_capture": 8}
-    - TASK_SEEDS = {"iv_reading": 42, "delta_hedging": 123, "arb_capture": 456}
-    - _Requirements: 12.2, 12.6_
+  - [ ] 15.2 Define task configurations - UPDATE
+    - TASKS = ["vol_regime_detection", "delta_hedging", "earnings_vol_crush", "gamma_scalping", "vega_gamma_stress"]
+    - MAX_STEPS_PER_TASK = {"vol_regime_detection": 3, "delta_hedging": 5, "earnings_vol_crush": 8, "gamma_scalping": 10, "vega_gamma_stress": 12}
+    - TASK_SEEDS = {"vol_regime_detection": 42, "delta_hedging": 123, "earnings_vol_crush": 456, "gamma_scalping": 789, "vega_gamma_stress": 101}
+    - _Requirements: 14.2, 14.6_
   
-  - [x] 15.3 Define system prompts for each task
-    - iv_reading: "You are an options trader analyzing an implied volatility surface..."
-    - delta_hedging: "You are managing an options portfolio..."
-    - arb_capture: "You are an options arbitrage trader..."
-    - _Requirements: 12.1_
+  - [ ] 15.3 Define system prompts for each task - UPDATE
+    - vol_regime_detection: "You are an options trader analyzing volatility regime changes..."
+    - delta_hedging: "You are managing an options portfolio through market disruption..."
+    - earnings_vol_crush: "You are positioning for an earnings volatility event..."
+    - gamma_scalping: "You are exploiting gamma convexity through spot oscillations..."
+    - vega_gamma_stress: "You are managing a multi-Greek portfolio through extreme stress..."
+    - _Requirements: 14.1_
   
   - [x] 15.4 Implement log_start function
     - Print "[START] task={task} env={env} model={model}" to stdout with flush=True
-    - _Requirements: 12.3_
+    - _Requirements: 14.3_
   
   - [x] 15.5 Implement log_step function
     - Print "[STEP] step={N} action={action} reward={reward:.2f} done={bool} error={error}" to stdout
-    - _Requirements: 12.4_
+    - _Requirements: 14.4_
   
   - [x] 15.6 Implement log_end function
     - Print "[END] success={bool} steps={N} score={score:.2f} rewards={comma_separated}" to stdout
-    - _Requirements: 12.5_
+    - _Requirements: 14.5_
   
   - [x] 15.7 Implement parse_llm_response function
     - Try direct JSON parse
     - Try extracting JSON from markdown code blocks
     - Return safe default (hold action) on parse failure
-    - _Requirements: 12.7, 12.8_
+    - _Requirements: 14.7, 14.8_
   
   - [x] 15.8 Implement build_prompt function
     - Format IV surface as table
     - Include spot price, portfolio Greeks, P&L, positions
     - Include market sentiment and last error if present
-    - _Requirements: 12.7_
+    - _Requirements: 14.7_
   
   - [x] 15.9 Implement run_task async function
     - Reset environment with fixed seed
@@ -423,13 +489,13 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
     - Log each step
     - Extract grader score from info on completion
     - Handle errors gracefully
-    - _Requirements: 12.2, 12.3, 12.4, 12.5_
+    - _Requirements: 14.2, 14.3, 14.4, 14.5_
   
   - [x] 15.10 Implement main async function
     - Initialize EnvClient
-    - Run all three tasks sequentially
+    - Run all five tasks sequentially
     - Print final summary
-    - _Requirements: 12.2_
+    - _Requirements: 14.2_
 
 
 - [ ]*16. Integration Tests (tests/test_environment.py)
@@ -499,11 +565,11 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
     - _Requirements: 14.6, 14.7_
 
 - [x] 20. OpenEnv Manifest (openenv.yaml)
-  - [x] 20.1 Create openenv.yaml
+  - [ ] 20.1 Create openenv.yaml - UPDATE
     - name: vsr-env
     - version: 1.0.0
     - description: Volatility Surface Reasoning Environment for options portfolio management
-    - tasks: [iv_reading, delta_hedging, arb_capture]
+    - tasks: [vol_regime_detection, delta_hedging, earnings_vol_crush, gamma_scalping, vega_gamma_stress]
     - action_type: VSRAction
     - observation_type: VSRObservation
     - reward_type: float
@@ -515,34 +581,34 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
   - [x] 21.1 Write project overview section
     - Describe VSR-Env purpose and real-world utility
     - Explain options portfolio management simulation
-    - _Requirements: 23.1_
+    - _Requirements: 25.1_
   
   - [x] 21.2 Document action space
     - List all VSRAction fields with descriptions and valid ranges
-    - _Requirements: 23.2_
+    - _Requirements: 25.2_
   
   - [x] 21.3 Document observation space
     - List all VSRObservation fields with descriptions
-    - _Requirements: 23.3_
+    - _Requirements: 25.3_
   
-  - [x] 21.4 Document tasks
-    - Describe each task: objective, max steps, grading criteria
+  - [ ] 21.4 Document tasks - UPDATE
+    - Describe each of 5 tasks: objective, max steps, grading criteria
     - Include expected baseline and frontier scores
-    - _Requirements: 23.4, 23.5_
+    - _Requirements: 25.4, 25.5_
   
   - [x] 21.5 Write installation instructions
     - pip install requirements
     - docker build command
-    - _Requirements: 23.6_
+    - _Requirements: 25.6_
   
   - [x] 21.6 Write usage examples
     - Show reset and step API calls
     - Show inference.py usage
-    - _Requirements: 23.7_
+    - _Requirements: 25.7_
   
   - [x] 21.7 Document environment variables
     - API_BASE_URL, MODEL_NAME, HF_TOKEN, IMAGE_NAME, LOG_LEVEL
-    - _Requirements: 23.8_
+    - _Requirements: 25.8_
 
 - [ ] 22. HuggingFace Spaces Deployment
   - [ ] 22.1 Create HuggingFace Space
@@ -573,7 +639,7 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
   - [ ] 23.1 Run full test suite
     - Execute pytest on all tests
     - Verify all tests pass
-    - _Requirements: 24.7_
+    - _Requirements: 26.7_
   
   - [ ] 23.2 Run openenv validate locally
     - Verify environment passes all validation checks
@@ -583,18 +649,18 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
     - Run inference.py against local environment
     - Verify stdout format is correct
     - Verify completion time < 20 minutes
-    - _Requirements: 12.3, 12.4, 12.5, 25.2_
+    - _Requirements: 14.3, 14.4, 14.5, 27.2_
   
   - [ ] 23.4 Verify deterministic reproducibility
     - Run same task with same seed multiple times
     - Verify identical grader scores
-    - _Requirements: 6.3, 6.6_
+    - _Requirements: 8.3, 8.6_
   
   - [ ] 23.5 Performance benchmarking
     - Measure single step time (target < 2 seconds)
     - Measure full episode time (target < 16 seconds)
-    - Measure all 3 tasks time (target < 5 minutes)
-    - _Requirements: 25.1, 25.2, 25.3_
+    - Measure all 5 tasks time (target < 10 minutes)
+    - _Requirements: 27.1, 27.2, 27.3_
 
 - [x] 24. Checkpoint - Final pre-submission validation
   - Verify Docker image builds successfully
@@ -608,6 +674,7 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
 ## Notes
 
 - Tasks marked with `*` are optional testing tasks and can be skipped for faster MVP delivery
+- Tasks marked with `UPDATE` require modifications to existing code
 - Each task references specific requirements for traceability
 - Checkpoints (14, 24) ensure incremental validation at critical milestones
 - The 3-day sprint structure prioritizes:
@@ -619,6 +686,30 @@ This implementation plan breaks down the VSR-Env hackathon project into actionab
 - All code should use Python 3.11+ with type hints
 - All mathematical operations should use NumPy/SciPy for CPU efficiency
 - No GPU dependencies (torch, cuda) allowed per hackathon constraints
+
+## Task Restructure Summary
+
+The spec has been updated from 3 tasks to 5 tasks based on final_task_restructure.md:
+
+**Removed:**
+- ~~IV Reading (Easy)~~ → Replaced by Vol Regime Detection
+- ~~Arb Capture (Hard)~~ → Replaced by Earnings Vol Crush
+
+**Added:**
+- Vol Regime Detection (Easy, 3 steps) - Agent observes surface changes and classifies regime
+- Earnings Vol Crush (Hard, 8 steps) - Agent positions for earnings vol crush event
+- Gamma Scalping (Expert, 10 steps) - Agent exploits gamma through spot oscillations
+- Vega-Gamma Stress (Super-Boss, 12 steps) - Agent manages multi-Greek crisis
+
+**Upgraded:**
+- Delta Hedging (Medium, 5 steps) - Now includes random market shock at step 2-3
+
+**Key Implementation Changes:**
+1. Market simulator needs 4 new functions: inject_regime, trigger_vol_crush, inject_oscillation, trigger_stress_event
+2. Five new task classes and graders need to be implemented
+3. Inference script needs updated task list and seeds
+4. openenv.yaml needs updated task list
+5. README needs updated task descriptions
 
 ## Implementation Order Rationale
 

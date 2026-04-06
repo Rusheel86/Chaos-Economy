@@ -4,14 +4,14 @@
 
 VSR-Env is an OpenEnv-compliant reinforcement learning environment simulating options portfolio management on implied volatility surfaces. The environment targets the Meta PyTorch OpenEnv Hackathon × SST ($30,000 prize pool) with a Round 1 deadline of April 8, 2026.
 
-The system simulates genuine quantitative trading workflows used at major options desks in the $600T+ notional derivatives market. An LLM agent acts as a junior options trader, analyzing volatility surfaces, identifying mispricings, constructing delta-neutral trades, and generating reasoning traces.
+The system simulates genuine quantitative trading workflows used at major options desks in the $600T+ notional derivatives market. An LLM agent acts as a junior options trader, progressing through five critical skills: reading volatility regimes, managing risk through disruption, surviving earnings events, exploiting convexity, and managing multi-Greek crisis scenarios.
 
 ## Glossary
 
 - **VSR_Environment**: The OpenEnv-compliant environment server implementing options portfolio management simulation
 - **Option_Chain_Engine**: The computational engine performing Black-Scholes pricing, Greeks calculation, and implied volatility solving using NumPy/SciPy
 - **Market_Simulator**: The component generating realistic price dynamics and regime shifts
-- **Task_Manager**: The component managing the three graded tasks (iv_reading, delta_hedging, arb_capture)
+- **Task_Manager**: The component managing the five graded tasks (vol_regime_detection, delta_hedging, earnings_vol_crush, gamma_scalping, vega_gamma_stress)
 - **Grader**: A deterministic scoring function returning values in [0.0, 1.0] for task performance evaluation
 - **Inference_Script**: The baseline inference.py script using OpenAI client to interact with the environment
 - **IV_Surface**: An 8×3 matrix of implied volatility values across strikes and maturities
@@ -36,59 +36,86 @@ The system simulates genuine quantitative trading workflows used at major option
 6. THE VSR_Environment SHALL include an openenv.yaml manifest with name, version, description, tasks, action_type, observation_type, reward_type, and state_type fields
 7. THE VSR_Environment SHALL serve via FastAPI on port 8000 with /reset and /step endpoints
 
-### Requirement 2: Three-Task Progression System
+### Requirement 2: Five-Task Progression System
 
-**User Story:** As a hackathon evaluator, I want three tasks with clear difficulty progression, so that I can assess agent capabilities across easy, medium, and hard challenges.
+**User Story:** As a hackathon evaluator, I want five tasks with clear difficulty progression from easy to super-boss, so that I can assess agent capabilities across a comprehensive skill spectrum.
 
 #### Acceptance Criteria
 
-1. THE Task_Manager SHALL implement an iv_reading task with maximum 3 steps and easy difficulty
+1. THE Task_Manager SHALL implement a vol_regime_detection task with maximum 3 steps and easy difficulty
 2. THE Task_Manager SHALL implement a delta_hedging task with maximum 5 steps and medium difficulty
-3. THE Task_Manager SHALL implement an arb_capture task with maximum 8 steps and hard difficulty
-4. WHEN a task is initialized, THE Task_Manager SHALL configure task-specific state including mispriced options, portfolio positions, or regime parameters
-5. FOR ALL tasks, THE Task_Manager SHALL provide a task_description field in observations explaining the objective
+3. THE Task_Manager SHALL implement an earnings_vol_crush task with maximum 8 steps and hard difficulty
+4. THE Task_Manager SHALL implement a gamma_scalping task with maximum 10 steps and expert difficulty
+5. THE Task_Manager SHALL implement a vega_gamma_stress task with maximum 12 steps and super-boss difficulty
+6. WHEN a task is initialized, THE Task_Manager SHALL configure task-specific state including regime parameters, portfolio positions, or stress event timing
+7. FOR ALL tasks, THE Task_Manager SHALL provide a task_description field in observations explaining the objective
 
-### Requirement 3: IV Reading Task (Easy)
+### Requirement 3: Vol Regime Detection Task (Easy)
 
-**User Story:** As an LLM agent, I want to identify mispriced options on a volatility surface, so that I can demonstrate basic options analysis capability.
+**User Story:** As an LLM agent, I want to classify volatility regimes by observing surface changes over time, so that I can demonstrate pattern recognition and regime-aware trading.
 
 #### Acceptance Criteria
 
-1. WHEN iv_reading task is reset, THE VSR_Environment SHALL generate an 8×3 IV surface with exactly 2 deliberately mispriced cells
-2. THE VSR_Environment SHALL mark mispriced cells as either overpriced or underpriced with magnitude between 0.03 and 0.08
-3. WHEN the agent selects a mispriced strike with correct direction, THE VSR_Environment SHALL award 0.5 identification reward
-4. WHEN the agent selects a mispriced strike with incorrect direction, THE VSR_Environment SHALL award 0.1 identification reward
-5. WHEN the episode completes, THE Grader SHALL return correct_identifications divided by 2.0 clamped to [0.0, 1.0]
-6. THE Grader SHALL provide partial credit for identifying 1 of 2 mispriced options
+1. WHEN vol_regime_detection task is reset, THE VSR_Environment SHALL inject a specific regime (low-vol-expanding, high-vol-compressing, or stable) into the market simulation
+2. THE VSR_Environment SHALL run for minimum 3 steps allowing the agent to observe surface evolution
+3. WHEN the agent classifies the regime correctly on step 3, THE VSR_Environment SHALL award 0.6 regime_correct score
+4. WHEN the agent's trade direction is consistent with the identified regime, THE VSR_Environment SHALL award 0.25 trade_consistency score
+5. WHEN the episode completes, THE Grader SHALL return regime_correct × 0.6 + trade_consistency × 0.25 + reasoning × 0.15 clamped to [0.0, 1.0]
+6. THE Grader SHALL verify expanding vol → buy vega, compressing vol → sell vega, stable → hold is acceptable
 
 ### Requirement 4: Delta Hedging Task (Medium)
 
-**User Story:** As an LLM agent, I want to neutralize portfolio delta cost-efficiently, so that I can demonstrate risk management capability.
+**User Story:** As an LLM agent, I want to neutralize portfolio delta through a market shock, so that I can demonstrate event-driven risk management capability.
 
 #### Acceptance Criteria
 
 1. WHEN delta_hedging task is reset, THE VSR_Environment SHALL initialize a portfolio with non-zero delta between 0.2 and 0.8
-2. WHEN the agent executes a trade, THE VSR_Environment SHALL update portfolio delta based on the trade's delta contribution
-3. WHEN the agent achieves portfolio delta within ±0.05, THE VSR_Environment SHALL award a neutrality bonus of 0.1
-4. THE VSR_Environment SHALL compute per-step reward as delta_improvement × 0.6 + cost_efficiency × 0.4 + neutrality_bonus
-5. WHEN the episode completes, THE Grader SHALL return neutralization_quality × 0.7 + cost_efficiency × 0.3 clamped to [0.0, 1.0]
-6. THE Grader SHALL compute neutralization_quality as max(0, 1.0 - final_delta_abs / initial_delta_abs)
+2. WHEN step count reaches 2 or 3, THE Market_Simulator SHALL trigger a random market shock changing spot price and volatility
+3. WHEN the agent executes a trade, THE VSR_Environment SHALL update portfolio delta based on the trade's delta contribution
+4. WHEN the agent achieves portfolio delta within ±0.05 before the shock, THE VSR_Environment SHALL award pre_shock_neutrality score
+5. WHEN the agent achieves portfolio delta within ±0.05 after the shock, THE VSR_Environment SHALL award post_shock_neutrality score
+6. WHEN the episode completes, THE Grader SHALL return pre_shock_neutrality × 0.30 + post_shock_neutrality × 0.40 + cost_efficiency × 0.30 clamped to [0.0, 1.0]
 
-### Requirement 5: Arbitrage Capture Task (Hard)
+### Requirement 5: Earnings Vol Crush Task (Hard)
 
-**User Story:** As an LLM agent, I want to execute a full arbitrage workflow with regime shifts, so that I can demonstrate advanced trading capability.
+**User Story:** As an LLM agent, I want to position for and recover from an earnings volatility crush event, so that I can demonstrate event-driven vega management capability.
 
 #### Acceptance Criteria
 
-1. WHEN arb_capture task is reset, THE VSR_Environment SHALL initialize a market with at least one exploitable mispricing
-2. WHEN step count reaches 4 or 5, THE Market_Simulator SHALL trigger a regime shift changing volatility parameters
-3. THE VSR_Environment SHALL compute per-step reward as pnl_component × 0.4 + greek_component × 0.3 + reasoning_component × 0.3
-4. WHEN the episode completes, THE Grader SHALL return pnl_score × 0.4 + neutrality_score × 0.3 + reasoning_score × 0.3 clamped to [0.0, 1.0]
-5. THE Grader SHALL compute pnl_score using sigmoid normalization centered at 0 with scale 0.3
-6. THE Grader SHALL compute neutrality_score as max(0, 1.0 - average_delta_abs / 0.5)
-7. THE Grader SHALL compute reasoning_score by evaluating numeric consistency and keyword presence
+1. WHEN earnings_vol_crush task is reset, THE VSR_Environment SHALL initialize the market with elevated IV (base_vol × 1.3-1.5)
+2. WHEN step count reaches 3-6, THE Market_Simulator SHALL trigger a vol crush event reducing IV by 30-50%
+3. WHEN the agent has negative portfolio_vega in the step immediately before the crush, THE VSR_Environment SHALL award pre_crush_positioning score of 1.0
+4. WHEN the agent trades within 2 steps after the crush to re-hedge delta, THE VSR_Environment SHALL award post_crush_rehedge score
+5. WHEN the episode completes, THE Grader SHALL return pre_crush_positioning × 0.40 + post_crush_rehedge × 0.35 + pnl_outcome × 0.25 clamped to [0.0, 1.0]
+6. THE Grader SHALL compute pnl_outcome using sigmoid normalization centered at 0 with scale 0.3
 
-### Requirement 6: Deterministic Grading with Reproducibility
+### Requirement 6: Gamma Scalping Task (Expert)
+
+**User Story:** As an LLM agent, I want to profit from gamma scalping by re-hedging a high-gamma position through spot oscillations, so that I can demonstrate convexity exploitation capability.
+
+#### Acceptance Criteria
+
+1. WHEN gamma_scalping task is reset, THE VSR_Environment SHALL initialize a portfolio with a long ATM straddle (high gamma position)
+2. THE Market_Simulator SHALL inject spot price oscillations of ±2-3% per step
+3. WHEN the agent re-hedges delta after large spot moves, THE VSR_Environment SHALL award rehedge_quality score
+4. WHEN final P&L exceeds theta decay costs, THE VSR_Environment SHALL award pnl_above_theta score
+5. WHEN the episode completes, THE Grader SHALL return rehedge_quality × 0.40 + pnl_above_theta × 0.35 + timing_score × 0.25 clamped to [0.0, 1.0]
+6. THE Grader SHALL compute timing_score based on correlation between abs(spot_move) and abs(hedge_quantity)
+
+### Requirement 7: Vega-Gamma Stress Task (Super-Boss)
+
+**User Story:** As an LLM agent, I want to manage a multi-Greek portfolio through an extreme stress event, so that I can demonstrate crisis management capability.
+
+#### Acceptance Criteria
+
+1. WHEN vega_gamma_stress task is reset, THE VSR_Environment SHALL initialize a multi-leg portfolio (long 90-day straddle + short 30-day straddle)
+2. WHEN step count reaches 4-7, THE Market_Simulator SHALL trigger a stress event with 40-60% vol spike AND 5-8% spot crash simultaneously
+3. WHEN final P&L is above -2.0 threshold, THE VSR_Environment SHALL award survival score of 1.0
+4. THE VSR_Environment SHALL compute greek_management score based on delta and vega neutrality across all steps, weighted higher post-stress
+5. WHEN the episode completes, THE Grader SHALL return survival × 0.35 + greek_management × 0.35 + reasoning × 0.30 clamped to [0.0, 1.0]
+6. THE Grader SHALL require reasoning to mention vega, gamma, AND regime/stress/shock terminology for full reasoning score
+
+### Requirement 8: Deterministic Grading with Reproducibility
 
 **User Story:** As a hackathon evaluator, I want grader scores to be deterministic and reproducible, so that I can fairly compare submissions.
 
@@ -101,7 +128,7 @@ The system simulates genuine quantitative trading workflows used at major option
 5. WHEN a grader computes a score, THE Grader SHALL clamp the result using min(max(score, 0.0), 1.0)
 6. THE Grader SHALL produce identical scores for identical episode histories
 
-### Requirement 7: Black-Scholes Pricing and Greeks
+### Requirement 9: Black-Scholes Pricing and Greeks
 
 **User Story:** As the environment, I want accurate option pricing and Greeks calculation, so that portfolio valuations are realistic.
 
@@ -114,7 +141,7 @@ The system simulates genuine quantitative trading workflows used at major option
 5. THE Option_Chain_Engine SHALL vectorize all calculations using NumPy arrays for 8 strikes and 3 maturities simultaneously
 6. THE Option_Chain_Engine SHALL use scipy.stats.norm for cumulative distribution and probability density functions
 
-### Requirement 8: Implied Volatility Solver
+### Requirement 10: Implied Volatility Solver
 
 **User Story:** As the environment, I want to solve for implied volatility from market prices, so that I can generate realistic IV surfaces.
 
@@ -127,7 +154,7 @@ The system simulates genuine quantitative trading workflows used at major option
 5. WHEN Brent's method fails, THE Option_Chain_Engine SHALL return intrinsic volatility computed as max(0.05, min(abs(log(S/K)) / sqrt(T) × 0.5, 3.0))
 6. THE Option_Chain_Engine SHALL accept market_price, spot, strike, maturity, rate, and option_type parameters
 
-### Requirement 9: IV Surface Generation
+### Requirement 11: IV Surface Generation
 
 **User Story:** As the environment, I want to generate realistic implied volatility surfaces, so that agents face authentic market conditions.
 
@@ -141,7 +168,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. WHEN mispriced_cells parameter is provided, THE Option_Chain_Engine SHALL adjust specified cells by the given magnitude and direction
 7. THE Option_Chain_Engine SHALL return the IV surface as an 8×3 list of lists
 
-### Requirement 10: Meaningful Per-Step Rewards
+### Requirement 12: Meaningful Per-Step Rewards
 
 **User Story:** As an RL researcher, I want per-step rewards that provide partial progress signals, so that agents can learn from trajectory feedback.
 
@@ -154,7 +181,7 @@ The system simulates genuine quantitative trading workflows used at major option
 5. THE VSR_Environment SHALL return VSRReward with total, pnl_component, greek_component, identification_component, and reasoning_component fields
 6. FOR ALL reward components, THE VSR_Environment SHALL normalize values to contribute to a total in approximate range [0.0, 1.0]
 
-### Requirement 11: Reasoning Quality Scoring
+### Requirement 13: Reasoning Quality Scoring
 
 **User Story:** As the environment, I want to score reasoning quality in a way that resists gaming, so that agents must genuinely analyze observations.
 
@@ -169,7 +196,7 @@ The system simulates genuine quantitative trading workflows used at major option
 7. WHEN reasoning length is 20 characters or less, THE VSR_Environment SHALL multiply the reasoning score by 0.3
 8. THE VSR_Environment SHALL clamp the final reasoning score to [0.0, 1.0]
 
-### Requirement 12: Baseline Inference Script
+### Requirement 14: Baseline Inference Script
 
 **User Story:** As a hackathon evaluator, I want a baseline inference script that demonstrates environment usage, so that I can verify the environment works and establish baseline scores.
 
@@ -184,7 +211,7 @@ The system simulates genuine quantitative trading workflows used at major option
 7. THE Inference_Script SHALL parse LLM responses as JSON with fields strike_idx, maturity_idx, direction, quantity, and reasoning
 8. WHEN JSON parsing fails, THE Inference_Script SHALL default to a hold action with zero quantity
 
-### Requirement 13: CPU-Only Computation
+### Requirement 15: CPU-Only Computation
 
 **User Story:** As a hackathon organizer, I want the environment to run on CPU-only infrastructure (vcpu=2, 8GB RAM), so that it fits within evaluation resource constraints.
 
@@ -197,7 +224,7 @@ The system simulates genuine quantitative trading workflows used at major option
 5. THE VSR_Environment SHALL use scipy.stats.norm.cdf and scipy.stats.norm.pdf for normal distribution functions
 6. THE VSR_Environment SHALL use scipy.optimize.brentq for Brent's method fallback in IV solving
 
-### Requirement 14: Docker Deployment
+### Requirement 16: Docker Deployment
 
 **User Story:** As a hackathon evaluator, I want the environment to deploy via Docker, so that I can run it in a standardized infrastructure.
 
@@ -211,7 +238,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. WHEN docker build is executed, THE Dockerfile SHALL complete successfully without errors
 7. WHEN docker run is executed, THE VSR_Environment SHALL start and respond to HTTP requests within 10 seconds
 
-### Requirement 15: HuggingFace Spaces Deployment
+### Requirement 17: HuggingFace Spaces Deployment
 
 **User Story:** As a hackathon participant, I want to deploy the environment to HuggingFace Spaces, so that evaluators can access it via URL.
 
@@ -224,7 +251,7 @@ The system simulates genuine quantitative trading workflows used at major option
 5. THE HuggingFace Space SHALL set environment variables API_BASE_URL, MODEL_NAME, and HF_TOKEN
 6. WHEN the pre_validation script is executed against the Space URL, THE VSR_Environment SHALL pass all three validation checks
 
-### Requirement 16: Action Space Definition
+### Requirement 18: Action Space Definition
 
 **User Story:** As an LLM agent, I want a clear action space definition, so that I know what actions I can take.
 
@@ -238,7 +265,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. THE VSRAction SHALL use Pydantic Field with description for each field
 7. THE VSRAction SHALL inherit from pydantic.BaseModel
 
-### Requirement 17: Observation Space Definition
+### Requirement 19: Observation Space Definition
 
 **User Story:** As an LLM agent, I want comprehensive observations of market state, so that I can make informed trading decisions.
 
@@ -256,7 +283,7 @@ The system simulates genuine quantitative trading workflows used at major option
 10. THE VSRObservation SHALL use Pydantic Field with description for each field
 11. THE VSRObservation SHALL inherit from pydantic.BaseModel
 
-### Requirement 18: State Space Definition
+### Requirement 20: State Space Definition
 
 **User Story:** As the environment, I want a complete internal state representation, so that I can track all information including hidden variables.
 
@@ -271,7 +298,7 @@ The system simulates genuine quantitative trading workflows used at major option
 7. THE VSRState SHALL use Pydantic Field with default_factory for list and dict fields
 8. THE VSRState SHALL inherit from pydantic.BaseModel
 
-### Requirement 19: Reward Structure Definition
+### Requirement 21: Reward Structure Definition
 
 **User Story:** As an RL researcher, I want structured reward breakdown, so that I can analyze which components drive agent behavior.
 
@@ -285,7 +312,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. THE VSRReward SHALL use Pydantic Field with description for each field
 7. THE VSRReward SHALL inherit from pydantic.BaseModel
 
-### Requirement 20: Action Validation
+### Requirement 22: Action Validation
 
 **User Story:** As the environment, I want to validate actions before execution, so that I can provide clear error messages for invalid actions.
 
@@ -299,7 +326,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. WHEN an action validation error occurs, THE VSR_Environment SHALL set last_action_error in the observation
 7. WHEN an action validation error occurs, THE VSR_Environment SHALL NOT modify portfolio state
 
-### Requirement 21: Market Simulation
+### Requirement 23: Market Simulation
 
 **User Story:** As the environment, I want realistic market dynamics, so that agents face authentic trading conditions.
 
@@ -313,7 +340,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. THE Market_Simulator SHALL clamp spot price to range [50.0, 150.0] to prevent unrealistic values
 7. THE Market_Simulator SHALL clamp variance to range [0.01, 0.16] to prevent unrealistic volatility
 
-### Requirement 22: Portfolio Management
+### Requirement 24: Portfolio Management
 
 **User Story:** As the environment, I want accurate portfolio tracking, so that Greeks and P&L reflect actual positions.
 
@@ -327,7 +354,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. THE VSR_Environment SHALL update position P&L based on current market prices minus entry prices
 7. THE VSR_Environment SHALL store each position with strike, maturity, direction, quantity, entry_price, and entry_iv fields
 
-### Requirement 23: Documentation and README
+### Requirement 25: Documentation and README
 
 **User Story:** As a hackathon evaluator, I want comprehensive documentation, so that I understand the environment design and usage.
 
@@ -342,7 +369,7 @@ The system simulates genuine quantitative trading workflows used at major option
 7. THE README SHALL include usage examples showing reset and step calls
 8. THE README SHALL include environment variable requirements (API_BASE_URL, MODEL_NAME, HF_TOKEN)
 
-### Requirement 24: Testing and Validation
+### Requirement 26: Testing and Validation
 
 **User Story:** As a developer, I want comprehensive tests, so that I can verify correctness before submission.
 
@@ -356,7 +383,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. THE VSR_Environment SHALL include tests for deterministic reproducibility with fixed seeds
 7. WHEN pytest is executed, THE VSR_Environment SHALL pass all tests without failures
 
-### Requirement 25: Performance Requirements
+### Requirement 27: Performance Requirements
 
 **User Story:** As a hackathon evaluator, I want the environment to meet performance constraints, so that it runs within evaluation time limits.
 
@@ -369,7 +396,7 @@ The system simulates genuine quantitative trading workflows used at major option
 5. THE VSR_Environment SHALL use vectorized NumPy operations for all array computations
 6. THE VSR_Environment SHALL avoid Python loops over strikes and maturities where vectorization is possible
 
-### Requirement 26: Error Handling and Robustness
+### Requirement 28: Error Handling and Robustness
 
 **User Story:** As the environment, I want robust error handling, so that invalid inputs don't crash the system.
 
@@ -383,7 +410,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. WHEN portfolio delta calculation encounters division by zero, THE VSR_Environment SHALL handle it gracefully
 7. THE VSR_Environment SHALL log errors to stderr without exposing them in observations
 
-### Requirement 27: Scoring Rubric Alignment
+### Requirement 29: Scoring Rubric Alignment
 
 **User Story:** As a hackathon participant, I want the implementation to align with scoring rubric criteria, so that I maximize my submission score.
 
@@ -397,7 +424,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. THE VSR_Environment SHALL include comprehensive README documentation
 7. THE VSR_Environment SHALL demonstrate creativity through novel domain (quantitative finance) and interesting mechanics (regime shifts, reasoning scoring)
 
-### Requirement 28: Configuration and Extensibility
+### Requirement 30: Configuration and Extensibility
 
 **User Story:** As a researcher, I want configurable environment parameters, so that I can adjust difficulty and market conditions.
 
@@ -411,7 +438,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. THE VSR_Environment SHALL accept regime_shift_magnitude parameter with default range [0.2, 0.4]
 7. THE VSR_Environment SHALL document all configurable parameters in the README
 
-### Requirement 29: Logging and Observability
+### Requirement 31: Logging and Observability
 
 **User Story:** As a developer, I want structured logging, so that I can debug issues and monitor environment behavior.
 
@@ -425,7 +452,7 @@ The system simulates genuine quantitative trading workflows used at major option
 6. THE VSR_Environment SHALL include timestamps in all log entries
 7. THE VSR_Environment SHALL support log level configuration via LOG_LEVEL environment variable
 
-### Requirement 30: Round-Trip Property for State Serialization
+### Requirement 32: Round-Trip Property for State Serialization
 
 **User Story:** As the environment, I want to serialize and deserialize state correctly, so that episodes can be saved and resumed.
 

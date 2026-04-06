@@ -77,3 +77,45 @@ def trigger_regime_shift(state: VSRState, rng: np.random.RandomState) -> None:
     
     # Ensure variance stays in valid range
     state.variance = np.clip(state.variance, 0.01, 0.16)
+
+
+def trigger_vol_crush(state: VSRState, rng: np.random.RandomState) -> None:
+    """Trigger a volatility crush event for earnings scenarios.
+    
+    Reduces variance by 30-50% (multiply by 0.5-0.7).
+    Used in the earnings_vol_crush task.
+    
+    Args:
+        state: Current VSRState (modified in place)
+        rng: Seeded numpy RandomState for reproducibility
+    
+    Requirements: 5.2
+    """
+    # Vol crush: reduce variance by 30-50%
+    multiplier = rng.uniform(0.5, 0.7)
+    state.variance *= multiplier
+    state.regime = "post_earnings"
+    
+    # Ensure variance stays in valid range
+    state.variance = np.clip(state.variance, 0.01, 0.16)
+
+
+def inject_oscillation(state: VSRState, rng: np.random.RandomState, magnitude: float = 0.025) -> None:
+    """Inject spot price oscillation for gamma scalping.
+    
+    Forces larger price swings by adding deterministic oscillation
+    on top of the GBM movement.
+    
+    Args:
+        state: Current VSRState (modified in place)
+        rng: Seeded numpy RandomState for reproducibility
+        magnitude: Oscillation magnitude as fraction (default 2.5%)
+    
+    Requirements: 6.2
+    """
+    # Add oscillation: ±2-3% spot move
+    oscillation = rng.choice([-1, 1]) * magnitude * state.spot_price
+    state.spot_price += oscillation
+    
+    # Clamp spot price to realistic range
+    state.spot_price = np.clip(state.spot_price, 50.0, 150.0)

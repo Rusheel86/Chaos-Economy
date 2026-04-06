@@ -131,6 +131,10 @@ class VSRObservation(BaseModel):
         None,
         description="Validation error from last action (if any)",
     )
+    expected_outcome: Optional[str] = Field(
+        None,
+        description="Ground-truth expected outcome for grader",
+    )
 
 
 class VSRState(BaseModel):
@@ -214,11 +218,27 @@ class VSRState(BaseModel):
     )
     regime_shift_step: int = Field(
         5,
-        description="Step at which regime shift occurs (for arb_capture task)",
+        description="Step at which regime shift occurs (for delta_hedging task)",
+    )
+    vol_crush_step: int = Field(
+        5,
+        description="Step at which vol crush occurs (for earnings_vol_crush task)",
+    )
+    pre_crush_vega: float = Field(
+        0.0,
+        description="Portfolio vega before the vol crush event (for grading)",
+    )
+    initial_theta: float = Field(
+        0.0,
+        description="Initial portfolio theta at episode start (for gamma_scalping grading)",
     )
     mispriced_cells: List = Field(
         default_factory=list,
         description="List of mispriced cell specs for grading",
+    )
+    expected_outcome: Optional[str] = Field(
+        None,
+        description="Ground-truth expected outcome for grader",
     )
 
 

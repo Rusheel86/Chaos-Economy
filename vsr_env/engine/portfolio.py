@@ -17,6 +17,7 @@ def add_position(
     direction: str,
     quantity: float,
     engine: OptionChainEngine,
+    option_type: str = "call",
 ) -> None:
     """Add a new position to the portfolio.
 
@@ -42,9 +43,9 @@ def add_position(
     sigma = np.sqrt(state.variance)
     r = engine.r
 
-    # Compute entry price and Greeks (using call options)
-    entry_price = engine.bs_price(S, np.array([K]), np.array([T]), np.array([sigma]), option_type="call")[0]
-    pos_delta = engine.delta(S, np.array([K]), np.array([T]), np.array([sigma]), option_type="call")[0]
+    # Compute entry price and Greeks using the specified option type
+    entry_price = engine.bs_price(S, np.array([K]), np.array([T]), np.array([sigma]), option_type=option_type)[0]
+    pos_delta = engine.delta(S, np.array([K]), np.array([T]), np.array([sigma]), option_type=option_type)[0]
     pos_gamma = engine.gamma(S, np.array([K]), np.array([T]), np.array([sigma]))[0]
     pos_vega = engine.vega(S, np.array([K]), np.array([T]), np.array([sigma]))[0]
 
@@ -56,6 +57,7 @@ def add_position(
         "strike_idx": strike_idx,
         "maturity_idx": maturity_idx,
         "direction": direction,
+        "option_type": option_type,
         "quantity": quantity,
         "entry_price": entry_price,
         "entry_iv": sigma,
@@ -101,12 +103,13 @@ def compute_portfolio_greeks(
     for pos in state.positions:
         K = engine.STRIKES[pos["strike_idx"]]
         T = engine.MATURITIES[pos["maturity_idx"]]
+        opt_type = pos.get("option_type", "call")
 
-        # Recompute Greeks at current market conditions
-        pos_delta = engine.delta(S, np.array([K]), np.array([T]), np.array([sigma]), option_type="call")[0]
+        # Recompute Greeks at current market conditions using stored option type
+        pos_delta = engine.delta(S, np.array([K]), np.array([T]), np.array([sigma]), option_type=opt_type)[0]
         pos_gamma = engine.gamma(S, np.array([K]), np.array([T]), np.array([sigma]))[0]
         pos_vega = engine.vega(S, np.array([K]), np.array([T]), np.array([sigma]))[0]
-        pos_theta = engine.theta(S, np.array([K]), np.array([T]), np.array([sigma]), option_type="call")[0]
+        pos_theta = engine.theta(S, np.array([K]), np.array([T]), np.array([sigma]), option_type=opt_type)[0]
 
         # Apply position quantity and direction
         quantity_signed = pos["quantity"] if pos["direction"] == "buy" else -pos["quantity"]
@@ -153,9 +156,10 @@ def compute_portfolio_pnl(
     for pos in state.positions:
         K = engine.STRIKES[pos["strike_idx"]]
         T = engine.MATURITIES[pos["maturity_idx"]]
+        opt_type = pos.get("option_type", "call")
 
-        # Recompute current market price
-        current_price = engine.bs_price(S, np.array([K]), np.array([T]), np.array([sigma]), option_type="call")[0]
+        # Recompute current market price using stored option type
+        current_price = engine.bs_price(S, np.array([K]), np.array([T]), np.array([sigma]), option_type=opt_type)[0]
 
         # P&L calculation based on direction
         if pos["direction"] == "buy":

@@ -2,23 +2,44 @@
 
 VSR-Env is an OpenEnv-compliant reinforcement learning environment that simulates options portfolio management on implied volatility surfaces. It targets the Meta PyTorch OpenEnv Hackathon and provides a realistic simulation of quantitative trading workflows used in the $600T+ notional derivatives market.
 
+## Technical Documentation
+
+For a deep dive into the environment's internals, please refer to the following documents:
+- [**Architecture Guide**](docs/ARCHITECTURE.md): Detailed explanation of the engine, reward systems, and server layers.
+- [**Walkthrough**](walkthrough.md): A technical summary covering simulation maths, reward logic, and Docker build.
+
+## The VSR-Env Advantage: Moving Beyond P&L
+
+VSR-Env bridges the gap between pure quantitative finance and high-level LLM reasoning. Unlike standard trading environments that focus solely on P&L, VSR-Env requires agents to **synthesize complex, high-dimensional volatility data into coherent trade theses**. 
+
+It challenges agents to move beyond simple "buy low, sell high" logic into the realm of multi-asset Greeks management, regime-shift adaptation, and qualitative reasoning—critical skills for next-generation AI financial assistants that are rarely captured in existing benchmarks.
+
+## Mathematical Foundations
+
+VSR-Env is built on robust quantitative finance principles:
+
+- **Spot Price (GBM)**: $dS_t = \mu S_t dt + \sigma_t S_t dW_t$
+- **Variance (OU)**: $dV_t = \theta (\bar{V} - V_t) dt + \xi dW_{V,t}$
+- **Option Pricing**: Black-Scholes-Merton model for call/put prices and Greeks.
+- **IV Surface**: Modeled with log-moneyness skew and term structure.
+
 ## Overview
 
 VSR-Env enables LLM agents to act as junior options traders, performing three core tasks with increasing difficulty:
 
-1. **IV Reading (Easy)**: Identify mispriced options by analyzing volatility surface anomalies
-2. **Delta Hedging (Medium)**: Neutralize portfolio risk by managing Greek exposures cost-efficiently
-3. **Arbitrage Capture (Hard)**: Execute full arbitrage workflows including detection, trading, hedging, and profit-taking through regime shifts
+1. **Delta Hedging (Medium)**: Neutralize portfolio risk by managing Greek exposures through market shocks.
+2. **Earnings Vol Crush (Hard)**: Position for and recover from massive volatility drops (30-50% IV crush).
+3. **Gamma Scalping (Expert)**: Profit from path-dependent spot oscillations by dynamically re-hedging a high-gamma position.
 
 ### Real-World Utility
 
 This environment simulates genuine quantitative trading workflows used at major options desks:
 
-- **Volatility Surface Analysis**: Traders analyze implied volatility surfaces to identify mispricings and construct delta-neutral trades
-- **Risk Management**: Portfolio managers hedge delta exposure to remain direction-neutral
-- **Arbitrage Detection**: Quantitative researchers identify and exploit pricing inefficiencies across strikes and maturities
+- **Volatility Surface Analysis**: Traders analyze implied volatility surfaces to identify mispricings and construct delta-neutral trades.
+- **Risk Management**: Portfolio managers hedge delta exposure to remain direction-neutral, especially through market events.
+- **Advanced Strategies**: Agents must manage complex exposures like **Vega** (volatility sensitivity) and **Gamma** (rate of change of delta), matching the requirements of professional trading systems.
 
-The environment uses Black-Scholes pricing, Greeks calculation, and realistic IV surface generation with skew and term structure - the same mathematical foundations used in professional trading systems.
+The environment uses Black-Scholes pricing, Greeks calculation, and realistic IV surface generation with skew and term structure.
 
 ## Action Space
 
@@ -63,24 +84,9 @@ The agent receives comprehensive market state through `VSRObservation`:
 
 ## Tasks
 
-### Task 1: IV Reading (Easy)
+### Task 1: Delta Hedging (Medium)
 
-**Objective**: Identify 2 deliberately mispriced options on the implied volatility surface.
-
-- **Max Steps**: 3
-- **Difficulty**: Easy
-- **Grading**: Score = correct_identifications / 2.0, clamped to [0.0, 1.0]
-  - 0.5 points per correct identification (correct strike + correct direction)
-  - 0.1 points for correct strike but wrong direction
-- **Per-Step Reward**: 0.5 for correct identification, 0.1 for partial identification
-
-**Expected Scores**:
-- Baseline (random): ~0.25
-- Frontier (optimal): 1.0
-
-### Task 2: Delta Hedging (Medium)
-
-**Objective**: Neutralize portfolio delta to within ±0.05 while minimizing transaction costs.
+**Objective**: Neutralize portfolio delta to within ±0.05 while minimizing transaction costs during automated market shocks.
 
 - **Max Steps**: 5
 - **Difficulty**: Medium
@@ -89,26 +95,27 @@ The agent receives comprehensive market state through `VSRObservation`:
   - cost_efficiency = max(0, 1.0 - total_cost / max_cost)
 - **Per-Step Reward**: delta_improvement × 0.6 + cost_efficiency × 0.4 + neutrality_bonus (0.1 if |delta| < 0.05)
 
-**Expected Scores**:
-- Baseline (random): ~0.30
-- Frontier (optimal): ~0.85
+### Task 2: Earnings Vol Crush (Hard)
 
-### Task 3: Arbitrage Capture (Hard)
-
-**Objective**: Execute a full arbitrage workflow including detection, trading, and hedging through potential regime shifts.
+**Objective**: Position the portfolio short vega before an earnings event (vol crush) and re-hedge delta after the event.
 
 - **Max Steps**: 8
 - **Difficulty**: Hard
-- **Grading**: Score = pnl_score × 0.4 + neutrality_score × 0.3 + reasoning_score × 0.3
-  - pnl_score: Sigmoid-normalized P&L centered at 0
-  - neutrality_score: max(0, 1.0 - average_delta / 0.5)
-  - reasoning_score: Keyword presence + numeric consistency
-- **Per-Step Reward**: pnl_change × 0.4 + greek_quality × 0.3 + reasoning_quality × 0.3
-- **Regime Shifts**: Occur at step 4 or 5, modifying volatility parameters by 20-40%
+- **Grading**: Score = pre_crush_positioning × 0.40 + post_crush_rehedge × 0.35 + pnl_outcome × 0.25
+  - pre_crush_positioning: Reward for being short vega before the IV drop.
+  - post_crush_rehedge: Average delta neutrality after the crush event.
+  - pnl_outcome: Sigmoid-normalized final P&L.
 
-**Expected Scores**:
-- Baseline (random): ~0.35
-- Frontier (optimal): ~0.80
+### Task 3: Gamma Scalping (Expert)
+
+**Objective**: Profit from spot price oscillations by dynamically re-hedging a long ATM straddle position (high gamma).
+
+- **Max Steps**: 10
+- **Difficulty**: Expert
+- **Grading**: Score = rehedge_quality × 0.40 + pnl_above_theta × 0.35 + timing_score × 0.25
+  - rehedge_quality: Average delta neutrality throughout the episode.
+  - pnl_above_theta: Profit after accounting for time decay (theta) costs.
+  - timing_score: Correlation between spot moves and hedge timing.
 
 ## Installation
 
@@ -152,7 +159,7 @@ The environment exposes a FastAPI server with the following endpoints:
 #### Reset
 
 ```bash
-curl -X POST http://localhost:8000/reset?task_name=iv_reading&seed=42
+curl -X POST http://localhost:8000/reset?task_name=delta_hedging&seed=42
 ```
 
 Response:
@@ -161,14 +168,14 @@ Response:
   "observation": {
     "iv_surface": [[0.18, 0.19, 0.20], ...],
     "spot_price": 100.0,
-    "portfolio_greeks": {"delta": 0.0, "gamma": 0.0, "vega": 0.0, "theta": 0.0},
+    "portfolio_greeks": {"delta": 0.5, "gamma": 0.01, "vega": 0.05, "theta": -0.02},
     "portfolio_pnl": 0.0,
     "portfolio_positions": [],
     "market_sentiment": 0.0,
     "step_number": 0,
-    "steps_remaining": 3,
-    "task_name": "iv_reading",
-    "task_description": "Identify 2 mispriced options on the IV surface",
+    "steps_remaining": 5,
+    "task_name": "delta_hedging",
+    "task_description": "Neutralize portfolio delta to within ±0.05",
     "last_action_error": null
   }
 }
@@ -180,11 +187,11 @@ Response:
 curl -X POST http://localhost:8000/step \
   -H "Content-Type: application/json" \
   -d '{
-    "selected_strike": 4,
-    "selected_maturity": 1,
-    "direction": "buy",
+    "selected_strike": 2,
+    "selected_maturity": 0,
+    "direction": "sell",
     "quantity": 1.0,
-    "reasoning": "IV appears low for ATM option"
+    "reasoning": "Reducing long delta exposure by selling calls"
   }'
 ```
 
@@ -192,7 +199,7 @@ Response:
 ```json
 {
   "observation": {...},
-  "reward": {"total": 0.5, "pnl_component": 0.0, "greek_component": 0.0, "identification_component": 0.5, "reasoning_component": 0.0},
+  "reward": {"total": 0.65, "pnl_component": 0.0, "greek_component": 0.65, "reasoning_component": 0.0},
   "done": false,
   "info": {}
 }
@@ -210,9 +217,9 @@ Response:
   "state": {
     "episode_id": "...",
     "step_count": 1,
-    "task_name": "iv_reading",
-    "true_mispriced_strikes": [2, 5],
-    "true_mispriced_directions": {"2": "over", "5": "under"},
+    "task_name": "delta_hedging",
+    "regime": "normal",
+    "spot_price": 100.5,
     ...
   }
 }
@@ -224,9 +231,9 @@ The `inference.py` script demonstrates environment usage with an LLM agent:
 
 ```bash
 # Set environment variables
-export API_BASE_URL="https://router.huggingface.co/v1"
-export HF_TOKEN="your-huggingface-token"
-export MODEL_NAME="Qwen/Qwen2.5-72B-Instruct"
+export API_BASE_URL="https://api.groq.com/openai/v1"
+export GROQ_API_KEY="your-groq-api-key"
+export MODEL_NAME="llama-3.3-70b-versatile"
 
 # Run inference
 python inference.py
@@ -235,21 +242,21 @@ python inference.py
 The script runs all three tasks sequentially and outputs progress in the required format:
 
 ```
-[START] task=iv_reading env=vsr_env model=Qwen/Qwen2.5-72B-Instruct
-[STEP] step=1 action=buy(4,1,1.0) reward=0.50 done=false error=null
-[STEP] step=2 action=sell(2,0,0.5) reward=0.10 done=false error=null
-[STEP] step=3 action=hold(0,0,0.0) reward=0.00 done=true error=null
-[END] success=true steps=3 score=0.50 rewards=0.50,0.10,0.00
+[START] task=delta_hedging env=vsr_env model=llama-3.3-70b-versatile
+[STEP] step=1 action=sell(2,0,1.0) reward=0.65 done=false error=null
+[STEP] step=2 action=sell(3,0,0.5) reward=0.20 done=false error=null
+[STEP] step=3 action=hold(0,0,0.0) reward=0.10 done=true error=null
+[END] success=true steps=3 score=0.85 rewards=0.65,0.20,0.10
 ```
 
 ## Environment Variables
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `API_BASE_URL` | No | `https://router.huggingface.co/v1` | API endpoint for the LLM |
-| `MODEL_NAME` | No | `Qwen/Qwen2.5-72B-Instruct` | Model identifier for inference |
-| `HF_TOKEN` | Yes | - | Hugging Face API key (also accepts `API_KEY`) |
-| `IMAGE_NAME` | No | `vsr-env:latest` | Docker image name for deployment |
+| `API_BASE_URL` | No | `https://api.groq.com/openai/v1` | API endpoint for the LLM |
+| `MODEL_NAME` | No | `llama-3.3-70b-versatile` | Model identifier for inference |
+| `GROQ_API_KEY` | Yes | - | Groq API key |
+| `HF_TOKEN` | Yes | - | Hugging Face API key (alternative) |
 | `LOG_LEVEL` | No | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
 
 ## Architecture
@@ -264,18 +271,19 @@ vsr-env/
 │   │   ├── market_sim.py   # GBM simulation, regime shifts
 │   │   └── portfolio.py    # Position tracking, P&L computation
 │   ├── tasks/
-│   │   ├── iv_reading.py   # IV Reading task and grader
 │   │   ├── delta_hedging.py # Delta Hedging task and grader
-│   │   └── arb_capture.py  # Arbitrage Capture task and grader
+│   │   ├── earnings_vol_crush.py # Vol Crush task and grader
+│   │   └── gamma_scalping.py # Gamma Scalping task and grader
 │   ├── reward/
 │   │   └── reward_computer.py # Per-step reward computation
 │   └── server/
 │       ├── app.py          # FastAPI application
 │       └── vsr_environment.py # Core environment implementation
+├── docs/
+│   └── ARCHITECTURE.md     # System architecture deep-dive
 ├── inference.py            # Baseline inference script
 ├── openenv.yaml            # OpenEnv manifest
-├── requirements.txt        # Python dependencies
-├── Dockerfile              # Docker configuration
+├── walkthrough.md          # Technical walkthrough
 └── README.md               # This file
 ```
 

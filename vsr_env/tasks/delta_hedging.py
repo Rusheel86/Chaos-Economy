@@ -1,9 +1,9 @@
 """Delta Hedging Task implementation for VSR-Env.
 
 This module implements the medium task where agents neutralize portfolio delta
-cost-efficiently.
+through a market shock, demonstrating event-driven risk management.
 
-Requirements: 2.2, 4.1
+Requirements: 2.2, 4.1, 4.2
 """
 
 from typing import Any, List, Tuple
@@ -15,11 +15,11 @@ from vsr_env.models import VSRState
 
 
 class DeltaHedgingTask:
-    """Medium task: Neutralize portfolio delta within ±0.05 cost-efficiently.
+    """Medium task: Neutralize portfolio delta through a market shock.
 
-    The agent starts with a portfolio that has non-zero delta (0.2-0.8)
-    and must execute trades to bring delta close to zero while minimizing
-    transaction costs.
+    The agent starts with a portfolio that has non-zero delta (0.2-0.8).
+    At a random step (2 or 3), a market shock occurs changing spot price
+    and volatility. The agent must maintain neutrality through the disruption.
 
     Attributes:
         max_steps: Maximum steps per episode (5)
@@ -35,6 +35,7 @@ class DeltaHedgingTask:
         """Initialize the delta hedging task with a non-zero delta portfolio.
 
         Creates an initial position with delta between 0.2 and 0.8.
+        Sets a random regime shift step (2 or 3) for the market shock.
         Stores the initial delta in state for grading.
 
         Args:
@@ -44,7 +45,7 @@ class DeltaHedgingTask:
         Returns:
             Empty list (no mispricings for this task)
 
-        Requirements: 2.2, 4.1
+        Requirements: 2.2, 4.1, 4.2
         """
         # Create engine for pricing and Greeks
         engine = OptionChainEngine()
@@ -76,9 +77,6 @@ class DeltaHedgingTask:
         target_delta = rng.uniform(0.2, 0.8)
 
         # Calculate quantity needed to achieve target delta
-        # portfolio_delta = pos_delta * quantity_signed
-        # For buy: quantity = target_delta / pos_delta
-        # For sell: quantity = target_delta / pos_delta (portfolio_delta will be negative)
         quantity = target_delta / abs(pos_delta)
 
         # Compute entry price
@@ -113,8 +111,11 @@ class DeltaHedgingTask:
         state.portfolio_vega = float(pos_vega * quantity_signed)
 
         # Store initial delta for grading (absolute value)
-        # Using a private attribute that will be accessed by the grader
         state.initial_delta = abs(portfolio_delta)
+
+        # Set regime shift step (2 or 3) for market shock
+        # Requirements: 4.2
+        state.regime_shift_step = int(rng.randint(2, 4))
 
         # No mispricings for delta hedging task
         return []
@@ -128,16 +129,19 @@ class DeltaHedgingTask:
         Requirements: 2.5
         """
         return (
-            "You are managing an options portfolio with non-zero delta exposure. "
-            "Your objective is to neutralize the portfolio delta to within ±0.05 "
-            "while minimizing transaction costs. Execute trades (buy/sell options) "
-            "to offset the existing delta. Consider the cost-efficiency of your hedging "
-            "strategy. You have 5 steps to achieve delta neutrality."
+            "You are managing an options portfolio through market disruption. "
+            "Your objective is to maintain delta neutrality (within ±0.05) through "
+            "a market shock event. A random shock will occur during the episode, "
+            "changing spot price and volatility. You must hedge before and after "
+            "the shock while minimizing transaction costs. You have 5 steps total."
         )
+
+
 class DeltaHedgingGrader:
     """Grader for Delta Hedging task.
     
-    Scores based on delta neutralization quality and cost efficiency.
+    Scores based on pre-shock and post-shock delta neutralization quality
+    and cost efficiency.
     
     Requirements: 4.5, 4.6
     """
@@ -145,14 +149,11 @@ class DeltaHedgingGrader:
     def score(self, episode_history: List[Any], state: VSRState) -> float:
         """Compute final score for Delta Hedging task.
         
-        Score = neutralization_quality × 0.7 + cost_efficiency × 0.3
-        
-        neutralization_quality = max(0, 1.0 - |final_delta| / |initial_delta|)
-        cost_efficiency = max(0, 1.0 - total_cost / max_cost)
+        Score = pre_shock_neutrality × 0.30 + post_shock_neutrality × 0.40 + cost_efficiency × 0.30
         
         Args:
             episode_history: List of step records with 'action'
-            state: Final VSRState with portfolio_delta and initial_delta
+            state: Final VSRState with portfolio_delta, initial_delta, and regime_shift_step
         
         Returns:
             Score in [0.0, 1.0]
@@ -160,20 +161,38 @@ class DeltaHedgingGrader:
         Requirements: 4.5, 4.6
         """
         # Get initial delta (stored during task initialization)
-        initial_delta = state.initial_delta if state.initial_delta > 1e-6 else 0.5
+        initial_delta = getattr(state, 'initial_delta', 0.5)
+        if initial_delta < 1e-6:
+            initial_delta = 0.5
         
+        # Get regime shift step
+        regime_shift_step = getattr(state, 'regime_shift_step', 3)
+        
+        # Compute pre-shock neutrality (delta before the shock)
+        pre_shock_delta = initial_delta  # Default to initial if no steps before shock
+        for i, step in enumerate(episode_history):
+            if i + 1 < regime_shift_step:  # Steps are 1-indexed
+                obs = step.get("observation")
+                if obs is not None:
+                    greeks = obs.portfolio_greeks if hasattr(obs, 'portfolio_greeks') else {}
+                    pre_shock_delta = abs(greeks.get("delta", pre_shock_delta))
+        
+        # Compute post-shock neutrality (final delta)
         final_delta = abs(state.portfolio_delta)
         
-        # Neutralization quality (0.0 - 1.0)
-        # Requirements: 4.6
+        # Pre-shock neutrality score (0.0 - 1.0)
         if initial_delta < 1e-6:
-            # Already neutral from start
-            neutralization_quality = 1.0 if final_delta < 0.05 else 0.0
+            pre_shock_neutrality = 1.0 if pre_shock_delta < 0.05 else 0.0
         else:
-            neutralization_quality = max(0.0, 1.0 - final_delta / initial_delta)
+            pre_shock_neutrality = max(0.0, 1.0 - pre_shock_delta / initial_delta)
+        
+        # Post-shock neutrality score (0.0 - 1.0)
+        if initial_delta < 1e-6:
+            post_shock_neutrality = 1.0 if final_delta < 0.05 else 0.0
+        else:
+            post_shock_neutrality = max(0.0, 1.0 - final_delta / initial_delta)
         
         # Cost efficiency (0.0 - 1.0)
-        # Compute total cost from trades executed
         total_cost = 0.0
         for step in episode_history:
             action = step.get("action")
@@ -190,13 +209,12 @@ class DeltaHedgingGrader:
             total_cost += abs(action.quantity) * 0.01
         
         # Max reasonable cost is proportional to initial delta
-        # A generous upper bound: 2x the initial delta in cost units
-        max_cost = max(initial_delta * 2.0, 0.1)  # At least 0.1 to avoid division issues
+        max_cost = max(initial_delta * 2.0, 0.1)
         cost_efficiency = max(0.0, 1.0 - total_cost / max_cost)
         
         # Final score: weighted combination
         # Requirements: 4.5
-        score = neutralization_quality * 0.7 + cost_efficiency * 0.3
+        score = pre_shock_neutrality * 0.30 + post_shock_neutrality * 0.40 + cost_efficiency * 0.30
         
         # Clamp to [0.0, 1.0]
         return min(max(score, 0.0), 1.0)

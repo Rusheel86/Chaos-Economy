@@ -11,7 +11,8 @@ import logging
 import sys
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+import json
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -41,7 +42,7 @@ env = VSREnvironment()
 # === Request/Response models ===
 
 class ResetRequest(BaseModel):
-    task_name: str = "iv_reading"
+    task_name: str = "delta_hedging"
     seed: int = 42
 
 
@@ -90,7 +91,7 @@ async def reset(request: Optional[ResetRequest] = None):
         Initial observation
     """
     try:
-        task_name = request.task_name if request else "iv_reading"
+        task_name = request.task_name if request else "delta_hedging"
         seed = request.seed if request else 42
 
         logger.info(f"Resetting environment: task={task_name}, seed={seed}")
@@ -138,3 +139,47 @@ async def get_state():
     except Exception as e:
         logger.error(f"State retrieval failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """WebSocket endpoint for continuous environment interaction."""
+    await websocket.accept()
+    # Create thread-local env for this connection
+    ws_env = VSREnvironment()
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg = json.loads(data)
+                
+                if msg.get("action") == "reset":
+                    task_name = msg.get("task_name", "delta_hedging")
+                    seed = msg.get("seed", 42)
+                    obs = ws_env.reset(task_name=task_name, seed=seed)
+                    await websocket.send_json({
+                        "type": "reset",
+                        "observation": obs.model_dump()
+                    })
+                
+                elif msg.get("action") == "step":
+                    vsr_action = VSRAction(**msg.get("payload", {}))
+                    result = ws_env.step(vsr_action)
+                    await websocket.send_json({
+                        "type": "step",
+                        "observation": result["observation"].model_dump(),
+                        "reward": result["reward"],
+                        "done": result["done"],
+                        "info": result["info"]
+                    })
+                
+                elif msg.get("action") == "state":
+                    await websocket.send_json({
+                        "type": "state",
+                        "state": ws_env.state.model_dump()
+                    })
+                    
+            except Exception as e:
+                logger.error(f"WS error processing message: {e}")
+                await websocket.send_json({"type": "error", "message": str(e)})
+    except WebSocketDisconnect:
+        logger.info("WebSocket disconnected")

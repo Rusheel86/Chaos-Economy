@@ -1,17 +1,17 @@
 """Task implementations for VSR-Env.
 
 This module provides the three graded tasks:
-- IVReadingTask (easy): Identify mispriced options on IV surface
-- DeltaHedgingTask (medium): Neutralize portfolio delta cost-efficiently
-- ArbCaptureTask (hard): Execute arbitrage workflow with regime shifts
+- DeltaHedgingTask (medium): Neutralize portfolio delta through market shock
+- EarningsVolCrushTask (hard): Position for and recover from earnings vol crush
+- GammaScalpingTask (expert): Profit from gamma scalping through spot oscillations
 """
 
-from vsr_env.tasks.arb_capture import ArbCaptureTask
 from vsr_env.tasks.delta_hedging import DeltaHedgingTask
-from vsr_env.tasks.iv_reading import IVReadingTask
+from vsr_env.tasks.earnings_vol_crush import EarningsVolCrushTask
+from vsr_env.tasks.gamma_scalping import GammaScalpingTask
 
 __all__ = [
-    "IVReadingTask",
     "DeltaHedgingTask",
-    "ArbCaptureTask",
+    "EarningsVolCrushTask",
+    "GammaScalpingTask",
 ]
