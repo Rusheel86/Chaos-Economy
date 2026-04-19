@@ -11,9 +11,17 @@ tasks:
     description: Identify the current market volatility regime based purely on the given IV surface
     max_steps: 1
     difficulty: easy
+  - name: vertical_spread
+    description: Execute a vertical spread strategy to profit from directional bias
+    max_steps: 3
+    difficulty: easy
   - name: delta_hedging
     description: Neutralize portfolio delta through a market shock event
     max_steps: 5
+    difficulty: medium
+  - name: straddle_trading
+    description: Trade straddles to capture volatility expansion or contraction
+    max_steps: 6
     difficulty: medium
   - name: earnings_vol_crush
     description: Position for and recover from an earnings volatility crush event

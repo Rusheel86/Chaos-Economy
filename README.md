@@ -164,6 +164,20 @@ Deviations outside tight bounds exponentially penalize the score.
 
 ---
 
+## 🏛️ Institutional Workflow Simulation
+
+VSR-Env was designed to mimic the exact daily operational constraints of an institutional options risk desk, rather than isolated theoretical trades. Agents interacting with the environment must progress through realistic day-to-day phases:
+
+1. **Morning Market Assessment**: Agents start by reading the option chain. Instead of jumping to a trade, they are graded purely on their ability to diagnose whether implied volatility is structurally overpriced, underpriced, or in transition (Regime Detection).
+2. **Strategy Construction**: When a signal is identified, agents don't simply "buy" or "sell". They construct capital-efficient positions. If momentum exists but IV is expensive, they deploy Vertical Spreads. If a macro catalyst is pending, they structure Straddles to stay delta-neutral.
+3. **Intraday Risk Management**: A real desk enforces strict Greeks limits. Intraday, if Spot spikes violently due to a macro shock, the desk's Net Delta blows out. The agent must execute emergency re-hedging (Delta Hedging task) explicitly counter-trading the spot movement to respect the ±0.05 neutrality bounds. 
+4. **Event Exploitation**: In the event of a scheduled Earnings Release, Volatility will mechanically collapse. Instead of holding static positions, the desk actively liquidates Vega exposure right before the event, realizing massive PnL while remaining completely insulated from directional risk.
+5. **The Final Stress Test**: Market Makers operate at the highest risk levels where second-order derivatives matter. During severe tail-risk events, standard delta hedging breaks down. A high-tier agent must engage in concurrent Vega, Gamma, and Delta neutralization, a multi-dimensional optimization problem that ensures catastrophic capital preservation (Vega/Gamma Stress).
+
+This progression ensures models are benchmarked not just as directional speculators, but as professional derivatives traders.
+
+---
+
 ## 🔬 Technical Innovation
 
 ### 1. **White-Box Reward Decomposition**

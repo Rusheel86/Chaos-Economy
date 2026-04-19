@@ -45,6 +45,14 @@ from vsr_env.tasks.vega_gamma_stress import (
     VegaGammaStressTask,
     VegaGammaStressGrader,
 )
+from vsr_env.tasks.vertical_spread import (
+    VerticalSpreadTask,
+    VerticalSpreadGrader,
+)
+from vsr_env.tasks.straddle_trading import (
+    StraddleTradingTask,
+    StraddleTradingGrader,
+)
 
 # Task configurations
 TASK_CONFIG = {
@@ -58,10 +66,20 @@ TASK_CONFIG = {
         "task_class": VolRegimeDetectionTask,
         "grader_class": VolRegimeDetectionGrader,
     },
+    "vertical_spread": {
+        "max_steps": 3,
+        "task_class": VerticalSpreadTask,
+        "grader_class": VerticalSpreadGrader,
+    },
     "delta_hedging": {
         "max_steps": 5,
         "task_class": DeltaHedgingTask,
         "grader_class": DeltaHedgingGrader,
+    },
+    "straddle_trading": {
+        "max_steps": 5,
+        "task_class": StraddleTradingTask,
+        "grader_class": StraddleTradingGrader,
     },
     "earnings_vol_crush": {
         "max_steps": 8,
