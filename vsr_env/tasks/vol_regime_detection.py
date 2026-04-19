@@ -3,7 +3,6 @@
 Easy difficulty tier: Purely analytical task where the agent must
 identify the current market volatility regime based on the IV surface.
 """
-
 from typing import Dict, Any, List, Tuple
 import numpy as np
 
@@ -74,7 +73,8 @@ class VolRegimeDetectionTask:
 class VolRegimeDetectionGrader:
     """Grader for VolRegimeDetectionTask.
 
-    Scores pure identification capability of the agent against the ground truth regime.
+    Scores identification capability plus evidence quality.
+    Now requires citing specific IV values for maximum score.
     """
 
     def __init__(self):
@@ -98,16 +98,43 @@ class VolRegimeDetectionGrader:
         last_action = steps[-1].get("action")
         if last_action is None:
             return 0.01
-            
+
         reasoning = getattr(last_action, "reasoning", "")
         if not reasoning and isinstance(last_action, dict):
             reasoning = last_action.get("reasoning", "")
 
         expected = state.expected_outcome or state.regime
 
-        # Check if the correct regime string is present in the reasoning payload
-        if expected and isinstance(reasoning, str):
-            if expected.lower() in reasoning.lower():
-                return 0.99
+        base_score = 0.0
 
-        return 0.01
+        if expected and isinstance(reasoning, str):
+            reasoning_lower = reasoning.lower()
+            synonyms = {
+                "low": ["low", "depressed", "crushed", "bottom"],
+                "normal": ["normal", "average", "baseline", "historical", "typical"],
+                "high": ["high", "elevated", "spiked", "extreme", "expensive"]
+            }
+
+            allowed_words = synonyms.get(expected.lower(), [expected.lower()])
+            for word in allowed_words:
+                if word in reasoning_lower:
+                    base_score = 0.6  # Correct identification
+                    break
+
+        # Bonus for citing IV values (evidence quality)
+        last_obs = steps[-1].get("observation")
+        if last_obs and reasoning:
+            iv_values_cited = 0
+            iv_surface = getattr(last_obs, "iv_surface", [])
+
+            for row in iv_surface:
+                for iv_val in row:
+                    if f"{iv_val:.2f}" in reasoning or f"{iv_val * 100:.0f}%" in reasoning:
+                        iv_values_cited += 1
+
+            if iv_values_cited >= 2:
+                base_score = min(base_score + 0.39, 0.99)  # Max score with evidence
+            elif iv_values_cited >= 1:
+                base_score = min(base_score + 0.2, 0.85)
+
+        return max(base_score, 0.01)

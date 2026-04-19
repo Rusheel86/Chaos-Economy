@@ -221,10 +221,11 @@ class RewardComputer:
     ) -> "VSRReward":
         """Compute reward for delta hedging task.
 
-        Reward = delta_improvement + cost_efficiency + neutrality_bonus
+        Reward = delta_improvement + cost_efficiency + neutrality_bonus + direction_correctness
 
-        delta_improvement = max(0, (old_delta - new_delta) / old_delta) * 0.6
-        cost_efficiency = max(0, 0.4 - trade_cost * 0.1)
+        delta_improvement = max(0, (old_delta - new_delta) / old_delta) * 0.5
+        direction_correctness = penalty if action worsens delta direction
+        cost_efficiency = max(0, 0.3 - trade_cost * 0.1)
         neutrality_bonus = 0.1 if |delta| < 0.05 else 0.0
 
         Args:
@@ -243,6 +244,26 @@ class RewardComputer:
 
         new_delta = abs(state.portfolio_delta)
         old_delta = abs(prev_delta)
+
+        # Direction correctness check: penalize actions that increase |delta|
+        # or move delta in the wrong direction
+        direction_penalty = 0.0
+        if action.direction.value != "hold" and action.quantity > 0:
+            # Check if action direction makes sense for hedging
+            # If delta is positive, we should SELL to reduce it
+            # If delta is negative, we should BUY to increase it (toward 0)
+            current_delta_signed = state.portfolio_delta
+            prev_delta_signed = prev_delta
+
+            # Calculate what delta should be after action based on option delta
+            # For simplicity: buying adds positive delta for calls, negative for puts
+            # Selling does the opposite
+            option_type = getattr(action, "option_type", "call") if hasattr(action, "option_type") else "call"
+
+            # Determine if action worsens delta
+            # This is a simplified check: if |new_delta| > |old_delta|, action was harmful
+            if new_delta > old_delta + 0.001:  # Small tolerance for numerical error
+                direction_penalty = -0.2  # Penalize actions that increase |delta|
 
         # Delta improvement component (0.0 - 0.5)
         if old_delta > 1e-6:
@@ -264,7 +285,7 @@ class RewardComputer:
 
         # Total is clamped to [0.01, 0.99]
         total = min(
-            max(delta_reward + cost_reward + neutrality_bonus + reasoning_reward, 0.01), 0.99
+            max(delta_reward + cost_reward + neutrality_bonus + reasoning_reward + direction_penalty, 0.01), 0.99
         )
 
         return VSRReward(
@@ -428,14 +449,17 @@ class RewardComputer:
     ) -> "VSRReward":
         """Compute reward for vol regime detection task.
 
-        Reward = identification_component + reasoning_component
+        Reward = identification_component + reasoning_component + evidence_component
 
         identification_component:
-          - 0.8 if correct regime identified in reasoning
-          - 0.0 otherwise
+          - 0.5 if correct regime identified in reasoning (reduced from 0.8)
 
         reasoning_component:
           - Up to 0.2 for quality of reasoning
+
+        evidence_component (NEW):
+          - Up to 0.3 for citing specific IV values from the surface
+          - Encourages actual analysis rather than just guessing
 
         Args:
             action: Agent's action with reasoning containing regime prediction
@@ -460,19 +484,44 @@ class RewardComputer:
         elif "normal" in text and any(w in text for w in ["vol", "iv", "implied", "regime", "variance"]):
             predicted = "normal"
 
-        # Identification component (0.8 for correct)
-        identification = 0.8 if predicted == expected else 0.0
+        # Identification component (0.5 for correct - reduced to require more evidence)
+        identification = 0.5 if predicted == expected else 0.0
 
         # Reasoning component (up to 0.2)
         reasoning_score = score_reasoning_quality(action.reasoning, observation, state)
         reasoning_component = reasoning_score * 0.2
 
-        total = min(max(identification + reasoning_component, 0.01), 0.99)
+        # Evidence component: check for specific IV value citations (up to 0.3)
+        evidence_score = 0.0
+        iv_values_cited = 0
+
+        # Check for IV values in various formats
+        for row in observation.iv_surface:
+            for iv_val in row:
+                # Check decimal format (e.g., "0.22")
+                if f"{iv_val:.2f}" in action.reasoning:
+                    iv_values_cited += 1
+                # Check percentage format (e.g., "22%")
+                elif f"{iv_val * 100:.0f}%" in action.reasoning:
+                    iv_values_cited += 1
+                # Check rounded percentage (e.g., "22")
+                elif f"{iv_val * 100:.0f}" in action.reasoning and "%" in action.reasoning:
+                    iv_values_cited += 1
+
+        # Score based on number of unique IV values cited
+        if iv_values_cited >= 3:
+            evidence_score = 0.3
+        elif iv_values_cited >= 2:
+            evidence_score = 0.2
+        elif iv_values_cited >= 1:
+            evidence_score = 0.1
+
+        total = min(max(identification + reasoning_component + evidence_score, 0.01), 0.99)
 
         return VSRReward(
             total=total,
             identification_component=identification,
-            reasoning_component=reasoning_component
+            reasoning_component=reasoning_component + evidence_score
         )
 
     def compute_vega_gamma_stress_reward(

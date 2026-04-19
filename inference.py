@@ -23,6 +23,12 @@ import re
 import textwrap
 from typing import Any, Dict, List, Optional
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from openai import OpenAI
 
 from vsr_env.models import TradeDirection, VSRAction, VSRObservation, StrategyType, StrategyLeg
@@ -83,7 +89,7 @@ TASK_SEEDS = {
 
 # LLM configuration
 TEMPERATURE = 0.3
-MAX_TOKENS = 250
+MAX_TOKENS = 400
 
 # Success threshold
 SUCCESS_SCORE_THRESHOLD = 0.1
@@ -260,6 +266,7 @@ def _repair_truncated_json(text: str) -> Optional[str]:
     - Truncated flat objects: {"strike_idx":4,...,"reasoning":"some long tex
     - Truncated arrays: [{"strike_idx":2,...,"quantity":
     - Truncated nested: {"option1":{"strike_idx":2,...
+    - Truncated multi-leg strategies: {"strategy_type":"straddle","legs":[{...},{...
     """
     # Find the first { which starts an action-like object
     start = text.find("{")
@@ -272,12 +279,14 @@ def _repair_truncated_json(text: str) -> Optional[str]:
     if fragment.rstrip().endswith("}"):
         return fragment
 
-    # Count unmatched braces and check if we're inside a string
+    # Track braces, brackets, and strings
     in_string = False
     escape_next = False
-    depth = 0
+    brace_depth = 0
+    bracket_depth = 0
+    last_complete_position = len(fragment)
 
-    for ch in fragment:
+    for i, ch in enumerate(fragment):
         if escape_next:
             escape_next = False
             continue
@@ -289,15 +298,26 @@ def _repair_truncated_json(text: str) -> Optional[str]:
             continue
         if not in_string:
             if ch == "{":
-                depth += 1
+                brace_depth += 1
             elif ch == "}":
-                depth -= 1
+                brace_depth -= 1
+                if bracket_depth == 0 and brace_depth == 0:
+                    last_complete_position = i + 1
+            elif ch == "[":
+                bracket_depth += 1
+            elif ch == "]":
+                bracket_depth -= 1
 
-    # Repair: close open string, then close open braces
+    # Repair: close open string, then close brackets, then braces
     repair = fragment
     if in_string:
         repair += '"'
-    repair += "}" * depth
+
+    # Close any open brackets (for legs arrays)
+    repair += "]" * bracket_depth
+
+    # Close any open braces
+    repair += "}" * brace_depth
 
     return repair
 
