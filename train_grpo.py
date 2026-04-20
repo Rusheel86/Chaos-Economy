@@ -234,7 +234,7 @@ def run_training(args) -> None:
             )
         return rewards
 
-    config = GRPOConfig(
+    training_args = GRPOConfig(
         output_dir=args.output_dir,
         num_train_epochs=args.num_train_epochs,
         per_device_train_batch_size=args.batch_size,
@@ -249,7 +249,7 @@ def run_training(args) -> None:
 
     trainer = GRPOTrainer(
         model=model,
-        config=config,
+        args=training_args,
         reward_funcs=reward_fn,
         processing_class=tokenizer,
         train_dataset=dataset,
