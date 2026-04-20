@@ -12,6 +12,7 @@ using scripted counterpart policies, then compare before/after reward curves.
 import argparse
 import json
 from pathlib import Path
+import torch
 
 try:
     from unsloth import FastLanguageModel
