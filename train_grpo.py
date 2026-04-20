@@ -55,11 +55,21 @@ def run_training():
 
     dataset = Dataset.from_list(prompts)
 
-    def reward_fn(completions, **kwargs):
+    def reward_fn(prompts, completions, **kwargs):
         rewards = []
-        for completion in completions:
+        for i, (prompt, completion) in enumerate(zip(prompts, completions)):
+            env.reset(seed=i) # deterministic reset per completion in batch
             action = parse_json_action(completion)
-            _, reward_dict, _, _ = env.step({"trader_0": action})
+            
+            # Use scripted actions for others
+            from multi_agent.models import MarketMakerAction, OversightAction
+            simulated_actions = {
+                "trader_0": action,
+                "market_maker": MarketMakerAction(atm_spread=0.02, otm_spread=0.04, itm_spread=0.03),
+                "oversight": OversightAction(flagged_agents=[], flag_type="none", fine_amount=0.0)
+            }
+            
+            _, reward_dict, _, _ = env.step(simulated_actions)
             rewards.append(reward_dict["trader_0"])
         return rewards
 
@@ -86,5 +96,4 @@ def run_training():
     model.save_pretrained("./vsr_trader_lora")
 
 if __name__ == "__main__":
-    # run_training() # Uncomment to train
-    pass
+    run_training()

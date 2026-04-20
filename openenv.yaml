@@ -9,32 +9,36 @@ description: Volatility Surface Reasoning Environment for options portfolio mana
 tasks:
   - name: vol_regime_detection
     description: Identify the current market volatility regime based purely on the given IV surface
-    max_steps: 1
+    max_steps: 3
     difficulty: easy
   - name: vertical_spread
     description: Execute a vertical spread strategy to profit from directional bias
-    max_steps: 3
+    max_steps: 8
     difficulty: easy
   - name: delta_hedging
     description: Neutralize portfolio delta through a market shock event
-    max_steps: 5
+    max_steps: 8
     difficulty: medium
   - name: straddle_trading
     description: Trade straddles to capture volatility expansion or contraction
-    max_steps: 6
+    max_steps: 13
     difficulty: medium
   - name: earnings_vol_crush
     description: Position for and recover from an earnings volatility crush event
-    max_steps: 8
+    max_steps: 13
     difficulty: hard
   - name: gamma_scalping
     description: Profit from gamma scalping through spot oscillations
-    max_steps: 10
+    max_steps: 17
     difficulty: expert
   - name: vega_gamma_stress
     description: Survive a catastrophic dual market shock by neutralizing risk boundaries beforehand
-    max_steps: 10
+    max_steps: 20
     difficulty: super-boss
+  - name: multi_agent_market
+    description: "12-actor market simulation with traders, market maker, and oversight"
+    max_steps: 300
+    difficulty: expert
 # Type definitions (Requirement 1.6)
 action_type: VSRAction
 observation_type: VSRObservation
