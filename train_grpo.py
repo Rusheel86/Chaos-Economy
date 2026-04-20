@@ -243,6 +243,7 @@ def run_training(args) -> None:
         logging_steps=10,
         save_steps=100,
         learning_rate=args.learning_rate,
+        ddp_find_unused_parameters=False,
         bf16=torch.cuda.is_bf16_supported(),
         fp16=not torch.cuda.is_bf16_supported()
     )
@@ -255,7 +256,8 @@ def run_training(args) -> None:
         train_dataset=dataset,
     )
     trainer.train()
-    model.save_pretrained(str(Path(args.output_dir) / f"{target_agent}_lora"))
+    if trainer.is_world_process_zero():
+        model.save_pretrained(str(Path(args.output_dir) / f"{target_agent}_lora"))
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
