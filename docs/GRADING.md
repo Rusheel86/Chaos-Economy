@@ -1,6 +1,6 @@
 # VSR-Env Grading Transparency
 
-This document outlines the exact mechanics behind the grading heuristics and reward compute functions for all 7 tasks in the VSR-Env. We believe in full transparency for researchers evaluating LLM decision-making capabilities.
+This document outlines the exact mechanics behind the grading heuristics and reward compute functions for all 8 tasks in the VSR-Env. We believe in full transparency for researchers evaluating LLM decision-making capabilities.
 
 ## Reasoning Quality Rubric (Universal)
 
@@ -78,5 +78,21 @@ Many tasks dedicate up to **20% of their step or final score** to the `Reasoning
   - Agent initializes deeply exposed (-5.0 Straddle Contracts), mapping to massively negative Vega and Gamma.
   - A dual-shock is triggered mid-episode causing Spot Price to crater by 15-20% *while simultaneously* spiking IV by 300%-500%.
   - **SD Bound Math:** A Gaussian decay penalty (`np.exp(-0.5 * (avg_greek / threshold)**2)`) enforces extreme stringency. The agent's trajectory mean must firmly nestle near 0 inside tight SD bounds on both Vega and Gamma before the shock triggers.
+
+---
+
+## 8. Multi-Agent Market (Expert)
+
+**Objective:** Train traders, a market maker, and an oversight agent inside the same 300-step market ecology.
+
+- **Trader Reward:** PnL delta minus fines, inventory penalties, and large Greek violations.
+- **Market Maker Reward:** PnL plus facilitated flow and quote quality, minus inventory and extreme spread penalties.
+- **Oversight Reward:** True positives minus false positives and false negatives.
+
+**Key Mechanics:**
+- Trader fills are executed against market-maker spreads.
+- Spreads affect execution economics directly.
+- Manipulation detection uses recent trade flow and post-trade state.
+- The oversight agent is evaluated on both detection and restraint.
 
 *All raw calculations clamp output metrics strictly into the canonical OpenEnv Hackathon [0.0, 1.0] range.*

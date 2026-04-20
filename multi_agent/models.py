@@ -12,7 +12,7 @@ class AgentState(BaseModel):
     agent_id: str
     role: AgentRole
     cash_balance: float = 100_000.0
-    positions: List[Dict] = []
+    positions: List[Dict] = Field(default_factory=list)
     portfolio_pnl: float = 0.0
     portfolio_delta: float = 0.0
     portfolio_gamma: float = 0.0
@@ -30,10 +30,10 @@ class MarketMakerAction(BaseModel):
 
 class OversightAction(BaseModel):
     """Oversight flags manipulation."""
-    flagged_agents: List[str] = []
+    flagged_agents: List[str] = Field(default_factory=list)
     flag_type: str = "none"  # "spoofing" | "wash_trading" | "gamma_squeeze" | "none"
     fine_amount: float = 0.0
-    halt_strikes: List[int] = []
+    halt_strikes: List[int] = Field(default_factory=list)
     reasoning: str = ""
 
 class MultiAgentObservation(BaseModel):

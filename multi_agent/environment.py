@@ -61,6 +61,17 @@ class MultiAgentVSREnvironment:
 
         return self._get_observations()
 
+    def _normalize_trader_actions(self, actions: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+        normalized = {}
+        for agent_id, action in actions.items():
+            if not agent_id.startswith("trader"):
+                continue
+            if hasattr(action, "model_dump"):
+                normalized[agent_id] = action.model_dump()
+            elif isinstance(action, dict):
+                normalized[agent_id] = dict(action)
+        return normalized
+
     def _get_observations(self) -> Dict[str, MultiAgentObservation]:
         """Generate observations for all agents."""
         obs = {}
@@ -104,7 +115,7 @@ class MultiAgentVSREnvironment:
         prev_states = copy.deepcopy(self.agent_states)
         
         # 1. Parse actions
-        trader_actions = {aid: act for aid, act in actions.items() if aid.startswith("trader")}
+        trader_actions = self._normalize_trader_actions(actions)
         
         mm_raw = actions.get("market_maker")
         if isinstance(mm_raw, dict):
@@ -128,28 +139,32 @@ class MultiAgentVSREnvironment:
         else:
              oversight_action = OversightAction()
             
-        # 2. Oversight flags & fines
-        ground_truth = {aid: self.manipulation_detector.detect_manipulation(self.agent_states[aid], []) for aid in trader_actions}
-        
-        for flagged in oversight_action.flagged_agents:
-            if flagged in trader_actions and oversight_action.flag_type == ground_truth.get(flagged, "none") and oversight_action.flag_type != "none":
-                self.agent_states[flagged].fines_received += oversight_action.fine_amount
-                self.agent_states[flagged].cash_balance -= oversight_action.fine_amount
-        
-        # 3. Trader orders + Matching
+        # 2. Trader orders + Matching
         executed_trades = self.matching_engine.match_orders(
             trader_actions, mm_action, self.vsr_state.spot_price, self.option_engine, self.vsr_state.variance
         )
-        
+
+        step_trades = []
+
         # APPLY TRADES to agent portfolios
         for agent_id, trade in executed_trades.items():
             if isinstance(trade, dict) and trade.get("direction") in ["buy", "sell"]:
+                execution_price = float(trade.get("execution_price", trade.get("theo_price", 0.0)))
+                quantity = float(trade["quantity"])
+                premium = execution_price * quantity
+
                 # Log trade
-                self.trade_log.append({
+                step_trade = {
                     "step": self.current_step,
                     "agent_id": agent_id,
-                    "trade": trade
-                })
+                    **trade,
+                }
+                step_trades.append(step_trade)
+                self.trade_log.append(step_trade)
+
+                self.agent_states[agent_id].cash_balance -= premium
+                self.agent_states["market_maker"].cash_balance += premium
+
                 # Trader position
                 add_position(
                     state=self._agent_vsr_states[agent_id],
@@ -159,6 +174,7 @@ class MultiAgentVSREnvironment:
                     quantity=trade["quantity"],
                     engine=self.option_engine,
                     option_type=trade.get("option_type", "call"),
+                    entry_price_override=execution_price,
                 )
                 
                 # Market maker position (zero sum)
@@ -171,9 +187,10 @@ class MultiAgentVSREnvironment:
                     quantity=trade["quantity"],
                     engine=self.option_engine,
                     option_type=trade.get("option_type", "call"),
+                    entry_price_override=execution_price,
                 )
         
-        # 4. Market advance
+        # 3. Market advance
         advance_market(self.vsr_state, self.rng)
         
         # 5. Greeks/PnL Update 
@@ -192,15 +209,44 @@ class MultiAgentVSREnvironment:
                 state.portfolio_gamma = vsr.portfolio_gamma
                 state.portfolio_vega = vsr.portfolio_vega
         
-        # 6. Rewards
+        # 4. Oversight labels and enforcement
+        ground_truth = {
+            aid: self.manipulation_detector.detect_manipulation(self.agent_states[aid], step_trades)
+            for aid in trader_actions
+        }
+
+        for flagged in oversight_action.flagged_agents:
+            if (
+                flagged in trader_actions
+                and oversight_action.flag_type == ground_truth.get(flagged, "none")
+                and oversight_action.flag_type != "none"
+            ):
+                self.agent_states[flagged].fines_received += oversight_action.fine_amount
+                self.agent_states[flagged].cash_balance -= oversight_action.fine_amount
+                self.agent_states["oversight"].cash_balance += oversight_action.fine_amount
+                if oversight_action.halt_strikes:
+                    self.agent_states[flagged].is_halted = True
+
+        # 5. Rewards
         for aid in trader_actions:
             rewards[aid] = calculate_trader_reward(self.agent_states[aid], prev_states[aid])
             
-        rewards["market_maker"] = calculate_mm_reward(self.agent_states["market_maker"], prev_states["market_maker"], 
-                                                      len(executed_trades), mm_action)
+        rewards["market_maker"] = calculate_mm_reward(
+            self.agent_states["market_maker"],
+            prev_states["market_maker"],
+            len(executed_trades),
+            mm_action,
+        )
                                                       
         rewards["oversight"] = calculate_oversight_reward(oversight_action, ground_truth)
 
         observations = self._get_observations()
-        
+
+        info = {
+            "trade_count": len(step_trades),
+            "total_volume": float(sum(t.get("quantity", 0.0) for t in step_trades)),
+            "market_maker_spreads": dict(self.mm_last_spreads),
+            "detected_manipulations": ground_truth,
+        }
+
         return observations, rewards, done, info

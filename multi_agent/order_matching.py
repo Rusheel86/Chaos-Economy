@@ -1,7 +1,5 @@
-from typing import Dict, Any, List
-from vsr_env.models import VSRAction
+from typing import Dict, Any
 from multi_agent.models import MarketMakerAction
-from multi_agent.config import NUM_TRADERS
 import numpy as np
 
 class OrderMatchingEngine:
@@ -55,17 +53,23 @@ class OrderMatchingEngine:
             if option_type == "call":
                 if moneyness > 1.05:
                     spread = mm_action.itm_spread
+                    bucket = "itm"
                 elif moneyness < 0.95:
                     spread = mm_action.otm_spread
+                    bucket = "otm"
                 else:
                     spread = mm_action.atm_spread
+                    bucket = "atm"
             else: # put
                 if moneyness < 0.95:
                     spread = mm_action.itm_spread
+                    bucket = "itm"
                 elif moneyness > 1.05:
                     spread = mm_action.otm_spread
+                    bucket = "otm"
                 else:
                     spread = mm_action.atm_spread
+                    bucket = "atm"
             
             # Apply spread based on direction
             # If trader buys, they pay MORE than theo price
@@ -76,12 +80,16 @@ class OrderMatchingEngine:
             else:
                 execution_price = max(0.01, theo_price - (spread / 2.0))
                 
-            action_dict["execution_price"] = execution_price
-            action_dict["theo_price"] = theo_price
-            action_dict["spread_applied"] = spread
+            executed_trade = dict(action_dict)
+            executed_trade["execution_price"] = float(execution_price)
+            executed_trade["theo_price"] = float(theo_price)
+            executed_trade["spread_applied"] = float(spread)
+            executed_trade["moneyness_bucket"] = bucket
+            executed_trade["volume"] = float(quantity)
+            executed_trade["notional"] = float(execution_price * quantity)
             
             batch_volume += quantity
-            executed_trades[agent_id] = action_dict
+            executed_trades[agent_id] = executed_trade
                 
         self.total_volume += batch_volume
         return executed_trades

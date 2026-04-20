@@ -3,7 +3,7 @@ import websockets
 import json
 
 
-async def test_ws():
+async def run_ws_smoke_test():
     async with websockets.connect("ws://localhost:8000/ws") as ws:
         await ws.send(json.dumps({"action": "reset", "task_name": "gamma_scalping"}))
         resp = json.loads(await ws.recv())
@@ -28,4 +28,5 @@ async def test_ws():
         print("Done!")
 
 
-asyncio.run(test_ws())
+if __name__ == "__main__":
+    asyncio.run(run_ws_smoke_test())

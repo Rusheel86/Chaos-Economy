@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Dict
 from multi_agent.models import AgentState, MarketMakerAction, OversightAction
 
 def calculate_trader_reward(agent_state: AgentState, prev_state: AgentState) -> float:
@@ -19,16 +19,34 @@ def calculate_trader_reward(agent_state: AgentState, prev_state: AgentState) -> 
 
 def calculate_mm_reward(agent_state: AgentState, prev_state: AgentState, 
                         volume_traded: int, mm_action: MarketMakerAction) -> float:
-    """Calculate reward for Market Maker."""
+    """Calculate reward for Market Maker.
+
+    The market maker should not learn the degenerate policy of widening
+    spreads forever. Reward balances PnL, facilitated volume, quote quality,
+    and inventory control.
+    """
     pnl_delta = agent_state.portfolio_pnl - prev_state.portfolio_pnl
-    rebate = volume_traded * 0.001
-    
-    # Spread violation penalty if spreads are too wide/narrow beyond safe bounds (heuristic)
-    spread_violation_penalty = 0.0
-    if mm_action.atm_spread > 0.15:
-        spread_violation_penalty += 5.0
-        
-    return pnl_delta + rebate - spread_violation_penalty
+    flow_reward = volume_traded * 0.05
+
+    target_spreads = {"atm": 0.04, "otm": 0.06, "itm": 0.05}
+    spread_distance = (
+        abs(mm_action.atm_spread - target_spreads["atm"])
+        + abs(mm_action.otm_spread - target_spreads["otm"])
+        + abs(mm_action.itm_spread - target_spreads["itm"])
+    )
+    quote_quality_reward = max(0.0, 0.15 - spread_distance)
+
+    inventory_penalty = (
+        abs(agent_state.portfolio_delta) * 0.01
+        + abs(agent_state.portfolio_gamma) * 0.05
+        + abs(agent_state.portfolio_vega) * 0.02
+    )
+    spread_extremity_penalty = 0.0
+    if max(mm_action.atm_spread, mm_action.otm_spread, mm_action.itm_spread) > 0.12:
+        spread_extremity_penalty = 0.5
+
+    raw_reward = pnl_delta + flow_reward + quote_quality_reward - inventory_penalty - spread_extremity_penalty
+    return max(-1.0, min(1.0, raw_reward / 100.0))
 
 def calculate_oversight_reward(oversight_action: OversightAction, 
                                ground_truth_manipulations: Dict[str, str]) -> float:

@@ -25,6 +25,7 @@ def add_position(
     quantity: float,
     engine: OptionChainEngine,
     option_type: str = "call",
+    entry_price_override: Optional[float] = None,
 ) -> None:
     """Add a new position to the portfolio.
 
@@ -50,9 +51,13 @@ def add_position(
     sigma = np.sqrt(state.variance)
 
     # Compute entry price and Greeks using the specified option type
-    entry_price = engine.bs_price(
-        S, np.array([K]), np.array([T]), np.array([sigma]), option_type=option_type
-    )[0]
+    entry_price = (
+        float(entry_price_override)
+        if entry_price_override is not None
+        else engine.bs_price(
+            S, np.array([K]), np.array([T]), np.array([sigma]), option_type=option_type
+        )[0]
+    )
     pos_delta = engine.delta(
         S, np.array([K]), np.array([T]), np.array([sigma]), option_type=option_type
     )[0]

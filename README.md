@@ -7,11 +7,85 @@ sdk: docker
 pinned: false
 ---
 
-# VSR-Env: Volatility Surface Reasoning Environment
+# VSR-Env: Multi-Agent Volatility Surface Reasoning Environment
 
-**The first reinforcement learning benchmark for multi-step options portfolio management and derivatives reasoning.**
+**A 12-actor RL environment where trader agents, a market maker, and an oversight agent co-evolve inside a live options market.**
 
 Built for the **Meta × PyTorch × SST OpenEnv AI Hackathon**.
+
+---
+
+## Hackathon Target
+
+Primary target:
+
+- Theme #1 Multi-Agent Interactions
+- Fleet AI bonus: Scalable Oversight
+- Halluminate bonus: Multi-Actor Environments
+
+Supporting angle:
+
+- Theme #2 long-horizon behavior through 300-step episodes, delayed manipulation effects, and persistent trade history
+
+## Pitch Story
+
+The pitch arc for this project is intentionally cinematic:
+
+1. Ten RL traders initially exploit a weak market maker.
+2. The market maker adapts by widening or tightening spreads to survive.
+3. Traders shift from naive directional bets to Greek-aware volatility trading.
+4. Swarm behavior appears: wash trading, gamma pressure, and coalition-like flow.
+5. An oversight agent must detect, explain, and intervene against manipulation.
+
+This is not just a finance simulator. It is a strategic multi-agent world designed to train:
+
+- competition
+- coordination
+- negotiation through prices
+- oversight of other AI agents
+- long-horizon adaptation under partial observability
+
+## Multi-Agent Architecture
+
+```mermaid
+graph TD
+    T["10 Trader Agents"] --> M["Market Maker"]
+    M --> E["Volatility Surface Environment"]
+    E --> O["Oversight Agent"]
+    O --> T
+    E --> L["Replay Logs / Reward Curves"]
+```
+
+Key properties:
+
+- `10` trader agents optimize PnL under risk and enforcement pressure
+- `1` market maker sets spreads and manages inventory
+- `1` oversight agent flags manipulation and explains interventions
+- `300` steps per multi-agent episode
+- partial observability and delayed consequences across the episode
+
+## Quick Demo Path
+
+```bash
+# Install
+pip install -e .
+
+# Run the single-agent baseline
+python inference.py
+
+# Run the multi-agent smoke demo
+python inference_multi_agent.py
+
+# Train one trader policy in Colab or locally
+python train_grpo.py --num_episodes 64 --steps_per_episode 32
+```
+
+Supporting files for submission:
+
+- [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
+- [docs/HF_MINI_BLOG_DRAFT.md](docs/HF_MINI_BLOG_DRAFT.md)
+- [docs/MEDIA_PLAN.md](docs/MEDIA_PLAN.md)
+- `train_grpo_colab.ipynb`
 
 ---
 
@@ -41,8 +115,19 @@ Unlike standard classification or simple control environments, VSR-Env challenge
 - **Manage multi-dimensional Greeks** (Delta, Gamma, Vega, Theta) simultaneously  
 - **Execute multi-turn strategies** across 3-20 step episodes with temporal events
 - **Survive catastrophic market shocks** requiring proactive risk neutralization
+- **Interact strategically across 12 actors** with competition, market making, and oversight
 
 **This is quantitative reasoning at the institutional trading desk level.**
+
+### Why The Multi-Agent Version Matters
+
+The single-agent environment is already a strong Theme #3.1 professional-task benchmark.
+The multi-agent extension is what makes this submission special for Theme #1:
+
+- traders learn from the incentives of other traders
+- the market maker learns to defend without shutting down the market
+- the oversight agent learns to monitor, analyze, and explain other agents
+- the whole system becomes a live testbed for emergent behavior
 
 ---
 
@@ -66,9 +151,9 @@ Unlike standard classification or simple control environments, VSR-Env challenge
 | **Action Space** | See detailed table below |
 | **Observation** | IV surface grid + Greeks + PnL + positions + market sentiment |
 | **Reward Range** | Deterministic heuristic grading in `[0.01, 0.99]` |
-| **Difficulty Tiers** | 7 levels (Easy → Super-Boss) with early-stopping curriculum |
+| **Difficulty Tiers** | 7 single-agent tiers + 1 multi-agent market task |
 | **Episode Length** | 3-20 steps per episode (task-dependent difficulty) |
-| **Total Episodes** | 7 (one per task) |
+| **Total Episodes** | 8 total tasks in the manifest |
 | **Grading** | Gaussian boundaries, delta neutrality, PnL-weighted |
 
 ### Action Space Details
@@ -117,7 +202,7 @@ See [STRATEGIES.md](STRATEGIES.md) for comprehensive documentation.
 
 ---
 
-## 📚 7-Tier Adaptive Curriculum
+## 📚 7-Tier Adaptive Curriculum + Multi-Agent Market
 
 ### Tier 1: **Volatility Regime Detection** (Easy)
 - **Max Steps**: 3
@@ -161,6 +246,11 @@ vega_score = exp(-0.5 * (vega / 0.05)²)
 gamma_score = exp(-0.5 * (gamma / 0.02)²)
 ```
 Deviations outside tight bounds exponentially penalize the score.
+
+### Multi-Agent Market: **12-Actor Ecology** (Expert)
+- **Max Steps**: 300
+- **Challenge**: Traders, a market maker, and an oversight agent interact in the same live market
+- **Skills**: coalition formation, manipulation detection, market defense, long-horizon adaptation
 
 ---
 
@@ -243,17 +333,32 @@ export GROQ_API_KEY="gsk_your_key_here"
 
 # Run inference baseline
 python inference.py
+
+# Run the multi-agent market ecology demo
+python inference_multi_agent.py
 ```
 
 **Expected Output**:
-```
+``` 
 [START] task=vol_regime_detection env=vsr_env model=llama-3.1-8b-instant
-[STEP] step=1 action=hold(0,0,0.0) reward=0.80 done=true error=null
-[END] success=true steps=1 score=0.80 rewards=0.80
+[STEP] step=1 action=hold(0,0,0.0) reward=0.80 done=false error=null
+[STEP] step=2 action=hold(0,0,0.0) reward=0.75 done=false error=null
+[STEP] step=3 action=hold(0,0,0.0) reward=0.82 done=true error=null
+[END] success=true steps=3 score=0.79 rewards=0.80,0.75,0.82
 ...
 ```
 
 See `QUICKSTART.md` for detailed setup.
+
+## What Judges Should See
+
+The intended demo evidence is simple and visual:
+
+- reward curves for traders, market maker, and oversight
+- changing spread behavior over time
+- one replay showing a manipulation pattern
+- one replay showing oversight detection
+- a before/after training comparison from the Colab notebook
 
 ---
 

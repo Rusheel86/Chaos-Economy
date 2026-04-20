@@ -1,6 +1,99 @@
 # Architecture Overview: VSR-Env
 
-VSR-Env follows a clean 3-layer architecture designed for **transparency, reproducibility, and extensibility**.
+VSR-Env now has two layers of value:
+
+- a working single-agent options reasoning benchmark
+- a multi-agent market ecology for Theme #1 style interaction, oversight, and emergent behavior
+
+The single-agent path remains useful for baseline evaluation.
+The multi-agent path is the competition-facing system for the hackathon pitch.
+
+---
+
+## Multi-Agent System
+
+The multi-agent environment models a compressed financial market with 12 actors:
+
+- `trader_0` through `trader_9`
+- `market_maker`
+- `oversight`
+
+Each multi-agent episode runs for up to `300` steps.
+
+### Multi-Agent Flow
+
+```mermaid
+flowchart LR
+    T["Trader Actions"] --> X["Order Matching Engine"]
+    MM["Market Maker Spread Action"] --> X
+    X --> P["Portfolio Updates / Cash Transfers"]
+    P --> M["Market Advance"]
+    M --> G["PnL / Greeks Recompute"]
+    G --> O["Oversight Detection"]
+    O --> R["Role-Specific Rewards"]
+    R --> OBS["Next Observations + Replay Info"]
+```
+
+### Role Design
+
+#### Traders
+
+Traders observe:
+
+- current IV surface
+- current spot price
+- their own PnL and Greeks
+- market-maker spreads
+
+Traders optimize:
+
+- PnL
+- volatility mispricing exploitation
+- survivable risk
+
+#### Market Maker
+
+The market maker sets:
+
+- ATM spread
+- OTM spread
+- ITM spread
+
+The market maker reward balances:
+
+- PnL
+- facilitated flow
+- quote quality
+- inventory control
+
+This is designed to avoid the degenerate policy of widening spreads forever.
+
+#### Oversight
+
+The oversight agent sees:
+
+- recent trade log
+- all agent PnLs
+- evolving market state
+
+The oversight reward depends on:
+
+- true positives
+- false positives
+- false negatives
+- intervention usefulness
+
+---
+
+## Competition Demo Architecture
+
+The intended pitch should show this behavioral progression:
+
+1. weak quoting leads to trader exploitation
+2. spreads adapt
+3. volatility-focused trading emerges
+4. manipulation patterns appear
+5. oversight flags and explains the pattern
 
 ---
 
@@ -190,12 +283,12 @@ class VSREnvironment:
 ```python
 TASK_CONFIG = {
     "vol_regime_detection": {
-        "max_steps": 1,
+        "max_steps": 3,
         "task_handler": VolRegimeDetectionTask,
         "grader_class": VolRegimeDetectionGrader,
     },
     "delta_hedging": {
-        "max_steps": 5,
+        "max_steps": 8,
         "task_handler": DeltaHedgingTask,
         "grader_class": DeltaHedgingGrader,
     },
