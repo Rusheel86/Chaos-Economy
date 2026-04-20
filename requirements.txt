@@ -1,4 +1,4 @@
-﻿openenv-core
+openenv-core
 fastapi
 uvicorn
 pydantic
@@ -6,3 +6,14 @@ numpy
 scipy
 pyyaml
 openai
+httpx
+websockets
+matplotlib
+python-dotenv
+pytest
+pytest-asyncio
+transformers
+datasets
+trl
+peft
+unsloth
