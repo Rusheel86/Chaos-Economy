@@ -6,11 +6,24 @@ class ManipulationDetector:
     
     def __init__(self):
         self.trade_history = {}
+        self.order_pressure = {}
         
-    def check_gamma_squeeze(self, agent_state: AgentState) -> bool:
-        """Detect if agent is hoarding high gamma (OTM Call) positions."""
-        # Realistic threshold for gamma cornering
-        return agent_state.portfolio_gamma > 2.0
+    def check_gamma_pressure(self, agent_state: AgentState, step_trades: List[Dict]) -> bool:
+        """Detect concentrated gamma-heavy pressure in one direction."""
+        call_buys = [
+            t for t in step_trades
+            if t.get("option_type", "call") == "call" and t.get("direction") == "buy"
+        ]
+        size_pressure = sum(float(t.get("quantity", 0.0)) for t in call_buys)
+        return agent_state.portfolio_gamma > 2.0 or size_pressure > 8.0
+
+    def check_systemic_risk(self, agent_state: AgentState) -> bool:
+        """Detect destabilizing exposures even if they are not manipulative."""
+        return (
+            abs(agent_state.portfolio_delta) > 3.0
+            or abs(agent_state.portfolio_gamma) > 3.0
+            or abs(agent_state.portfolio_vega) > 8.0
+        )
         
     def check_wash_trading(self, agent_id: str, new_trades: List[Dict]) -> bool:
         """Detect rapid buy/sell of same instrument."""
@@ -48,27 +61,38 @@ class ManipulationDetector:
                     
         return False
         
-    def check_spoofing(self, agent_state: AgentState, step_trades: List[Dict]) -> bool:
-        """Detect if agent places large orders and immediately cancels (simulated by rapid reversals)."""
-        # For our environment, we'll simulate spoofing detection by looking for very large trades 
-        # that don't match the agent's typical volume.
+    def check_spoofing_like_pressure(self, agent_id: str, step_trades: List[Dict]) -> bool:
+        """Detect oversized short-window order pressure."""
+        if agent_id not in self.order_pressure:
+            self.order_pressure[agent_id] = []
+
         for t in step_trades:
-            if t.get("quantity", 0) > 30: # unusually large order
-                return True
+            self.order_pressure[agent_id].append(float(t.get("quantity", 0.0)))
+
+        self.order_pressure[agent_id] = self.order_pressure[agent_id][-5:]
+        if not self.order_pressure[agent_id]:
+            return False
+
+        avg_recent = sum(self.order_pressure[agent_id]) / len(self.order_pressure[agent_id])
+        max_recent = max(self.order_pressure[agent_id])
+        if max_recent >= 12.0 and max_recent > (avg_recent * 1.8):
+            return True
         return False
         
     def detect_manipulation(self, agent_state: AgentState, step_trades: List[Dict]) -> str:
-        """Return the type of manipulation detected, or 'none'."""
-        if self.check_gamma_squeeze(agent_state):
-            return "gamma_squeeze"
-            
-        # Get trades for this specific agent
+        """Return the type of harmful behavior detected, or 'none'."""
         agent_step_trades = [t for t in step_trades if t.get("agent_id") == agent_state.agent_id] or step_trades
         
         if self.check_wash_trading(agent_state.agent_id, agent_step_trades):
             return "wash_trading"
             
-        if self.check_spoofing(agent_state, agent_step_trades):
-            return "spoofing"
+        if self.check_spoofing_like_pressure(agent_state.agent_id, agent_step_trades):
+            return "spoofing_like_pressure"
+
+        if self.check_gamma_pressure(agent_state, agent_step_trades):
+            return "gamma_pressure"
+
+        if self.check_systemic_risk(agent_state):
+            return "systemic_risk"
             
         return "none"

@@ -29,11 +29,13 @@ class MarketMakerAction(BaseModel):
     reasoning: str = ""
 
 class OversightAction(BaseModel):
-    """Oversight flags manipulation."""
+    """Oversight flags harmful trading or systemic-risk behavior."""
     flagged_agents: List[str] = Field(default_factory=list)
-    flag_type: str = "none"  # "spoofing" | "wash_trading" | "gamma_squeeze" | "none"
+    flag_type: str = "none"  # "wash_trading" | "spoofing_like_pressure" | "gamma_pressure" | "systemic_risk" | "none"
     fine_amount: float = 0.0
     halt_strikes: List[int] = Field(default_factory=list)
+    confidence: float = Field(0.0, ge=0.0, le=1.0)
+    intervention_type: str = "none"  # "none" | "fine" | "halt"
     reasoning: str = ""
 
 class MultiAgentObservation(BaseModel):
@@ -52,3 +54,6 @@ class MultiAgentObservation(BaseModel):
     # Oversight-only
     all_agent_pnls: Optional[Dict[str, float]] = None
     trade_log: Optional[List[Dict]] = None
+    agent_risk_summary: Optional[Dict[str, Dict[str, float]]] = None
+    market_state_summary: Optional[Dict[str, float]] = None
+    recent_interventions: Optional[List[Dict[str, Any]]] = None

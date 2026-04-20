@@ -49,10 +49,22 @@ def calculate_mm_reward(agent_state: AgentState, prev_state: AgentState,
     return max(-1.0, min(1.0, raw_reward / 100.0))
 
 def calculate_oversight_reward(oversight_action: OversightAction, 
-                               ground_truth_manipulations: Dict[str, str]) -> float:
-    """Calculate reward for Oversight agent."""
+                               ground_truth_manipulations: Dict[str, str],
+                               pre_stability_score: float = 0.0,
+                               post_stability_score: float = 0.0) -> float:
+    """Calculate reward for Oversight agent.
+
+    Oversight is framed as market surveillance:
+    detect harmful behavior, explain it, and improve market stability.
+    """
     reward = 0.0
-    
+
+    harmful_events = {
+        agent_id: label
+        for agent_id, label in ground_truth_manipulations.items()
+        if label != "none"
+    }
+
     # Check flagged agents (True/False Positives)
     for flagged_agent in oversight_action.flagged_agents:
         true_manipulation = ground_truth_manipulations.get(flagged_agent, "none")
@@ -60,10 +72,27 @@ def calculate_oversight_reward(oversight_action: OversightAction,
             reward += 1.0  # true positive
         else:
             reward -= 0.5  # false positive
-            
+
     # Check unflagged agents (False Negatives)
-    for agent_id, true_manipulation in ground_truth_manipulations.items():
-        if true_manipulation != "none" and agent_id not in oversight_action.flagged_agents:
+    for agent_id, true_manipulation in harmful_events.items():
+        if agent_id not in oversight_action.flagged_agents:
             reward -= 1.0  # missed manipulation! false negative
-            
+
+    if not harmful_events and not oversight_action.flagged_agents:
+        reward += 0.25  # correct restraint
+
+    reasoning = oversight_action.reasoning.lower()
+    if oversight_action.flag_type != "none" and oversight_action.flag_type in reasoning:
+        reward += 0.2
+    if any(agent_id.lower() in reasoning for agent_id in oversight_action.flagged_agents):
+        reward += 0.1
+
+    if oversight_action.intervention_type == "fine" and oversight_action.fine_amount > 0:
+        reward += 0.1
+    if oversight_action.intervention_type == "halt" and oversight_action.halt_strikes:
+        reward += 0.15
+
+    stability_improvement = max(0.0, pre_stability_score - post_stability_score)
+    reward += min(0.3, stability_improvement * 0.2)
+
     return max(-1.0, min(1.0, reward))

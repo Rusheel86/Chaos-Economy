@@ -27,12 +27,14 @@ class MultiAgentVSREnvironment:
         self._agent_vsr_states = {}
         self.mm_last_spreads = {"atm": 0.02, "otm": 0.04, "itm": 0.03}
         self.trade_log = []
+        self.intervention_log = []
 
     def reset(self, seed: int = 42) -> Dict[str, MultiAgentObservation]:
         """Reset the environment."""
         self.current_step = 0
         self.rng = np.random.RandomState(seed)
         self.trade_log = []
+        self.intervention_log = []
         
         # Base simulation state
         variance = 0.04
@@ -81,6 +83,9 @@ class MultiAgentVSREnvironment:
         # Simple IV surface
         iv_surface = [[sigma] * len(self.option_engine.MATURITIES) for _ in self.option_engine.STRIKES]
         
+        risk_summary = self._build_agent_risk_summary()
+        market_summary = self._build_market_state_summary()
+
         for agent_id, state in self.agent_states.items():
             obs[agent_id] = MultiAgentObservation(
                 agent_id=agent_id,
@@ -95,14 +100,63 @@ class MultiAgentVSREnvironment:
                 step_number=self.current_step,
                 steps_remaining=EPISODE_LENGTH - self.current_step,
                 all_agent_pnls=None,
-                trade_log=None
+                trade_log=None,
+                agent_risk_summary=None,
+                market_state_summary=None,
+                recent_interventions=None,
             )
             
         # Add oversight-specific data
         obs["oversight"].all_agent_pnls = {aid: s.portfolio_pnl for aid, s in self.agent_states.items() if s.role != AgentRole.OVERSIGHT}
         obs["oversight"].trade_log = self.trade_log[-50:] # keep recent
+        obs["oversight"].agent_risk_summary = risk_summary
+        obs["oversight"].market_state_summary = market_summary
+        obs["oversight"].recent_interventions = self.intervention_log[-20:]
         
         return obs
+
+    def _build_agent_risk_summary(self) -> Dict[str, Dict[str, float]]:
+        summary: Dict[str, Dict[str, float]] = {}
+        for agent_id, state in self.agent_states.items():
+            if state.role == AgentRole.OVERSIGHT:
+                continue
+            total_contracts = float(sum(abs(pos.get("quantity", 0.0)) for pos in state.positions))
+            risk_score = (
+                abs(state.portfolio_delta) * 0.1
+                + abs(state.portfolio_gamma) * 0.4
+                + abs(state.portfolio_vega) * 0.1
+                + total_contracts * 0.02
+            )
+            summary[agent_id] = {
+                "pnl": float(state.portfolio_pnl),
+                "delta": float(state.portfolio_delta),
+                "gamma": float(state.portfolio_gamma),
+                "vega": float(state.portfolio_vega),
+                "cash": float(state.cash_balance),
+                "contracts": total_contracts,
+                "risk_score": float(risk_score),
+            }
+        return summary
+
+    def _build_market_state_summary(self) -> Dict[str, float]:
+        trade_window = self.trade_log[-25:]
+        total_volume = float(sum(t.get("quantity", 0.0) for t in trade_window))
+        mm_state = self.agent_states.get("market_maker", AgentState(agent_id="tmp", role=AgentRole.MARKET_MAKER))
+        inventory_stress = (
+            abs(mm_state.portfolio_delta) * 0.1
+            + abs(mm_state.portfolio_gamma) * 0.6
+            + abs(mm_state.portfolio_vega) * 0.08
+        )
+        avg_spread = (
+            self.mm_last_spreads["atm"] + self.mm_last_spreads["otm"] + self.mm_last_spreads["itm"]
+        ) / 3.0
+        market_stability_score = float(inventory_stress + avg_spread + (total_volume * 0.01))
+        return {
+            "inventory_stress": float(inventory_stress),
+            "avg_spread": float(avg_spread),
+            "recent_volume": total_volume,
+            "market_stability_score": market_stability_score,
+        }
 
     def step(self, actions: Dict[str, Any]) -> Tuple[Dict[str, MultiAgentObservation], Dict[str, float], bool, Dict]:
         """Execute one step of the environment."""
@@ -209,6 +263,8 @@ class MultiAgentVSREnvironment:
                 state.portfolio_gamma = vsr.portfolio_gamma
                 state.portfolio_vega = vsr.portfolio_vega
         
+        pre_stability_score = self._build_market_state_summary()["market_stability_score"]
+
         # 4. Oversight labels and enforcement
         ground_truth = {
             aid: self.manipulation_detector.detect_manipulation(self.agent_states[aid], step_trades)
@@ -224,8 +280,19 @@ class MultiAgentVSREnvironment:
                 self.agent_states[flagged].fines_received += oversight_action.fine_amount
                 self.agent_states[flagged].cash_balance -= oversight_action.fine_amount
                 self.agent_states["oversight"].cash_balance += oversight_action.fine_amount
-                if oversight_action.halt_strikes:
+                intervention_record = {
+                    "step": self.current_step,
+                    "agent_id": flagged,
+                    "flag_type": oversight_action.flag_type,
+                    "fine_amount": oversight_action.fine_amount,
+                    "intervention_type": oversight_action.intervention_type,
+                }
+                if oversight_action.halt_strikes or oversight_action.intervention_type == "halt":
                     self.agent_states[flagged].is_halted = True
+                    intervention_record["halt_strikes"] = list(oversight_action.halt_strikes)
+                self.intervention_log.append(intervention_record)
+
+        post_stability_score = self._build_market_state_summary()["market_stability_score"]
 
         # 5. Rewards
         for aid in trader_actions:
@@ -238,15 +305,25 @@ class MultiAgentVSREnvironment:
             mm_action,
         )
                                                       
-        rewards["oversight"] = calculate_oversight_reward(oversight_action, ground_truth)
+        rewards["oversight"] = calculate_oversight_reward(
+            oversight_action,
+            ground_truth,
+            pre_stability_score=pre_stability_score,
+            post_stability_score=post_stability_score,
+        )
 
         observations = self._get_observations()
 
+        risk_summary = observations["oversight"].agent_risk_summary or {}
+        market_summary = observations["oversight"].market_state_summary or {}
         info = {
             "trade_count": len(step_trades),
             "total_volume": float(sum(t.get("quantity", 0.0) for t in step_trades)),
             "market_maker_spreads": dict(self.mm_last_spreads),
             "detected_manipulations": ground_truth,
+            "agent_risk_summary": risk_summary,
+            "market_state_summary": market_summary,
+            "recent_interventions": observations["oversight"].recent_interventions or [],
         }
 
         return observations, rewards, done, info

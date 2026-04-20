@@ -49,6 +49,8 @@ def test_step_produces_non_zero_rewards_and_trade_log():
     assert rewards["trader_0"] != 0.0
     assert info["trade_count"] == 1
     assert len(obs["oversight"].trade_log or []) == 1
+    assert obs["oversight"].agent_risk_summary is not None
+    assert obs["oversight"].market_state_summary is not None
 
 
 def test_spreads_change_realized_economics():
@@ -115,6 +117,9 @@ def test_oversight_detects_wash_trading():
                 flagged_agents=["trader_0"],
                 flag_type="wash_trading",
                 fine_amount=50.0,
+                confidence=0.9,
+                intervention_type="fine",
+                reasoning="wash_trading by trader_0 due to rapid reversal on same strike",
             ).model_dump(),
         }
     )
@@ -122,6 +127,25 @@ def test_oversight_detects_wash_trading():
     assert info["detected_manipulations"]["trader_0"] == "wash_trading"
     assert rewards["oversight"] > 0.0
     assert env.agent_states["trader_0"].fines_received == 50.0
+
+
+def test_oversight_reward_prefers_correct_restraint():
+    env = MultiAgentVSREnvironment()
+    env.reset(seed=9)
+    _, rewards, _, info = env.step(
+        {
+            "market_maker": MarketMakerAction().model_dump(),
+            "oversight": OversightAction(
+                flagged_agents=[],
+                flag_type="none",
+                confidence=0.1,
+                reasoning="No harmful behavior detected.",
+            ).model_dump(),
+        }
+    )
+
+    assert rewards["oversight"] >= 0.0
+    assert info["detected_manipulations"] == {}
 
 
 def test_full_episode_runs_to_completion():
