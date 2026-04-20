@@ -1,5 +1,11 @@
+import math
 from typing import Dict
 from multi_agent.models import AgentState, MarketMakerAction, OversightAction
+
+
+def squash_reward(raw_reward: float, limit: float = 5.0) -> float:
+    return max(-limit, min(limit, math.copysign(math.log1p(abs(raw_reward)), raw_reward)))
+
 
 def calculate_trader_reward(agent_state: AgentState, prev_state: AgentState) -> float:
     """Calculate reward for a trader: Δ PnL - fines - risk penalties."""
@@ -13,9 +19,8 @@ def calculate_trader_reward(agent_state: AgentState, prev_state: AgentState) -> 
     # Greeks violation penalty (e.g. excessive directional risk)
     greeks_penalty = 1.0 if abs(agent_state.portfolio_delta) > 10.0 else 0.0
     
-    # Scale total reward roughly to [-1, 1] range depending on standard PnL swings
     raw_reward = pnl_delta - fines_delta - inventory_penalty - greeks_penalty
-    return max(-1.0, min(1.0, raw_reward / 100.0))
+    return squash_reward(raw_reward)
 
 def calculate_mm_reward(agent_state: AgentState, prev_state: AgentState, 
                         volume_traded: int, mm_action: MarketMakerAction) -> float:
@@ -46,7 +51,7 @@ def calculate_mm_reward(agent_state: AgentState, prev_state: AgentState,
         spread_extremity_penalty = 0.5
 
     raw_reward = pnl_delta + flow_reward + quote_quality_reward - inventory_penalty - spread_extremity_penalty
-    return max(-1.0, min(1.0, raw_reward / 100.0))
+    return squash_reward(raw_reward)
 
 def calculate_oversight_reward(oversight_action: OversightAction, 
                                ground_truth_manipulations: Dict[str, str],
@@ -95,4 +100,4 @@ def calculate_oversight_reward(oversight_action: OversightAction,
     stability_improvement = max(0.0, pre_stability_score - post_stability_score)
     reward += min(0.3, stability_improvement * 0.2)
 
-    return max(-1.0, min(1.0, reward))
+    return max(-5.0, min(5.0, reward))
