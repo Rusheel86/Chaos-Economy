@@ -242,7 +242,8 @@ def run_training(args) -> None:
         logging_steps=10,
         save_steps=100,
         learning_rate=args.learning_rate,
-        bf16=True,
+        bf16=torch.cuda.is_bf16_supported(),
+        fp16=not torch.cuda.is_bf16_supported()
     )
 
     trainer = GRPOTrainer(
