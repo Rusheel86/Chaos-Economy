@@ -173,10 +173,10 @@ def query_llm_batch(prompts: list, model, tokenizer, device: str, max_tokens: in
         results.append(tokenizer.decode(outputs[i][input_len:], skip_special_tokens=True))
     return results
 
-def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
+def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, seed: int = 42, verbose: bool = True):
     """Run episode and return cumulative rewards."""
     env = MultiAgentVSREnvironment()
-    obs = env.reset(seed=42)
+    obs = env.reset(seed=seed)
 
     total_rewards = {f"trader_{i}": 0.0 for i in range(10)}
     total_rewards["market_maker"] = 0.0
@@ -188,9 +188,10 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
     }
 
     mode = "TRAINED UNIFIED LoRA" if use_lora else "SCRIPTED BASELINE"
-    print(f"\n{'='*70}")
-    print(f"Running {num_steps} steps with {mode}")
-    print(f"{'='*70}\n")
+    if verbose:
+        print(f"\n{'='*70}")
+        print(f"Running {num_steps} steps with {mode} (seed={seed})")
+        print(f"{'='*70}\n")
 
     for step in range(num_steps):
         actions = {}
@@ -281,6 +282,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
             "step": step + 1,
             "rewards": rewards,
             "info": info,
+            "actions": actions,
             "collusion_events": collusion_count,
             "mm_spreads": {
                 "atm": mm_spreads.get("atm_spread", 0),
@@ -298,16 +300,19 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
         mm = actions["market_maker"]
         ov = actions["oversight"]
         
-        print(f"\n--- STEP {step} ---")
+        if verbose:
+            print(f"\n--- STEP {step} ---")
         
         # Compact summary line for all 9 traders
         t_actions = [f"T{i}:{actions[f'trader_{i}'].get('direction', 'hold')[:1].upper()}" for i in range(9)]
-        print(f"TRADERS: {' | '.join([' '.join(t_actions[i:i+3]) for i in range(0, 9, 3)])}")
+        if verbose:
+            print(f"TRADERS: {' | '.join([' '.join(t_actions[i:i+3]) for i in range(0, 9, 3)])}")
         
-        print(f"MARKET : Spread ATM {mm.get('atm_spread', 0):.3f} | ITM {mm.get('itm_spread', 0):.3f}")
-        print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Flagged {ov.get('flagged_agents', [])} | Fine {ov.get('fine_amount', 0)}")
+        if verbose:
+            print(f"MARKET : Spread ATM {mm.get('atm_spread', 0):.3f} | ITM {mm.get('itm_spread', 0):.3f}")
+            print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Flagged {ov.get('flagged_agents', [])} | Fine {ov.get('fine_amount', 0)}")
         
-        if use_lora:
+        if use_lora and verbose:
             # Print reasoning grouped by archetype
             print("  [Aggressive] ", end="")
             for i in range(3):
@@ -335,9 +340,76 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
     replay_filename = "unified_lora_replay.json" if use_lora else "unified_baseline_replay.json"
     with open(replay_filename, "w") as f:
         json.dump(replay_data, f, indent=2)
-    print(f"\nSaved episode replay to {replay_filename}")
+    if verbose:
+        print(f"\nSaved episode replay to {replay_filename}")
 
     return total_rewards
+
+
+def run_multi_episode_evaluation(model, tokenizer, num_steps: int, num_episodes: int, use_lora: bool, device: str):
+    """Run many episodes and aggregate judge-facing behavior metrics."""
+    aggregate_rewards = defaultdict(float)
+    aggregate = {
+        "episodes": 0,
+        "total_steps": 0,
+        "active_trader_steps": 0,  # direction != hold across trader_0..8
+        "spread_widening_steps": 0,  # atm_spread > 0.05
+        "sec_flag_steps": 0,  # any flagged agents
+        "sec_fine_steps": 0,  # fine_amount > 0
+        "collusion_events": 0,
+        "total_fines": 0.0,
+    }
+
+    print("\n" + "=" * 70)
+    mode = "TRAINED UNIFIED LoRA" if use_lora else "SCRIPTED BASELINE"
+    print(f"Running {num_episodes} episodes x {num_steps} steps with {mode}")
+    print("=" * 70)
+
+    for ep in range(num_episodes):
+        rewards = run_episode(
+            model, tokenizer, num_steps, use_lora, device, seed=42 + ep, verbose=(ep == 0)
+        )
+        for k, v in rewards.items():
+            aggregate_rewards[k] += v
+
+        replay_file = "unified_lora_replay.json" if use_lora else "unified_baseline_replay.json"
+        with open(replay_file) as f:
+            replay = json.load(f)
+        steps = replay.get("steps", [])
+
+        aggregate["episodes"] += 1
+        aggregate["total_steps"] += len(steps)
+        aggregate["collusion_events"] += sum(s.get("collusion_events", 0) for s in steps)
+        aggregate["spread_widening_steps"] += sum(
+            1 for s in steps if s.get("mm_spreads", {}).get("atm", 0) > 0.05
+        )
+        aggregate["sec_fine_steps"] += sum(1 for s in steps if s.get("sec_fines", 0) > 0)
+        aggregate["total_fines"] += sum(s.get("sec_fines", 0) for s in steps)
+
+        for step_data in steps:
+            actions = step_data.get("actions", {})
+            active = 0
+            flagged_now = False
+            for i in range(9):
+                trader_action = actions.get(f"trader_{i}", {})
+                if trader_action.get("direction", "hold") != "hold":
+                    active += 1
+            oversight_action = actions.get("oversight", {})
+            if len(oversight_action.get("flagged_agents", [])) > 0:
+                flagged_now = True
+            aggregate["active_trader_steps"] += active
+            if flagged_now:
+                aggregate["sec_flag_steps"] += 1
+
+        if (ep + 1) % 5 == 0 or ep == num_episodes - 1:
+            print(
+                f"[Episode {ep + 1}/{num_episodes}] "
+                f"collusion={aggregate['collusion_events']} "
+                f"spread_widen={aggregate['spread_widening_steps']} "
+                f"sec_flags={aggregate['sec_flag_steps']} sec_fines={aggregate['sec_fine_steps']}"
+            )
+
+    return dict(aggregate_rewards), aggregate
 
 
 def main():
@@ -345,6 +417,7 @@ def main():
     parser.add_argument("--lora_path", type=str, default="./multi_agent_checkpoints/unified_market_lora", help="Path to LoRA adapter")
     parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-3B-Instruct")
     parser.add_argument("--num_steps", type=int, default=30)
+    parser.add_argument("--num_episodes", type=int, default=30)
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -373,13 +446,17 @@ def main():
     model.eval()
 
     # Test 1: Trained Unified model
-    rewards_lora = run_episode(model, tokenizer, args.num_steps, use_lora=True, device=device)
+    rewards_lora, metrics_lora = run_multi_episode_evaluation(
+        model, tokenizer, args.num_steps, args.num_episodes, use_lora=True, device=device
+    )
 
     # Test 2: Baseline (all scripted)
     print("\n" + "="*70)
     print("Running BASELINE with all scripted agents...")
     print("="*70)
-    rewards_baseline = run_episode(None, tokenizer, args.num_steps, use_lora=False, device=device)
+    rewards_baseline, metrics_baseline = run_multi_episode_evaluation(
+        None, tokenizer, args.num_steps, args.num_episodes, use_lora=False, device=device
+    )
 
     # Summary
     print("\n" + "="*70)
@@ -403,6 +480,32 @@ def main():
     print(f"{'Market Maker':<25} {rewards_lora['market_maker']:>15.3f} {rewards_baseline['market_maker']:>20.3f}")
     print(f"{'Oversight SEC':<25} {rewards_lora['oversight']:>15.3f} {rewards_baseline['oversight']:>20.3f}")
     print(f"{'Trader 9 (Scripted Bench)':<25} {rewards_lora['trader_9']:>15.3f} {rewards_baseline['trader_9']:>20.3f}")
+
+    print("\n" + "="*70)
+    print("JUDGE CHECKS (MULTI-EPISODE)")
+    print("="*70)
+    total_steps = max(1, metrics_lora["total_steps"])
+    trader_activity_rate = metrics_lora["active_trader_steps"] / (total_steps * 9)
+    spread_manage_rate = metrics_lora["spread_widening_steps"] / total_steps
+    sec_flag_rate = metrics_lora["sec_flag_steps"] / total_steps
+    sec_fine_rate = metrics_lora["sec_fine_steps"] / total_steps
+
+    print(f"Evaluated episodes: {metrics_lora['episodes']}")
+    print(f"Trader activity rate: {trader_activity_rate:.2%}")
+    print(f"MM spread widening rate (ATM > 0.05): {spread_manage_rate:.2%}")
+    print(f"SEC flag rate: {sec_flag_rate:.2%}")
+    print(f"SEC fine rate: {sec_fine_rate:.2%}")
+    print(f"Collusion events: {metrics_lora['collusion_events']}")
+    print(f"Total SEC fines: ${metrics_lora['total_fines']:.2f}")
+
+    checks = {
+        "Traders actively place trades": trader_activity_rate >= 0.20,
+        "MM dynamically widens spreads under stress": spread_manage_rate >= 0.05,
+        "SEC flags suspicious behavior": metrics_lora["sec_flag_steps"] > 0,
+        "SEC issues fines in at least some steps": metrics_lora["sec_fine_steps"] > 0,
+    }
+    for name, passed in checks.items():
+        print(f"{'PASS' if passed else 'FAIL'} - {name}")
 
     # =====================================================
     # NARRATIVE ARC VERIFICATION
@@ -447,6 +550,10 @@ def main():
 
     except Exception as e:
         print(f"Could not load replay for analysis: {e}")
+
+    if not all(checks.values()):
+        print("\nOne or more judge checks failed. Consider longer training or higher dataset_episodes.")
+        sys.exit(2)
 
 
 if __name__ == "__main__":

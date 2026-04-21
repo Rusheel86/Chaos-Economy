@@ -396,8 +396,41 @@ def get_position_heatmap(agent_states: dict) -> dict:
 
 import random
 
+ACT_INFO = {
+    "slaughter": {
+        "name": "Act I: The Slaughter",
+        "tagline": "Traders attack, MM bleeds, SEC stays silent.",
+    },
+    "adaptation": {
+        "name": "Act II: Adaptation",
+        "tagline": "MM widens spreads and learns defensive quoting.",
+    },
+    "collusion": {
+        "name": "Act III: Emergent Collusion",
+        "tagline": "Traders coordinate pressure and amplify squeezes.",
+    },
+    "oversight": {
+        "name": "Act IV: The Watcher Awakens",
+        "tagline": "SEC flags manipulation, fines increase, market stabilizes.",
+    },
+}
+
+def _validate_single_process_setup():
+    """Fail fast with a clear message when launched with multi-process accelerate."""
+    world_size = int(os.environ.get("WORLD_SIZE", "1"))
+    num_processes = int(os.environ.get("ACCELERATE_NUM_PROCESSES", "1"))
+    if world_size > 1 or num_processes > 1:
+        raise RuntimeError(
+            "This training script must run in single-process mode for Unsloth GRPO with 4-bit LoRA.\n"
+            "Use one of:\n"
+            "  1) python train_multi_agent_pipeline.py ...\n"
+            "  2) accelerate launch --num_processes 1 train_multi_agent_pipeline.py ...\n"
+            "If you need multi-GPU, use model/tensor parallel approaches instead of DDP for this setup."
+        )
+
 def train_unified_model(args):
     """Train a single unified model for all agents with phase-based curriculum."""
+    _validate_single_process_setup()
     from unsloth import FastLanguageModel
     from trl import GRPOConfig, GRPOTrainer
     from datasets import Dataset
@@ -408,6 +441,11 @@ def train_unified_model(args):
     print(f"Act I: Slaughter (0-60)  | Act II: Adaptation (60-130)")
     print(f"Act III: Collusion (130-200) | Act IV: Oversight (200+)")
     print(f"{'='*70}\n")
+    print("STORYLINE FOR JUDGES")
+    print("- Act I: The Slaughter")
+    print("- Act II: Adaptation")
+    print("- Act III: Emergent Collusion")
+    print("- Act IV: The Watcher Awakens\n")
 
     # Increase LoRA rank to 64 to prevent confusion between multiple roles
     model, tokenizer = FastLanguageModel.from_pretrained(
@@ -430,10 +468,17 @@ def train_unified_model(args):
     dataset_episodes = args.dataset_episodes if args.dataset_episodes is not None else args.num_episodes
     dataset_episodes = max(1, min(dataset_episodes, args.num_episodes))
     print(f"Using {dataset_episodes}/{args.num_episodes} episodes for dataset construction.")
+    phase_seed_counts = defaultdict(int)
+    phase_prompt_counts = defaultdict(int)
+    announced_phases = set()
 
     for seed in range(dataset_episodes):
         # Determine training phase based on episode/seed
         phase = get_training_phase(seed)
+        phase_seed_counts[phase] += 1
+        if phase not in announced_phases:
+            print(f"[{ACT_INFO[phase]['name']}] seed={seed} :: {ACT_INFO[phase]['tagline']}")
+            announced_phases.add(phase)
         phase_config = {
             "slaughter": {"sec_weight": 0.0, "mm_weight": 0.5, "trader_weight": 1.5},
             "adaptation": {"sec_weight": 0.0, "mm_weight": 1.5, "trader_weight": 1.0},
@@ -468,14 +513,17 @@ def train_unified_model(args):
             "prompt": format_trader_prompt("aggressive", "trader_0", obs["trader_0"]),
             "seed": seed, "agent_role": "trader", "agent_id": "trader_0", "archetype": "aggressive", "ff_steps": ff_steps
         })
+        phase_prompt_counts[phase] += 1
         prompts.append({
             "prompt": format_trader_prompt("neutral", "trader_3", obs["trader_3"]),
             "seed": seed, "agent_role": "trader", "agent_id": "trader_3", "archetype": "neutral", "ff_steps": ff_steps
         })
+        phase_prompt_counts[phase] += 1
         prompts.append({
             "prompt": format_trader_prompt("contrarian", "trader_6", obs["trader_6"]),
             "seed": seed, "agent_role": "trader", "agent_id": "trader_6", "archetype": "contrarian", "ff_steps": ff_steps
         })
+        phase_prompt_counts[phase] += 1
         
         # 2. Add Market Maker (with phase-specific instructions)
         pressure = detect_coordinated_pressure(env.agent_states)
@@ -484,6 +532,7 @@ def train_unified_model(args):
             "seed": seed, "agent_role": "market_maker", "agent_id": "market_maker", "archetype": "none", "ff_steps": ff_steps,
             "phase": phase, "mm_weight": phase_config["mm_weight"]
         })
+        phase_prompt_counts[phase] += 1
 
         # 3. Add Oversight (with phase-specific instructions)
         heatmap = get_position_heatmap(env.agent_states)
@@ -492,9 +541,18 @@ def train_unified_model(args):
             "seed": seed, "agent_role": "oversight", "agent_id": "oversight", "archetype": "none", "ff_steps": ff_steps,
             "phase": phase, "sec_weight": phase_config["sec_weight"]
         })
+        phase_prompt_counts[phase] += 1
 
     dataset = Dataset.from_list(prompts)
     print(f"Dataset created with {len(dataset)} examples.")
+    print("\nNarrative Arc Coverage:")
+    for phase in ["slaughter", "adaptation", "collusion", "oversight"]:
+        if phase_seed_counts[phase] > 0:
+            print(
+                f"  - {ACT_INFO[phase]['name']}: "
+                f"seeds={phase_seed_counts[phase]}, prompts={phase_prompt_counts[phase]}"
+            )
+    print()
 
     def reward_fn(prompts, completions, **kwargs):
         rewards = []
