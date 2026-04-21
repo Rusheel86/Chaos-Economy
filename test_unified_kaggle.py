@@ -26,8 +26,12 @@ import re
 def sanitize_reasoning(text, default="Maintaining delta-neutral exposure and managing inventory risk."):
     if not text or not isinstance(text, str) or len(text.strip()) < 5:
         return default
-    # Catch placeholders
-    patterns = [r"<.*>", r"\$X", r"your explanation", r"Example:", r"Insufficient data"]
+    # Catch all variations of placeholders
+    patterns = [
+        r"<.*>", r"\$X", r"your explanation", r"Insuff", 
+        r"example", r"template", r"placeholder", r"\"str\"", 
+        r"---", r"json", r"\. \. \."
+    ]
     for p in patterns:
         if re.search(p, text, re.IGNORECASE):
             return default

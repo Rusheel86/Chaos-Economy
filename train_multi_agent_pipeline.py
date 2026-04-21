@@ -147,17 +147,16 @@ def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: d
     return f"""You are the SEC surveillance AI monitoring a multi-agent options market.
 
 ## Mission
-Detect MARKET MANIPULATION including COLLUSION between traders.
+Detect MARKET MANIPULATION including COLLUSION. Over-regulation kills liquidity; under-regulation causes systemic collapse.
 
-## Manipulation Types
-1. Gamma Squeeze - Multiple traders buying same OTM strike
-2. Coordinated Pressure - 3+ agents targeting same strike
-3. Wash Trading - Circular trades between agents
-4. Spoofing - Large orders quickly reversed
+## Strategic Nuance: Collusion vs Herd Behavior
+1. **Herd Behavior (Organic)**: Multiple agents buying various strikes because the underlying spot price is trending up. This is legal.
+2. **Predatory Convergence (Manipulation)**: Agents targeting the EXACT SAME out-of-the-money (OTM) strike to force a gamma squeeze on the Market Maker.
+3. **Suspicious Pattern**: If 3+ agents target Strike {obs.current_strike + 2} specifically while ignoring other profitable strikes, prioritize intervention.
 
 ## Market Intelligence
 - Position Heatmap (strike -> contracts): {json.dumps(position_heatmap)}
-- Coordinated Pressure: {json.dumps(coordinated_pressure)}
+- Coordinated Pressure (strike -> count): {json.dumps(coordinated_pressure)}
 - All Agent PnLs: {json.dumps(obs.all_agent_pnls)}
 
 ## Recent Trades
@@ -165,8 +164,7 @@ Detect MARKET MANIPULATION including COLLUSION between traders.
 
 ## Response Format (MANDATORY)
 Return a valid JSON object.
-- DO NOT use placeholders like $X or <...>. If you report a value, use a specific number.
-- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "gamma_squeeze", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.95, "intervention_type": "fine", "reasoning": "Identified 3 agents targeting strike 4 with 250+ contracts total."}}
+- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "gamma_squeeze", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.95, "intervention_type": "fine", "reasoning": "Detected unnatural concentration of OTM calls on strike 5 by agents T0 and T1."}}
 
 Return JSON: {{"flagged_agents": [], "flag_type": "str", "fine_amount": 0.0, "halt_strikes": [], "confidence": 0.0, "intervention_type": "str", "reasoning": "str"}}
 """
