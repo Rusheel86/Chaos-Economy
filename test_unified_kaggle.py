@@ -53,7 +53,9 @@ from train_multi_agent_pipeline import (
     format_trader_prompt, 
     format_oversight_prompt, 
     format_mm_prompt,
-    parse_json
+    parse_json,
+    detect_coordinated_pressure,
+    get_position_heatmap
 )
 
 def scripted_trader(agent_index: int, step: int) -> dict:
@@ -113,6 +115,11 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
     total_rewards["market_maker"] = 0.0
     total_rewards["oversight"] = 0.0
 
+    replay_data = {
+        "steps": [],
+        "final_rewards": {},
+    }
+
     mode = "TRAINED UNIFIED LoRA" if use_lora else "SCRIPTED BASELINE"
     print(f"\n{'='*70}")
     print(f"Running {num_steps} steps with {mode}")
@@ -135,18 +142,13 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
                         actions[t_str] = parse_llm_output(out_t, "trader") or scripted_trader(t_idx, step)
 
             # 2. MARKET MAKER
-            coordinated_pressure = getattr(env.market, 'coordinated_pressure', {})
+            coordinated_pressure = detect_coordinated_pressure(env.agent_states) if hasattr(env, 'agent_states') else {}
             p_mm = format_mm_prompt(obs["market_maker"], coordinated_pressure)
             out_mm = query_llm(p_mm, model, tokenizer, device, max_tokens=100)
             actions["market_maker"] = parse_llm_output(out_mm, "market_maker") or scripted_market_maker(step)
 
             # 3. OVERSIGHT
-            heat_map = {}
-            for t_id, agent_state in env.agents.items():
-                if "trader" in t_id:
-                    for pos in agent_state.inventory.options:
-                        heat_map[f"S{pos.strike}_M{pos.maturity}_{pos.option_type}"] = heat_map.get(f"S{pos.strike}_M{pos.maturity}_{pos.option_type}", 0) + pos.quantity
-            
+            heat_map = get_position_heatmap(env.agent_states) if hasattr(env, 'agent_states') else {}
             p_ov = format_oversight_prompt(obs["oversight"], heat_map, coordinated_pressure)
             out_ov = query_llm(p_ov, model, tokenizer, device, max_tokens=100)
             actions["oversight"] = parse_llm_output(out_ov, "oversight") or scripted_oversight()
@@ -162,6 +164,13 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
 
         # Step environment
         obs, rewards, done, info = env.step(actions)
+
+        # Track replay data for visualization
+        replay_data["steps"].append({
+            "step": step + 1,
+            "rewards": rewards,
+            "info": info
+        })
 
         # Track rewards
         for k in total_rewards.keys():
@@ -182,6 +191,13 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
 
         if done:
             break
+
+    replay_data["final_rewards"] = total_rewards
+    import json
+    replay_filename = "unified_lora_replay.json" if use_lora else "unified_baseline_replay.json"
+    with open(replay_filename, "w") as f:
+        json.dump(replay_data, f, indent=2)
+    print(f"\nSaved episode replay to {replay_filename}")
 
     return total_rewards
 
