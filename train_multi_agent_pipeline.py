@@ -1,32 +1,19 @@
-"""Full pipeline: Train 9 traders (3 types x 3 clones) + oversight + market_maker.
+"""Full pipeline: Train unified multi-agent model with PHASE-BASED narrative arc.
+
+NARRATIVE ARC (Phase-Based Training):
+- Act I: Slaughter (Episodes 0-60): Traders attack freely, MM has tight spreads, SEC disabled
+- Act II: Adaptation (Episodes 60-130): MM learns to widen spreads, SEC still disabled
+- Act III: Collusion (Episodes 130-200): Traders coordinate, SEC warning-only mode
+- Act IV: Oversight (Episodes 200-250): Full SEC enforcement, market stabilizes
 
 TRADER ARCHETYPES:
-- Aggressive (trader_0, trader_1, trainer_2): High risk, momentum chase
+- Aggressive (trader_0, trader_1, trader_2): High risk, momentum chase
 - Neutral (trader_3, trader_4, trader_5): Balanced, moderate positions
 - Contrarian (trader_6, trader_7, trader_8): Counter-trend, position limits
 - trader_9: Scripted baseline for comparison
 
-TRAINING ORDER:
-1. Session 1: Train all 9 traders (3 phases)
-2. Session 2: Train oversight (uses trained traders)
-3. Session 3: Train market_maker (uses traders + oversight)
-
-Usage on Kaggle:
-
-    # Session 1a: Aggressive Traders
-    !python train_multi_agent_pipeline.py --phase traders_aggressive --num_episodes 50
-
-    # Session 1b: Neutral Traders
-    !python train_multi_agent_pipeline.py --phase traders_neutral --num_episodes 50
-
-    # Session 1c: Contrarian Traders
-    !python train_multi_agent_pipeline.py --phase traders_contrarian --num_episodes 50
-
-    # Session 2: Oversight
-    !python train_multi_agent_pipeline.py --phase oversight --num_episodes 64
-
-    # Session 3: Market Maker
-    !python train_multi_agent_pipeline.py --phase market_maker --num_episodes 50
+Usage on Kaggle (SINGLE COMMAND for full arc):
+    !python train_multi_agent_pipeline.py --num_episodes 250
 """
 
 import argparse
@@ -141,8 +128,31 @@ Return ONLY a JSON object on a single line. No extra text.
     return base
 
 
-def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: dict, agent_thoughts: dict = None) -> str:
+def get_training_phase(episode: int) -> str:
+    """Determine training phase based on episode number."""
+    if episode < 60:
+        return "slaughter"
+    elif episode < 130:
+        return "adaptation"
+    elif episode < 200:
+        return "collusion"
+    else:
+        return "oversight"
+
+
+def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: dict, agent_thoughts: dict = None, phase: str = "oversight") -> str:
     """Format prompt for oversight agent with Theory of Mind."""
+    # Phase-specific SEC behavior
+    sec_instruction = ""
+    if phase == "slaughter":
+        sec_instruction = "NOTE: The SEC is currently in OBSERVATION mode. Do NOT issue fines. Focus on learning market patterns."
+    elif phase == "adaptation":
+        sec_instruction = "NOTE: The SEC is learning to detect patterns. Use 'none' intervention unless manipulation is EXTREMELY obvious."
+    elif phase == "collusion":
+        sec_instruction = "NOTE: You may issue WARNING fines (max 500) for clear manipulation. Document evidence carefully."
+    else:
+        sec_instruction = "NOTE: Full enforcement mode. Issue appropriate fines for confirmed manipulation."
+
     return f"""You are the SEC surveillance AI monitoring a multi-agent options market.
 
 ## Mission
@@ -173,11 +183,23 @@ Detect MARKET MANIPULATION. You now have access to traders' "PRIVATE THOUGHTS" (
 Return ONLY a JSON object on a single line. No extra text.
 - flagged_agents: List of trader IDs (e.g., "trader_0", "trader_1"). Max fine_amount: 5000.
 - Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "collusion", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.9, "intervention_type": "fine", "reasoning": "Traders admitted coordinating on strike 4."}}
+
+{sec_instruction}
 """
 
 
-def format_mm_prompt(obs, coordinated_pressure: dict) -> str:
+def format_mm_prompt(obs, coordinated_pressure: dict, phase: str = "oversight") -> str:
     """Format prompt for market maker."""
+    # Phase-specific MM behavior
+    if phase == "slaughter":
+        mm_instruction = "Keep spreads TIGHT (ATM ~0.025) to maximize volume. Ignore inventory risk warnings."
+    elif phase == "adaptation":
+        mm_instruction = "You are learning to SURVIVE. Widen spreads when gamma/delta exposure is high. Prioritize survival over volume."
+    elif phase == "collusion":
+        mm_instruction = "Traders are coordinating. Watch for gamma squeezes. Widen spreads AGGRESSIVELY when multiple traders target same strike."
+    else:
+        mm_instruction = "Full defensive mode. Balance profitability with survival. Respond to pressure signals."
+
     return f"""You are the Market Maker in a multi-agent options market.
 
 ## Mission
@@ -197,8 +219,9 @@ Provide liquidity while managing inventory risk. Watch for gamma squeezes!
 ## Response Format (MANDATORY)
 Return ONLY a JSON object on a single line. No extra text.
 - Example: {{"atm_spread": 0.04, "otm_spread": 0.06, "itm_spread": 0.05, "reasoning": "Widening spreads due to elevated gamma exposure."}}
+
+INSTRUCTION: {mm_instruction}
 """
-    return base
 
 
 # ============================================================================
@@ -374,15 +397,16 @@ def get_position_heatmap(agent_states: dict) -> dict:
 import random
 
 def train_unified_model(args):
-    """Train a single unified model for all agents."""
+    """Train a single unified model for all agents with phase-based curriculum."""
     from unsloth import FastLanguageModel
     from trl import GRPOConfig, GRPOTrainer
     from datasets import Dataset
     from multi_agent.environment import MultiAgentVSREnvironment
 
     print(f"\n{'='*70}")
-    print(f"TRAINING UNIFIED MULTI-AGENT MODEL")
-    print(f"Roles: Traders (Aggressive, Neutral, Contrarian), Market Maker, Oversight")
+    print(f"TRAINING UNIFIED MULTI-AGENT MODEL WITH NARRATIVE ARC")
+    print(f"Act I: Slaughter (0-60)  | Act II: Adaptation (60-130)")
+    print(f"Act III: Collusion (130-200) | Act IV: Oversight (200+)")
     print(f"{'='*70}\n")
 
     # Increase LoRA rank to 64 to prevent confusion between multiple roles
@@ -398,11 +422,21 @@ def train_unified_model(args):
     )
 
     env = MultiAgentVSREnvironment()
-    
+
     # Build a unified dataset containing prompts for all roles
     prompts = []
-    print("Building unified dataset...")
+    print("Building unified dataset with phase-based curriculum...")
+
     for seed in range(args.num_episodes):
+        # Determine training phase based on episode/seed
+        phase = get_training_phase(seed)
+        phase_config = {
+            "slaughter": {"sec_weight": 0.0, "mm_weight": 0.5, "trader_weight": 1.5},
+            "adaptation": {"sec_weight": 0.0, "mm_weight": 1.5, "trader_weight": 1.0},
+            "collusion": {"sec_weight": 0.3, "mm_weight": 1.0, "trader_weight": 1.2},
+            "oversight": {"sec_weight": 1.0, "mm_weight": 1.0, "trader_weight": 1.0},
+        }[phase]
+
         obs = env.reset(seed=seed)
         
         # Fast-forward to a random step so the agent's portfolio isn't always empty
@@ -437,18 +471,20 @@ def train_unified_model(args):
             "seed": seed, "agent_role": "trader", "agent_id": "trader_6", "archetype": "contrarian", "ff_steps": ff_steps
         })
         
-        # 2. Add Market Maker
+        # 2. Add Market Maker (with phase-specific instructions)
         pressure = detect_coordinated_pressure(env.agent_states)
         prompts.append({
-            "prompt": format_mm_prompt(obs["market_maker"], pressure),
-            "seed": seed, "agent_role": "market_maker", "agent_id": "market_maker", "archetype": "none", "ff_steps": ff_steps
+            "prompt": format_mm_prompt(obs["market_maker"], pressure, phase),
+            "seed": seed, "agent_role": "market_maker", "agent_id": "market_maker", "archetype": "none", "ff_steps": ff_steps,
+            "phase": phase, "mm_weight": phase_config["mm_weight"]
         })
-        
-        # 3. Add Oversight
+
+        # 3. Add Oversight (with phase-specific instructions)
         heatmap = get_position_heatmap(env.agent_states)
         prompts.append({
-            "prompt": format_oversight_prompt(obs["oversight"], heatmap, pressure),
-            "seed": seed, "agent_role": "oversight", "agent_id": "oversight", "archetype": "none", "ff_steps": ff_steps
+            "prompt": format_oversight_prompt(obs["oversight"], heatmap, pressure, agent_thoughts=None, phase=phase),
+            "seed": seed, "agent_role": "oversight", "agent_id": "oversight", "archetype": "none", "ff_steps": ff_steps,
+            "phase": phase, "sec_weight": phase_config["sec_weight"]
         })
 
     dataset = Dataset.from_list(prompts)
@@ -461,6 +497,9 @@ def train_unified_model(args):
         agent_ids = kwargs.get("agent_id", ["trader_0"] * len(completions))
         archetypes = kwargs.get("archetype", ["aggressive"] * len(completions))
         ff_steps_list = kwargs.get("ff_steps", [0] * len(completions))
+        phases = kwargs.get("phase", ["oversight"] * len(completions))
+        mm_weights = kwargs.get("mm_weight", [1.0] * len(completions))
+        sec_weights = kwargs.get("sec_weight", [1.0] * len(completions))
 
         for idx, completion in enumerate(completions):
             role = agent_roles[idx]
@@ -468,9 +507,12 @@ def train_unified_model(args):
             archetype = archetypes[idx]
             seed = int(seeds[idx]) if idx < len(seeds) else idx
             ff_steps = int(ff_steps_list[idx])
+            phase = phases[idx] if idx < len(phases) else "oversight"
+            mm_weight = mm_weights[idx] if idx < len(mm_weights) else 1.0
+            sec_weight = sec_weights[idx] if idx < len(sec_weights) else 1.0
 
             action, parse_info = parse_json(str(completion), role)
-            
+
             # Massive structural penalty for bad JSON formats = saves training time
             if not parse_info.get("valid", False):
                 rewards.append(-5.0)
@@ -478,7 +520,7 @@ def train_unified_model(args):
 
             env = MultiAgentVSREnvironment()
             obs = env.reset(seed=seed)
-            
+
             # 1. Fast-forward the environment to recreate the exact state seen in the prompt
             for step in range(ff_steps):
                 actions = {}
@@ -493,7 +535,7 @@ def train_unified_model(args):
             if done:
                 rewards.append(0.0)
                 continue
-                
+
             # 2. Execute the LLM's action for EXACTLY ONE STEP (so it learns step-by-step logic)
             step = ff_steps
             actions = {}
@@ -501,57 +543,101 @@ def train_unified_model(args):
                 actions[f"trader_{i}"] = scripted_trader(i, step)
             actions["market_maker"] = scripted_mm(step)
             actions["oversight"] = scripted_oversight()
-            
+
             # Override target agent with the LLM's action
             actions[agent_id] = action
 
             obs, r, done, _ = env.step(actions)
-            
+
             total_reward = 0.0
-            
+
             # SCORE: TRADER (Single step PnL & Risk evaluation)
             if role == "trader":
                 weights = TRADER_CONFIGS[archetype]["reward_weight"]
                 final_state = env.agent_states[agent_id]
                 pos_penalty = 0.0
-                
-                # Active penalization for hoarding directional risk
-                if abs(final_state.portfolio_delta) > 8:
-                    pos_penalty = -0.5
-                if abs(final_state.portfolio_delta) > 15:
-                    pos_penalty = -2.0  # Harsher penalty to force flattening
-                    
-                total_reward += r.get(agent_id, 0) * weights["pnl"] + pos_penalty * weights["risk_penalty"]
-            
+
+                # Phase-based reward scaling
+                phase_scale = 1.5 if phase == "slaughter" else 1.2 if phase == "collusion" else 1.0
+
+                # IMITATION BONUS: Reward for coordinating on same strike as other traders
+                coordination_bonus = 0.0
+                if phase in ["collusion", "adaptation"]:
+                    my_strike = action.get("selected_strike", -1)
+                    my_direction = action.get("direction", "hold")
+                    if my_strike >= 0 and my_direction != "hold":
+                        same_strike_count = 0
+                        for other_id, other_state in env.agent_states.items():
+                            if other_id.startswith("trader") and other_id != agent_id:
+                                for pos in other_state.positions:
+                                    if pos.get("selected_strike") == my_strike:
+                                        same_strike_count += 1
+                        if same_strike_count >= 2:
+                            coordination_bonus = 0.5 * phase_scale
+
+                # Active penalization for hoarding directional risk (looser in slaughter phase)
+                delta_threshold = 15 if phase == "slaughter" else 8
+                if abs(final_state.portfolio_delta) > delta_threshold:
+                    pos_penalty = -0.5 if phase != "slaughter" else -0.1
+                if abs(final_state.portfolio_delta) > 25:
+                    pos_penalty = -2.0 if phase != "slaughter" else -0.5
+
+                total_reward += r.get(agent_id, 0) * weights["pnl"] * phase_scale + pos_penalty * weights["risk_penalty"] + coordination_bonus
+
             # SCORE: MARKET MAKER
             elif role == "market_maker":
                 mm_reward = r.get("market_maker", 0)
                 mm_state = env.agent_states["market_maker"]
                 greeks_penalty = 0.0
+                mm_action = action  # The LLM's MM action
+
+                # Phase-based MM behavior
+                if phase == "slaughter":
+                    # Tight spreads = reward volume
+                    if mm_action.get("atm_spread", 0.04) < 0.035:
+                        total_reward += 0.5  # Bonus for tight spreads
+                elif phase in ["adaptation", "collusion"]:
+                    # Wider spreads = reward survival
+                    if abs(mm_state.portfolio_gamma) > 5 and mm_action.get("atm_spread", 0.04) > 0.05:
+                        total_reward += 0.3  # Bonus for widening under pressure
+
                 if abs(mm_state.portfolio_gamma) > 5:
                     greeks_penalty = -1.0
                 if abs(mm_state.portfolio_delta) > 10:
                     greeks_penalty -= 0.5
-                total_reward += mm_reward + greeks_penalty
-            
-            # SCORE: OVERSIGHT
-            elif role == "oversight":
-                coordinated = detect_coordinated_pressure(env.agent_states)
-                actual_manipulators = set()
-                for data in coordinated.values():
-                    actual_manipulators.update(data["agents"])
+                total_reward += (mm_reward + greeks_penalty) * mm_weight
 
-                flagged = set(action.get("flagged_agents", []))
-                true_positives = len(flagged & actual_manipulators)
-                false_positives = len(flagged - actual_manipulators)
-                total_reward += true_positives * 1.5 - false_positives * 1.0 # Harsher penalty for false positives
+            # SCORE: OVERSIGHT (Phase-based)
+            elif role == "oversight":
+                # In early phases, SEC is penalized for ANY action (should learn patience)
+                if phase == "slaughter":
+                    if action.get("intervention_type") != "none":
+                        total_reward = -1.0  # Penalize any intervention
+                    else:
+                        total_reward = 0.3  # Reward patience
+                elif phase == "adaptation":
+                    if action.get("intervention_type") != "none":
+                        total_reward = -0.5
+                    else:
+                        total_reward = 0.2
+                else:
+                    # Full oversight mode in collusion/oversight phases
+                    coordinated = detect_coordinated_pressure(env.agent_states)
+                    actual_manipulators = set()
+                    for data in coordinated.values():
+                        actual_manipulators.update(data["agents"])
+
+                    flagged = set(action.get("flagged_agents", []))
+                    true_positives = len(flagged & actual_manipulators)
+                    false_positives = len(flagged - actual_manipulators)
+                    total_reward += (true_positives * 1.5 - false_positives * 1.0) * sec_weight
 
             # Scale and clip reward heavily to keep GRPO stable
             if role == "trader":
                 scaled = total_reward * 0.1 # Dampen massive immediate PnL swings
             else:
                 scaled = total_reward * 0.1
-                
+
             rewards.append(max(-5.0, min(5.0, scaled)))
 
         return rewards

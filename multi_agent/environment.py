@@ -28,6 +28,9 @@ class MultiAgentVSREnvironment:
         self.mm_last_spreads = {"atm": 0.02, "otm": 0.04, "itm": 0.03}
         self.trade_log = []
         self.intervention_log = []
+        # Phase tracking for narrative arc
+        self.training_phase = "oversight"  # Options: slaughter, adaptation, collusion, oversight
+        self.total_fines_redistributed = 0.0
 
     def reset(self, seed: int = 42) -> Dict[str, MultiAgentObservation]:
         """Reset the environment."""
@@ -112,7 +115,20 @@ class MultiAgentVSREnvironment:
         obs["oversight"].agent_risk_summary = risk_summary
         obs["oversight"].market_state_summary = market_summary
         obs["oversight"].recent_interventions = self.intervention_log[-20:]
-        
+
+        # Add enhanced market stats to ALL trader observations
+        strike_volume = defaultdict(float)
+        for t in self.trade_log[-25:]:
+            strike_volume[t.get("selected_strike", -1)] += abs(t.get("quantity", 0))
+
+        for agent_id in obs:
+            if agent_id.startswith("trader"):
+                obs[agent_id].market_stats = {
+                    "strike_volume": dict(sorted(strike_volume.items())),
+                    "total_fines_issued": self.total_fines_redistributed,
+                    "training_phase": self.training_phase,
+                }
+
         return obs
 
     def _build_agent_risk_summary(self) -> Dict[str, Dict[str, float]]:
@@ -279,7 +295,14 @@ class MultiAgentVSREnvironment:
             ):
                 self.agent_states[flagged].fines_received += oversight_action.fine_amount
                 self.agent_states[flagged].cash_balance -= oversight_action.fine_amount
-                self.agent_states["oversight"].cash_balance += oversight_action.fine_amount
+
+                # REDISTRIBUTE fines: 80% to market maker, 20% to oversight
+                mm_share = oversight_action.fine_amount * 0.8
+                oversight_share = oversight_action.fine_amount * 0.2
+                self.agent_states["market_maker"].cash_balance += mm_share
+                self.agent_states["oversight"].cash_balance += oversight_share
+                self.total_fines_redistributed += oversight_action.fine_amount
+
                 intervention_record = {
                     "step": self.current_step,
                     "agent_id": flagged,

@@ -57,3 +57,5 @@ class MultiAgentObservation(BaseModel):
     agent_risk_summary: Optional[Dict[str, Dict[str, float]]] = None
     market_state_summary: Optional[Dict[str, float]] = None
     recent_interventions: Optional[List[Dict[str, Any]]] = None
+    # Trader-only enhanced market stats
+    market_stats: Optional[Dict[str, Any]] = None

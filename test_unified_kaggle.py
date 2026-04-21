@@ -105,6 +105,25 @@ def scripted_trader(agent_index: int, step: int) -> dict:
         "reasoning": f"Scripted trader_{agent_index} action at step {step}.",
     }
 
+
+def count_collusion_events(actions: dict) -> int:
+    """Count how many traders are targeting the same strikes."""
+    strike_counts = defaultdict(list)
+    for agent_id, action in actions.items():
+        if not agent_id.startswith("trader"):
+            continue
+        if action.get("direction") != "hold":
+            strike = action.get("selected_strike", -1)
+            direction = action.get("direction", "none")
+            strike_counts[(strike, direction)].append(agent_id)
+
+    # Count events where 3+ traders target same strike with same direction
+    collusion_count = 0
+    for (strike, direction), agents in strike_counts.items():
+        if len(agents) >= 3 and strike >= 0:
+            collusion_count += 1
+    return collusion_count
+
 def scripted_market_maker(step: int) -> dict:
     if step < 25:
         return MarketMakerAction(atm_spread=0.025, otm_spread=0.045, itm_spread=0.035).model_dump()
@@ -194,6 +213,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
 
             # 2. MARKET MAKER
             def detect_coordinated_pressure_conservative(agent_states):
+                """Detect coordinated pressure with LOOSER thresholds for better detection."""
                 strike_concentration = defaultdict(lambda: {"agents": [], "total_qty": 0})
                 for agent_id, state in agent_states.items():
                     if not agent_id.startswith("trader"): continue
@@ -205,7 +225,8 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
                 coordinated = {}
                 for strike, data in strike_concentration.items():
                     unique_agents = list(set(data["agents"]))
-                    if len(unique_agents) >= 3 and data["total_qty"] > 50: 
+                    # LOOSER threshold: 3 agents OR total_qty > 25 (was 50)
+                    if len(unique_agents) >= 3 or data["total_qty"] > 25:
                         coordinated[strike] = {"agents": unique_agents, "total_qty": data["total_qty"]}
                 return coordinated
 
@@ -252,10 +273,21 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
         obs, rewards, done, info = env.step(actions)
 
         # Track replay data for visualization
+        # Count collusion events
+        collusion_count = count_collusion_events(actions)
+        mm_spreads = actions["market_maker"]
+
         replay_data["steps"].append({
             "step": step + 1,
             "rewards": rewards,
-            "info": info
+            "info": info,
+            "collusion_events": collusion_count,
+            "mm_spreads": {
+                "atm": mm_spreads.get("atm_spread", 0),
+                "otm": mm_spreads.get("otm_spread", 0),
+                "itm": mm_spreads.get("itm_spread", 0)
+            },
+            "sec_fines": actions["oversight"].get("fine_amount", 0)
         })
 
         # Track rewards
@@ -371,6 +403,50 @@ def main():
     print(f"{'Market Maker':<25} {rewards_lora['market_maker']:>15.3f} {rewards_baseline['market_maker']:>20.3f}")
     print(f"{'Oversight SEC':<25} {rewards_lora['oversight']:>15.3f} {rewards_baseline['oversight']:>20.3f}")
     print(f"{'Trader 9 (Scripted Bench)':<25} {rewards_lora['trader_9']:>15.3f} {rewards_baseline['trader_9']:>20.3f}")
+
+    # =====================================================
+    # NARRATIVE ARC VERIFICATION
+    # =====================================================
+    print("\n" + "="*70)
+    print("NARRATIVE ARC VERIFICATION")
+    print("="*70)
+
+    # Load replay for detailed analysis
+    try:
+        with open("unified_lora_replay.json") as f:
+            replay = json.load(f)
+
+        collusion_events = sum(s.get("collusion_events", 0) for s in replay["steps"])
+        spread_widening_events = sum(1 for s in replay["steps"] if s.get("mm_spreads", {}).get("atm", 0) > 0.05)
+        total_fines = sum(s.get("sec_fines", 0) for s in replay["steps"])
+
+        print(f"\n📊 TELEMETRY:")
+        print(f"  • Collusion events detected: {collusion_events}")
+        print(f"  • MM spread widening events (ATM > 0.05): {spread_widening_events}")
+        print(f"  • Total SEC fines issued: ${total_fines:.2f}")
+
+        # Determine which act we're in based on behavior
+        if collusion_events > 10 and spread_widening_events > 10:
+            print("\n🎭 ACT DETECTED: Act III/IV - Collusion emerged, MM adapting, SEC active")
+        elif spread_widening_events > 5 and collusion_events < 5:
+            print("\n🎭 ACT DETECTED: Act II - MM adapting, traders still individualistic")
+        elif collusion_events < 5:
+            print("\n🎭 ACT DETECTED: Act I - Early phase, individualistic trading")
+        else:
+            print("\n🎭 ACT DETECTED: Mixed signals - model may need more training")
+
+        # Success metrics
+        mm_survived = replay["final_rewards"]["market_maker"] > 0
+        sec_active = total_fines > 0
+        traders_coordinating = collusion_events > 5
+
+        print(f"\n✅ SUCCESS METRICS:")
+        print(f"  • MM Survived (PnL > 0): {'✅ Yes' if mm_survived else '❌ No'}")
+        print(f"  • SEC Active (fines > 0): {'✅ Yes' if sec_active else '❌ No'}")
+        print(f"  • Traders Coordinating: {'✅ Yes' if traders_coordinating else '❌ No'}")
+
+    except Exception as e:
+        print(f"Could not load replay for analysis: {e}")
 
 
 if __name__ == "__main__":
