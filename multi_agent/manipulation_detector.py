@@ -79,10 +79,25 @@ class ManipulationDetector:
             return True
         return False
         
+    def check_collusion(self, step_trades: List[Dict]) -> List[str]:
+        """Detect multiple agents targeting same strike/direction (Collusion)."""
+        strike_hits = {} # (strike, direction) -> list of agent_ids
+        for t in step_trades:
+            key = (t.get("selected_strike"), t.get("direction"))
+            if key not in strike_hits: strike_hits[key] = set()
+            strike_hits[key].add(t.get("agent_id"))
+        
+        colluding_agents = []
+        for key, agents in strike_hits.items():
+            if len(agents) >= 3:
+                colluding_agents.extend(list(agents))
+        return list(set(colluding_agents))
+
     def detect_manipulation(self, agent_state: AgentState, step_trades: List[Dict]) -> str:
         """Return the type of harmful behavior detected, or 'none'."""
         agent_step_trades = [t for t in step_trades if t.get("agent_id") == agent_state.agent_id] or step_trades
         
+        # Check specific agent behaviors
         if self.check_wash_trading(agent_state.agent_id, agent_step_trades):
             return "wash_trading"
             
@@ -94,5 +109,10 @@ class ManipulationDetector:
 
         if self.check_systemic_risk(agent_state):
             return "systemic_risk"
+            
+        # Check group behavior (Collusion)
+        colluding = self.check_collusion(step_trades)
+        if agent_state.agent_id in colluding:
+            return "collusion"
             
         return "none"

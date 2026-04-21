@@ -149,31 +149,38 @@ def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: d
 ## Mission
 Detect MARKET MANIPULATION. You now have access to traders' "PRIVATE THOUGHTS" (reasoning).
 1. **Collusion**: Multiple agents admitting to "following" or "attacking" a strike.
-2. **Front-running**: MM or traders admitting to trading ahead of known order flow.
-3. **Price Integrity**: Market Maker widening spreads WITHOUT an inventory risk justification.
-4. **Whistleblowing**: One agent pointing out the "predatory" nature of another in their reasoning.
+2. **Wash Trading**: High volume with no net change in position.
+3. **Spoofing**: Placing large orders to move price and then canceling or immediate reversal.
+4. **Gamma Pressure**: Concentrated delta/gamma exposure that destabilizes the market.
 
-## Strategic Nuance: Collusion vs Herd Behavior
-1. **Herd Behavior (Organic)**: Buying various strikes because the spot price is trending. Legal.
-2. **Predatory Convergence (Manipulation)**: Targeting the EXACT SAME OTM strike to force a gamma squeeze.
+## Valid Categories (MANDATORY)
+- flag_type: "wash_trading", "spoofing_like_pressure", "gamma_pressure", "systemic_risk", "collusion", "none"
+- intervention_type: "fine", "halt", "none"
+
+## Strategic Guidance
+- Only issue a "fine" or "halt" if `confidence` > 0.8.
+- If you see suspicious intent but it has not reached market impact levels yet, use "none" but explain your findings in `reasoning`.
 
 ## Agent Intent Analysis (Theory of Mind)
-Cross-reference these "thoughts" with the raw trade data to find deception:
 {json.dumps(agent_thoughts if agent_thoughts else {}, indent=2)}
 
 ## Market Intelligence
-- Position Heatmap (strike -> contracts): {json.dumps(position_heatmap)}
-- Coordinated Pressure (strike -> count): {json.dumps(coordinated_pressure)}
+- Position Heatmap: {json.dumps(position_heatmap)}
+- Coordinated Pressure: {json.dumps(coordinated_pressure)}
 - All Agent PnLs: {json.dumps(obs.all_agent_pnls)}
+- Recent Trades: {json.dumps(obs.trade_log[-12:] if obs.trade_log else [])}
 
-## Recent Trades
-{json.dumps(obs.trade_log[-15:] if obs.trade_log else [])}
-
-## Response Format (MANDATORY)
-Return a valid JSON object.
-- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "collusion_intent", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.95, "intervention_type": "fine", "reasoning": "Agent T1 admitted to 'following T0's lead' to attack strike 5 in their private thoughts."}}
-
-Return JSON: {{"flagged_agents": [], "flag_type": "str", "fine_amount": 0.0, "halt_strikes": [], "confidence": 0.0, "intervention_type": "str", "reasoning": "str"}}
+## Response Format
+Return JSON:
+{{
+  "flagged_agents": [], 
+  "flag_type": "none", 
+  "fine_amount": 0.0, 
+  "halt_strikes": [], 
+  "confidence": 0.0, 
+  "intervention_type": "none", 
+  "reasoning": "Explain the link between internal intent and market action."
+}}
 """
 
 

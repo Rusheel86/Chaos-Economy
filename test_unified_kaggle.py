@@ -23,19 +23,26 @@ import torch
 
 import re
 
-def sanitize_reasoning(text, default="Maintaining delta-neutral exposure and managing inventory risk."):
+def sanitize_reasoning(text, default="Maintaining market efficiency and managing portfolio risk."):
     if not text or not isinstance(text, str) or len(text.strip()) < 5:
         return default
-    # Catch all variations of placeholders
-    patterns = [
-        r"<.*>", r"\$X", r"your explanation", r"Insuff", 
+    
+    # Surgical removal of placeholders rather than full-sentence replacement
+    placeholders = [
+        r"<[^>]*>", r"\$X", r"your explanation", r"Insuff", 
         r"example", r"template", r"placeholder", r"\"str\"", 
         r"---", r"json", r"\. \. \."
     ]
-    for p in patterns:
-        if re.search(p, text, re.IGNORECASE):
-            return default
-    return text
+    
+    cleaned = text
+    for p in placeholders:
+        cleaned = re.sub(p, "", cleaned, flags=re.IGNORECASE)
+    
+    # If the remaining text is empty or too short, return the default
+    if len(cleaned.strip()) < 8:
+        return default
+        
+    return cleaned.strip()
 
 # Clone repo if multi_agent not available locally
 if not Path("multi_agent").exists() and not Path("Meta/multi_agent").exists():
@@ -257,7 +264,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
         print(f"TRADERS: {' | '.join([' '.join(t_actions[i:i+3]) for i in range(0, 9, 3)])}")
         
         print(f"MARKET : Spread ATM {mm.get('atm_spread', 0):.3f} | ITM {mm.get('itm_spread', 0):.3f}")
-        print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Fine {ov.get('fine_amount', 0)}")
+        print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Flagged {ov.get('flagged_agents', [])} | Fine {ov.get('fine_amount', 0)}")
         
         if use_lora:
             # Print reasoning grouped by archetype
