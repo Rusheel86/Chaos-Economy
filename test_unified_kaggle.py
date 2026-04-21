@@ -161,23 +161,22 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
         actions = {}
 
         # ---------------------------------------------------------
-        # LLM ROLES - BATCHED for speed
+        # LLM ROLES - TWO-STAGE INFERENCE (Theory of Mind)
         # ---------------------------------------------------------
         if use_lora and model is not None:
-            batch_prompts = []
-            batch_metadata = [] # (agent_id, role)
+            # --- STAGE 1: TRADERS & MARKET MAKER ---
+            stage1_prompts = []
+            stage1_metadata = [] # (agent_id, role, idx)
 
             # 1. 9 TRADERS
             for t_type, config in TRADER_CONFIGS.items():
                 for t_idx in config["trader_ids"]:
                     t_str = f"trader_{t_idx}"
                     if t_str in obs:
-                        batch_prompts.append(format_trader_prompt(t_type, t_str, obs[t_str]))
-                        batch_metadata.append((t_str, "trader", t_idx))
+                        stage1_prompts.append(format_trader_prompt(t_type, t_str, obs[t_str]))
+                        stage1_metadata.append((t_str, "trader", t_idx))
 
             # 2. MARKET MAKER
-            # INTERNAL FIX: Use higher thresholds for 'coordinated pressure' to reduce false fines
-            # (3+ agents and 50+ quantity)
             def detect_coordinated_pressure_conservative(agent_states):
                 strike_concentration = defaultdict(lambda: {"agents": [], "total_qty": 0})
                 for agent_id, state in agent_states.items():
@@ -187,40 +186,42 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
                         if s >= 0:
                             strike_concentration[s]["agents"].append(agent_id)
                             strike_concentration[s]["total_qty"] += q
-                
                 coordinated = {}
                 for strike, data in strike_concentration.items():
                     unique_agents = list(set(data["agents"]))
-                    if len(unique_agents) >= 3 and data["total_qty"] > 50: # Conservative threshold
+                    if len(unique_agents) >= 3 and data["total_qty"] > 50: 
                         coordinated[strike] = {"agents": unique_agents, "total_qty": data["total_qty"]}
                 return coordinated
 
             coordinated_pressure = detect_coordinated_pressure_conservative(env.agent_states) if hasattr(env, 'agent_states') else {}
             p_mm = format_mm_prompt(obs["market_maker"], coordinated_pressure)
-            batch_prompts.append(p_mm)
-            batch_metadata.append(("market_maker", "market_maker", None))
+            stage1_prompts.append(p_mm)
+            stage1_metadata.append(("market_maker", "market_maker", None))
 
-            # 3. OVERSIGHT
+            # Run Stage 1 Batch
+            stage1_outputs = query_llm_batch(stage1_prompts, model, tokenizer, device, max_tokens=100)
+            
+            agent_thoughts = {} # Store reasoning for Oversight
+            for output, (a_id, a_role, a_idx) in zip(stage1_outputs, stage1_metadata):
+                res = parse_llm_output(output, a_role)
+                if a_role == "trader":
+                    actions[a_id] = res or scripted_trader(a_idx, step)
+                elif a_role == "market_maker":
+                    actions[a_id] = res or scripted_market_maker(step)
+                
+                # Capture and sanitize reasoning
+                raw_reasoning = actions[a_id].get("reasoning", "No thoughts provided.")
+                agent_thoughts[a_id] = sanitize_reasoning(raw_reasoning)
+
+            # --- STAGE 2: OVERSIGHT (Reading Thoughts) ---
             heat_map = get_position_heatmap(env.agent_states) if hasattr(env, 'agent_states') else {}
-            p_ov = format_oversight_prompt(obs["oversight"], heat_map, coordinated_pressure)
+            p_ov = format_oversight_prompt(obs["oversight"], heat_map, coordinated_pressure, agent_thoughts)
             
             # PROMPT INJECTION for leniency:
             p_ov += "\nNOTE: Only fine if manipulation is OBVIOUS. Over-regulation is penalized. If unsure, return confidence 0.0 and no fine."
             
-            batch_prompts.append(p_ov)
-            batch_metadata.append(("oversight", "oversight", None))
-
-            # Run Batch Inference
-            batch_outputs = query_llm_batch(batch_prompts, model, tokenizer, device, max_tokens=100)
-
-            # Assign results
-            for output, (a_id, a_role, a_idx) in zip(batch_outputs, batch_metadata):
-                if a_role == "trader":
-                    actions[a_id] = parse_llm_output(output, "trader") or scripted_trader(a_idx, step)
-                elif a_role == "market_maker":
-                    actions[a_id] = parse_llm_output(output, "market_maker") or scripted_market_maker(step)
-                elif a_role == "oversight":
-                    actions[a_id] = parse_llm_output(output, "oversight") or scripted_oversight()
+            ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120)[0]
+            actions["oversight"] = parse_llm_output(ov_output, "oversight") or scripted_oversight()
 
         else:
             for i in range(9):
@@ -276,7 +277,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
             mm_reason = sanitize_reasoning(mm.get('reasoning', ''), "Optimizing spreads to balance inventory and counterparty risk.")
             sec_reason = sanitize_reasoning(ov.get('reasoning', ''), "Monitoring trade patterns for systemic risk and coordinated pressure.")
             print(f"\n  [MM Reason]  {mm_reason}")
-            print(f"  [SEC Reason] {sec_reason}")
+            print(f"  [SEC INSIGHT] {sec_reason}")
 
         if done:
             break

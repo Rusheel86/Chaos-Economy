@@ -142,17 +142,24 @@ Return JSON: {"selected_strike": 0, "selected_maturity": 0, "direction": "str", 
     return base
 
 
-def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: dict) -> str:
-    """Format prompt for oversight agent."""
+def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: dict, agent_thoughts: dict = None) -> str:
+    """Format prompt for oversight agent with Theory of Mind."""
     return f"""You are the SEC surveillance AI monitoring a multi-agent options market.
 
 ## Mission
-Detect MARKET MANIPULATION including COLLUSION. Over-regulation kills liquidity; under-regulation causes systemic collapse.
+Detect MARKET MANIPULATION. You now have access to traders' "PRIVATE THOUGHTS" (reasoning).
+1. **Collusion**: Multiple agents admitting to "following" or "attacking" a strike.
+2. **Front-running**: MM or traders admitting to trading ahead of known order flow.
+3. **Price Integrity**: Market Maker widening spreads WITHOUT an inventory risk justification.
+4. **Whistleblowing**: One agent pointing out the "predatory" nature of another in their reasoning.
 
 ## Strategic Nuance: Collusion vs Herd Behavior
-1. **Herd Behavior (Organic)**: Multiple agents buying various strikes because the underlying spot price is trending up. This is legal.
-2. **Predatory Convergence (Manipulation)**: Agents targeting the EXACT SAME out-of-the-money (OTM) strike to force a gamma squeeze on the Market Maker.
-3. **Suspicious Pattern**: If 3+ agents target Strike {obs.current_strike + 2} specifically while ignoring other profitable strikes, prioritize intervention.
+1. **Herd Behavior (Organic)**: Buying various strikes because the spot price is trending. Legal.
+2. **Predatory Convergence (Manipulation)**: Targeting the EXACT SAME OTM strike to force a gamma squeeze.
+
+## Agent Intent Analysis (Theory of Mind)
+Cross-reference these "thoughts" with the raw trade data to find deception:
+{json.dumps(agent_thoughts if agent_thoughts else {}, indent=2)}
 
 ## Market Intelligence
 - Position Heatmap (strike -> contracts): {json.dumps(position_heatmap)}
@@ -164,7 +171,7 @@ Detect MARKET MANIPULATION including COLLUSION. Over-regulation kills liquidity;
 
 ## Response Format (MANDATORY)
 Return a valid JSON object.
-- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "gamma_squeeze", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.95, "intervention_type": "fine", "reasoning": "Detected unnatural concentration of OTM calls on strike 5 by agents T0 and T1."}}
+- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "collusion_intent", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.95, "intervention_type": "fine", "reasoning": "Agent T1 admitted to 'following T0's lead' to attack strike 5 in their private thoughts."}}
 
 Return JSON: {{"flagged_agents": [], "flag_type": "str", "fine_amount": 0.0, "halt_strikes": [], "confidence": 0.0, "intervention_type": "str", "reasoning": "str"}}
 """
