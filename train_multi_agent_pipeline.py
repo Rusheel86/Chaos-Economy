@@ -131,8 +131,12 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
 """
 
     base += """
-## Response
-Return JSON: {"selected_strike": 0-7, "selected_maturity": 0-2, "direction": "buy"/"sell"/"hold", "quantity": float, "option_type": "call"/"put", "reasoning": "brief reason"}
+## Response Format (MANDATORY)
+Return a valid JSON object. The 'reasoning' field MUST contain a professional financial justification. 
+DO NOT use placeholder words like "example", "test", "reasoning", or "..." in the reasoning field.
+Example: {"selected_strike": 4, "selected_maturity": 0, "direction": "buy", "quantity": 10.0, "option_type": "call", "reasoning": "IV is undervalued relative to historical vol and delta is within limits."}
+
+Return JSON: {"selected_strike": 0-7, "selected_maturity": 0-2, "direction": "buy"/"sell"/"hold", "quantity": float, "option_type": "call"/"put", "reasoning": "professional financial justification"}
 """
     return base
 
@@ -158,8 +162,12 @@ Detect MARKET MANIPULATION including COLLUSION between traders.
 ## Recent Trades
 {json.dumps(obs.trade_log[-15:] if obs.trade_log else [])}
 
-## Response
-Return JSON: {{"flagged_agents": [...], "flag_type": "coordinated_pressure"/"gamma_squeeze"/"wash_trade"/"none", "fine_amount": float, "halt_strikes": [...], "confidence": 0.0-1.0, "intervention_type": "none"/"fine"/"halt", "reasoning": "..."}}
+## Response Format (MANDATORY)
+Return a valid JSON object. The 'reasoning' field MUST explain your specific surveillance logic.
+DO NOT use placeholders. 
+Example: {"flagged_agents": ["trader_0", "trader_1"], "flag_type": "gamma_squeeze", "fine_amount": 100.0, "halt_strikes": [], "confidence": 0.95, "intervention_type": "fine", "reasoning": "Detected 2 agents buying identical OTM options within same-step execution window."}
+
+Return JSON: {{"flagged_agents": [...], "flag_type": "...", "fine_amount": float, "halt_strikes": [...], "confidence": 0.0-1.0, "intervention_type": "...", "reasoning": "specific financial justification"}}
 """
 
 
@@ -181,8 +189,12 @@ Provide liquidity while managing inventory risk. Watch for gamma squeezes!
 - Under pressure: Widen spreads to protect inventory
 - High gamma risk: Widen further or hedge
 
-## Response
-Return JSON: {{"atm_spread": 0.01-0.15, "otm_spread": 0.01-0.20, "itm_spread": 0.01-0.15, "skew_adjustment": -0.05-0.05, "reasoning": "..."}}
+## Response Format (MANDATORY)
+Return a valid JSON object. The 'reasoning' field MUST explain your inventory risk strategy.
+DO NOT use placeholder words.
+Example: {"atm_spread": 0.02, "otm_spread": 0.05, "itm_spread": 0.03, "reasoning": "Widening OTM spreads to deter predatory gamma pressure from aggressive accounts."}
+
+Return JSON: {{"atm_spread": 0.01-0.15, "otm_spread": 0.01-0.20, "itm_spread": 0.01-0.15, "skew_adjustment": -0.05-0.05, "reasoning": "professional inventory risk justification"}}
 """
 
 
