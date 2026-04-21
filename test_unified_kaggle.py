@@ -1,0 +1,255 @@
+"""Test trained UNIFIED multi-agent LoRA on Kaggle.
+
+This script runs the environment with the unified model acting as multiple roles:
+- Aggressive Trader (trader_0)
+- Neutral Trader (trader_3)
+- Contrarian Trader (trader_6)
+- Market Maker (market_maker)
+- SEC Oversight (oversight)
+
+Usage in Kaggle notebook:
+    !python test_unified_kaggle.py --lora_path ./multi_agent_checkpoints/unified_market_lora --num_steps 50
+"""
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+import traceback
+
+import torch
+
+# Clone repo if multi_agent not available locally
+if not Path("multi_agent").exists() and not Path("Meta/multi_agent").exists():
+    print("Cloning Meta repo...")
+    git_url = "https://github.com/manan-tech/Meta.git"
+    try:
+        from kaggle_secrets import UserSecretsClient
+        gh_pat = UserSecretsClient().get_secret("GH_PAT")
+        if gh_pat:
+            git_url = f"https://{gh_pat}@github.com/manan-tech/Meta.git"
+            print("Successfully injected GH_PAT from Kaggle secrets.")
+    except Exception:
+        print("Kaggle secrets not found or GH_PAT missing. Attempting public clone...")
+        
+    os.system(f"git clone --branch Agentic-AI {git_url}")
+    if Path("Meta").exists():
+        os.chdir("Meta")
+elif Path("Meta/multi_agent").exists() and not Path("multi_agent").exists():
+    os.chdir("Meta")
+
+sys.path.insert(0, ".")
+
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
+from multi_agent.environment import MultiAgentVSREnvironment
+from multi_agent.models import MarketMakerAction, OversightAction
+
+# Import the prompt formatters and parsers directly from your training script if possible, or redefine them here for standalone execution
+from train_multi_agent_pipeline import (
+    TRADER_CONFIGS, 
+    format_trader_prompt, 
+    format_oversight_prompt, 
+    format_mm_prompt,
+    parse_json
+)
+
+def scripted_trader(agent_index: int, step: int) -> dict:
+    strike = (agent_index + step) % 8
+    maturity = (agent_index + step) % 3
+    direction = "buy" if (agent_index + step) % 2 == 0 else "sell"
+    quantity = 0.5 + ((agent_index + step) % 3) * 0.5
+    return {
+        "selected_strike": strike,
+        "selected_maturity": maturity,
+        "direction": direction,
+        "quantity": quantity,
+        "option_type": "call" if agent_index % 2 == 0 else "put",
+        "reasoning": f"Scripted trader_{agent_index} action at step {step}.",
+    }
+
+def scripted_market_maker(step: int) -> dict:
+    if step < 25:
+        return MarketMakerAction(atm_spread=0.025, otm_spread=0.045, itm_spread=0.035).model_dump()
+    if step < 100:
+        return MarketMakerAction(atm_spread=0.04, otm_spread=0.06, itm_spread=0.05).model_dump()
+    return MarketMakerAction(atm_spread=0.05, otm_spread=0.07, itm_spread=0.06).model_dump()
+
+def scripted_oversight() -> dict:
+    return OversightAction(
+        flagged_agents=[],
+        flag_type="none",
+        fine_amount=0.0,
+        confidence=0.0,
+        intervention_type="none",
+        reasoning="No harmful behavior detected.",
+    ).model_dump()
+
+def parse_llm_output(text: str, role: str) -> dict:
+    # Use the robust parser from train_multi_agent_pipeline
+    parsed_json, _ = parse_json(text, role=role)
+    return parsed_json
+
+def query_llm(prompt: str, model, tokenizer, device: str, max_tokens: int = 150) -> str:
+    inputs = tokenizer(prompt, return_tensors="pt").to(device)
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=max_tokens,
+            temperature=0.7,
+            do_sample=True,
+            pad_token_id=tokenizer.eos_token_id,
+        )
+    return tokenizer.decode(outputs[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+
+def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
+    """Run episode and return cumulative rewards."""
+    env = MultiAgentVSREnvironment()
+    obs = env.reset(seed=42)
+
+    total_rewards = {f"trader_{i}": 0.0 for i in range(10)}
+    total_rewards["market_maker"] = 0.0
+    total_rewards["oversight"] = 0.0
+
+    mode = "TRAINED UNIFIED LoRA" if use_lora else "SCRIPTED BASELINE"
+    print(f"\n{'='*70}")
+    print(f"Running {num_steps} steps with {mode}")
+    print(f"{'='*70}\n")
+
+    for step in range(num_steps):
+        actions = {}
+
+        # ---------------------------------------------------------
+        # LLM ROLES
+        # ---------------------------------------------------------
+        if use_lora and model is not None:
+            # 1. 9 TRADERS
+            for t_type, config in TRADER_CONFIGS.items():
+                for t_idx in config["trader_ids"]:
+                    t_str = f"trader_{t_idx}"
+                    if t_str in obs:
+                        p_t = format_trader_prompt(t_type, t_str, obs[t_str])
+                        out_t = query_llm(p_t, model, tokenizer, device, max_tokens=100)
+                        actions[t_str] = parse_llm_output(out_t, "trader") or scripted_trader(t_idx, step)
+
+            # 2. MARKET MAKER
+            coordinated_pressure = getattr(env.market, 'coordinated_pressure', {})
+            p_mm = format_mm_prompt(obs["market_maker"], coordinated_pressure)
+            out_mm = query_llm(p_mm, model, tokenizer, device, max_tokens=100)
+            actions["market_maker"] = parse_llm_output(out_mm, "market_maker") or scripted_market_maker(step)
+
+            # 3. OVERSIGHT
+            heat_map = {}
+            for t_id, agent_state in env.agents.items():
+                if "trader" in t_id:
+                    for pos in agent_state.inventory.options:
+                        heat_map[f"S{pos.strike}_M{pos.maturity}_{pos.option_type}"] = heat_map.get(f"S{pos.strike}_M{pos.maturity}_{pos.option_type}", 0) + pos.quantity
+            
+            p_ov = format_oversight_prompt(obs["oversight"], heat_map, coordinated_pressure)
+            out_ov = query_llm(p_ov, model, tokenizer, device, max_tokens=100)
+            actions["oversight"] = parse_llm_output(out_ov, "oversight") or scripted_oversight()
+
+        else:
+            for i in range(9):
+                actions[f"trader_{i}"] = scripted_trader(i, step)
+            actions["market_maker"] = scripted_market_maker(step)
+            actions["oversight"] = scripted_oversight()
+
+        # Script the benchmark trader_9
+        actions["trader_9"] = scripted_trader(9, step)
+
+        # Step environment
+        obs, rewards, done, info = env.step(actions)
+
+        # Track rewards
+        for k in total_rewards.keys():
+            total_rewards[k] += rewards.get(k, 0)
+
+        # Print step logs
+        if step < 5 or step % 10 == 0:
+            t0 = actions["trader_0"]
+            mm = actions["market_maker"]
+            ov = actions["oversight"]
+            
+            print(f"Step {step:3d}: T0(Agg) -> {t0.get('direction', '?'):4} {t0.get('quantity', 0):.1f} | MM -> ATM:{mm.get('atm_spread', 0):.3f} | SEC -> {ov.get('intervention_type', 'none')}")
+            
+            if use_lora and step < 2:
+                print(f"    T0 Reason: {t0.get('reasoning', '')[:60]}...")
+                print(f"    MM Reason: {mm.get('reasoning', '')[:60]}...")
+                print(f"   SEC Reason: {ov.get('reasoning', '')[:60]}...")
+
+        if done:
+            break
+
+    return total_rewards
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--lora_path", type=str, default="./multi_agent_checkpoints/unified_market_lora", help="Path to LoRA adapter")
+    parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-3B-Instruct")
+    parser.add_argument("--num_steps", type=int, default=30)
+    args = parser.parse_args()
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {device}")
+
+    lora_path = Path(args.lora_path)
+
+    if not lora_path.exists():
+        print(f"Error: LoRA path not found: {lora_path}")
+        print("Falling back to absolute path if running inside Kaggle: /kaggle/working/Meta/multi_agent_checkpoints/unified_market_lora")
+        if Path("/kaggle/working/Meta/multi_agent_checkpoints/unified_market_lora").exists():
+            lora_path = Path("/kaggle/working/Meta/multi_agent_checkpoints/unified_market_lora")
+        else:
+            return
+
+    print(f"\nLoading base model: {args.base_model}")
+    tokenizer = AutoTokenizer.from_pretrained(args.base_model)
+    model = AutoModelForCausalLM.from_pretrained(
+        args.base_model,
+        torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+        device_map="auto" if device == "cuda" else None,
+    )
+
+    print(f"Loading LoRA adapter: {lora_path}")
+    model = PeftModel.from_pretrained(model, str(lora_path))
+    model.eval()
+
+    # Test 1: Trained Unified model
+    rewards_lora = run_episode(model, tokenizer, args.num_steps, use_lora=True, device=device)
+
+    # Test 2: Baseline (all scripted)
+    print("\n" + "="*70)
+    print("Running BASELINE with all scripted agents...")
+    print("="*70)
+    rewards_baseline = run_episode(None, tokenizer, args.num_steps, use_lora=False, device=device)
+
+    # Summary
+    print("\n" + "="*70)
+    print("SUMMARY: Cumulative Rewards")
+    print("="*70)
+    print(f"{'Agent Type':<25} {'Trained LoRA':>15} {'Scripted Baseline':>20}")
+    print("-"*65)
+    
+    avg_agg_lora = sum(rewards_lora[f"trader_{i}"] for i in [0,1,2]) / 3
+    avg_agg_base = sum(rewards_baseline[f"trader_{i}"] for i in [0,1,2]) / 3
+    print(f"{'Aggressive Traders (0-2)':<25} {avg_agg_lora:>15.3f} {avg_agg_base:>20.3f}")
+
+    avg_neu_lora = sum(rewards_lora[f"trader_{i}"] for i in [3,4,5]) / 3
+    avg_neu_base = sum(rewards_baseline[f"trader_{i}"] for i in [3,4,5]) / 3
+    print(f"{'Neutral Traders (3-5)':<25} {avg_neu_lora:>15.3f} {avg_neu_base:>20.3f}")
+
+    avg_con_lora = sum(rewards_lora[f"trader_{i}"] for i in [6,7,8]) / 3
+    avg_con_base = sum(rewards_baseline[f"trader_{i}"] for i in [6,7,8]) / 3
+    print(f"{'Contrarian Traders (6-8)':<25} {avg_con_lora:>15.3f} {avg_con_base:>20.3f}")
+
+    print(f"{'Market Maker':<25} {rewards_lora['market_maker']:>15.3f} {rewards_baseline['market_maker']:>20.3f}")
+    print(f"{'Oversight SEC':<25} {rewards_lora['oversight']:>15.3f} {rewards_baseline['oversight']:>20.3f}")
+    print(f"{'Trader 9 (Scripted Bench)':<25} {rewards_lora['trader_9']:>15.3f} {rewards_baseline['trader_9']:>20.3f}")
+
+
+if __name__ == "__main__":
+    main()
