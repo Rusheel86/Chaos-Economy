@@ -229,24 +229,35 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
         for k in total_rewards.keys():
             total_rewards[k] += rewards.get(k, 0)
 
-        # Print step logs - COMPLETE REASONING for each step
-        t0 = actions["trader_0"]
-        t3 = actions["trader_3"]
-        t6 = actions["trader_6"]
+        # Print step logs - ALL 9 TRADERS for judge transparency
         mm = actions["market_maker"]
         ov = actions["oversight"]
         
         print(f"\n--- STEP {step} ---")
-        print(f"TRADERS: T0(Agg) {t0.get('direction')} | T3(Neu) {t3.get('direction')} | T6(Con) {t6.get('direction')}")
+        
+        # Compact summary line for all 9 traders
+        t_actions = [f"T{i}:{actions[f'trader_{i}'].get('direction', 'hold')[:1].upper()}" for i in range(9)]
+        print(f"TRADERS: {' | '.join([' '.join(t_actions[i:i+3]) for i in range(0, 9, 3)])}")
+        
         print(f"MARKET : Spread ATM {mm.get('atm_spread', 0):.3f} | ITM {mm.get('itm_spread', 0):.3f}")
         print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Fine {ov.get('fine_amount', 0)}")
         
         if use_lora:
-            print(f"  [T0 Reason] {t0.get('reasoning', 'No reasoning provided')}")
-            print(f"  [T3 Reason] {t3.get('reasoning', 'No reasoning provided')}")
-            print(f"  [T6 Reason] {t6.get('reasoning', 'No reasoning provided')}")
-            print(f"  [MM Reason] {mm.get('reasoning', 'No reasoning provided')}")
-            print(f"  [SEC Reason] {ov.get('reasoning', 'No reasoning provided')}")
+            # Print reasoning grouped by archetype
+            print("  [Aggressive] ", end="")
+            for i in range(3):
+                reason = actions[f"trader_{i}"].get("reasoning", "...")
+                print(f"T{i}: {reason} | ", end="")
+            print("\n  [Neutral]    ", end="")
+            for i in range(3, 6):
+                reason = actions[f"trader_{i}"].get("reasoning", "...")
+                print(f"T{i}: {reason} | ", end="")
+            print("\n  [Contrarian] ", end="")
+            for i in range(6, 9):
+                reason = actions[f"trader_{i}"].get("reasoning", "...")
+                print(f"T{i}: {reason} | ", end="")
+            print(f"\n  [MM Reason]  {mm.get('reasoning', '...')}")
+            print(f"  [SEC Reason] {ov.get('reasoning', '...')}")
 
         if done:
             break
