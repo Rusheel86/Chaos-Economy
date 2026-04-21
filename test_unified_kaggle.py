@@ -26,22 +26,31 @@ import re
 def sanitize_reasoning(text, default="Maintaining market efficiency and managing portfolio risk."):
     if not text or not isinstance(text, str) or len(text.strip()) < 5:
         return default
-    
-    # Surgical removal of placeholders rather than full-sentence replacement
-    placeholders = [
-        r"<[^>]*>", r"\$X", r"your explanation", r"Insuff", 
-        r"example", r"template", r"placeholder", r"\"str\"", 
-        r"---", r"json", r"\. \. \."
+
+    # Check if the entire text is a known placeholder (case-insensitive)
+    lower_text = text.strip().lower()
+    full_placeholders = [
+        "your response here", "your response", "response", "explanation",
+        "your reasoning", "reasoning", "your explanation", "str", "none",
+        "test", "test response", "response format", "n/a", "---"
     ]
-    
+    if lower_text in full_placeholders:
+        return default
+
+    # Surgical removal of placeholder fragments
+    placeholders = [
+        r"<[^>]*>", r"\$X", r"Insuff", r"example", r"template",
+        r"placeholder", r"\"str\"", r"---", r"json", r"\. \. \."
+    ]
+
     cleaned = text
     for p in placeholders:
         cleaned = re.sub(p, "", cleaned, flags=re.IGNORECASE)
-    
+
     # If the remaining text is empty or too short, return the default
     if len(cleaned.strip()) < 8:
         return default
-        
+
     return cleaned.strip()
 
 # Clone repo if multi_agent not available locally

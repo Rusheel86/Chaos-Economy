@@ -132,12 +132,11 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
 
     base += """
 ## Response Format (MANDATORY)
-Return a valid JSON object. 
-- The 'reasoning' field MUST be a complete, professional sentence.
-- NEVER use placeholders like <your explanation>, ..., or [reason].
+Return ONLY a JSON object on a single line. No extra text.
+- direction: "buy", "sell", or "hold"
+- option_type: "call" or "put"
+- reasoning: Complete sentence explaining your decision.
 - Example: {"selected_strike": 4, "selected_maturity": 0, "direction": "buy", "quantity": 10.0, "option_type": "call", "reasoning": "Targeting OTM gamma as spot nears resistance levels."}
-
-Return JSON: {"selected_strike": 0, "selected_maturity": 0, "direction": "str", "quantity": 0.0, "option_type": "str", "reasoning": "str"}
 """
     return base
 
@@ -171,16 +170,9 @@ Detect MARKET MANIPULATION. You now have access to traders' "PRIVATE THOUGHTS" (
 - Recent Trades: {json.dumps(obs.trade_log[-12:] if obs.trade_log else [])}
 
 ## Response Format
-Return JSON:
-{{
-  "flagged_agents": [], 
-  "flag_type": "none", 
-  "fine_amount": 0.0, 
-  "halt_strikes": [], 
-  "confidence": 0.0, 
-  "intervention_type": "none", 
-  "reasoning": "Explain the link between internal intent and market action."
-}}
+Return ONLY a JSON object on a single line. No extra text.
+- flagged_agents: List of trader IDs (e.g., "trader_0", "trader_1"). Max fine_amount: 5000.
+- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "collusion", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.9, "intervention_type": "fine", "reasoning": "Traders admitted coordinating on strike 4."}}
 """
 
 
@@ -203,10 +195,8 @@ Provide liquidity while managing inventory risk. Watch for gamma squeezes!
 - High gamma risk: Widen further or hedge
 
 ## Response Format (MANDATORY)
-- NEVER use placeholders like <...> or $X.
-- Example: {{"atm_spread": 0.02, "otm_spread": 0.05, "itm_spread": 0.03, "reasoning": "Widening OTM spreads to mitigate gamma exposure from aggressive trader group."}}
-
-    Return JSON: {{"atm_spread": 0.0, "otm_spread": 0.0, "itm_spread": 0.0, "skew_adjustment": 0.0, "reasoning": "str"}}
+Return ONLY a JSON object on a single line. No extra text.
+- Example: {{"atm_spread": 0.04, "otm_spread": 0.06, "itm_spread": 0.05, "reasoning": "Widening spreads due to elevated gamma exposure."}}
 """
     return base
 
@@ -255,8 +245,9 @@ def parse_json(text: str, role: str = "trader") -> tuple:
     elif role == "oversight":
         raw_flagged = parsed.get("flagged_agents") or []
         if not isinstance(raw_flagged, list): raw_flagged = []
-        
+
         # Convert to strings and map indices to trader IDs if needed
+        # Only accept valid trader_X format, reject hallucinated IDs like "agent_id1"
         clean_flagged = []
         for x in raw_flagged:
             if isinstance(x, int):
@@ -264,18 +255,23 @@ def parse_json(text: str, role: str = "trader") -> tuple:
             elif isinstance(x, str):
                 if x.isdigit():
                     clean_flagged.append(f"trader_{x}")
-                else:
+                elif x.startswith("trader_") and x[7:].isdigit():
                     clean_flagged.append(x)
-        
+                # Reject invalid formats like "agent_id1"
+
         raw_halts = parsed.get("halt_strikes") or []
         if not isinstance(raw_halts, list): raw_halts = []
         clean_halts = [safe_int(x, -1) for x in raw_halts]
         clean_halts = [x for x in clean_halts if x >= 0]
-        
+
+        # Cap fine amount to prevent extreme penalties (max 5000)
+        raw_fine = safe_float(parsed.get("fine_amount"), 0.0)
+        capped_fine = max(0.0, min(5000.0, raw_fine))
+
         return {
             "flagged_agents": clean_flagged,
             "flag_type": str(parsed.get("flag_type", "none")),
-            "fine_amount": safe_float(parsed.get("fine_amount"), 0.0),
+            "fine_amount": capped_fine,
             "halt_strikes": clean_halts,
             "confidence": safe_float(parsed.get("confidence"), 0.0),
             "intervention_type": str(parsed.get("intervention_type", "none")),
