@@ -94,17 +94,32 @@ def parse_llm_output(text: str, role: str) -> dict:
     parsed_json, _ = parse_json(text, role=role)
     return parsed_json
 
-def query_llm(prompt: str, model, tokenizer, device: str, max_tokens: int = 150) -> str:
-    inputs = tokenizer(prompt, return_tensors="pt").to(device)
+def query_llm_batch(prompts: list, model, tokenizer, device: str, max_tokens: int = 150) -> list:
+    if not prompts:
+        return []
+    
+    # Ensure padding is set up for batching
+    tokenizer.padding_side = "left"
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    inputs = tokenizer(prompts, return_tensors="pt", padding=True).to(device)
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
             max_new_tokens=max_tokens,
             temperature=0.7,
             do_sample=True,
-            pad_token_id=tokenizer.eos_token_id,
+            pad_token_id=tokenizer.pad_token_id,
+            # Suppress the max_length warning
+            max_length=None, 
         )
-    return tokenizer.decode(outputs[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+    
+    results = []
+    input_len = inputs["input_ids"].shape[1]
+    for i in range(len(prompts)):
+        results.append(tokenizer.decode(outputs[i][input_len:], skip_special_tokens=True))
+    return results
 
 def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
     """Run episode and return cumulative rewards."""
@@ -129,29 +144,43 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
         actions = {}
 
         # ---------------------------------------------------------
-        # LLM ROLES
+        # LLM ROLES - BATCHED for speed
         # ---------------------------------------------------------
         if use_lora and model is not None:
+            batch_prompts = []
+            batch_metadata = [] # (agent_id, role)
+
             # 1. 9 TRADERS
             for t_type, config in TRADER_CONFIGS.items():
                 for t_idx in config["trader_ids"]:
                     t_str = f"trader_{t_idx}"
                     if t_str in obs:
-                        p_t = format_trader_prompt(t_type, t_str, obs[t_str])
-                        out_t = query_llm(p_t, model, tokenizer, device, max_tokens=100)
-                        actions[t_str] = parse_llm_output(out_t, "trader") or scripted_trader(t_idx, step)
+                        batch_prompts.append(format_trader_prompt(t_type, t_str, obs[t_str]))
+                        batch_metadata.append((t_str, "trader", t_idx))
 
             # 2. MARKET MAKER
             coordinated_pressure = detect_coordinated_pressure(env.agent_states) if hasattr(env, 'agent_states') else {}
             p_mm = format_mm_prompt(obs["market_maker"], coordinated_pressure)
-            out_mm = query_llm(p_mm, model, tokenizer, device, max_tokens=100)
-            actions["market_maker"] = parse_llm_output(out_mm, "market_maker") or scripted_market_maker(step)
+            batch_prompts.append(p_mm)
+            batch_metadata.append(("market_maker", "market_maker", None))
 
             # 3. OVERSIGHT
             heat_map = get_position_heatmap(env.agent_states) if hasattr(env, 'agent_states') else {}
             p_ov = format_oversight_prompt(obs["oversight"], heat_map, coordinated_pressure)
-            out_ov = query_llm(p_ov, model, tokenizer, device, max_tokens=100)
-            actions["oversight"] = parse_llm_output(out_ov, "oversight") or scripted_oversight()
+            batch_prompts.append(p_ov)
+            batch_metadata.append(("oversight", "oversight", None))
+
+            # Run Batch Inference
+            batch_outputs = query_llm_batch(batch_prompts, model, tokenizer, device, max_tokens=100)
+
+            # Assign results
+            for output, (a_id, a_role, a_idx) in zip(batch_outputs, batch_metadata):
+                if a_role == "trader":
+                    actions[a_id] = parse_llm_output(output, "trader") or scripted_trader(a_idx, step)
+                elif a_role == "market_maker":
+                    actions[a_id] = parse_llm_output(output, "market_maker") or scripted_market_maker(step)
+                elif a_role == "oversight":
+                    actions[a_id] = parse_llm_output(output, "oversight") or scripted_oversight()
 
         else:
             for i in range(9):
