@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 from typing import Dict, Tuple, Any
+from collections import defaultdict 
 
 from multi_agent.models import AgentRole, MultiAgentObservation, AgentState, MarketMakerAction, OversightAction
 from multi_agent.rewards import calculate_trader_reward, calculate_mm_reward, calculate_oversight_reward
