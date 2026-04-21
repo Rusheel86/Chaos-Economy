@@ -229,18 +229,24 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
         for k in total_rewards.keys():
             total_rewards[k] += rewards.get(k, 0)
 
-        # Print step logs
-        if step < 5 or step % 10 == 0:
-            t0 = actions["trader_0"]
-            mm = actions["market_maker"]
-            ov = actions["oversight"]
-            
-            print(f"Step {step:3d}: T0(Agg) -> {t0.get('direction', '?'):4} {t0.get('quantity', 0):.1f} | MM -> ATM:{mm.get('atm_spread', 0):.3f} | SEC -> {ov.get('intervention_type', 'none')}")
-            
-            if use_lora and step < 2:
-                print(f"    T0 Reason: {t0.get('reasoning', '')[:60]}...")
-                print(f"    MM Reason: {mm.get('reasoning', '')[:60]}...")
-                print(f"   SEC Reason: {ov.get('reasoning', '')[:60]}...")
+        # Print step logs - COMPLETE REASONING for each step
+        t0 = actions["trader_0"]
+        t3 = actions["trader_3"]
+        t6 = actions["trader_6"]
+        mm = actions["market_maker"]
+        ov = actions["oversight"]
+        
+        print(f"\n--- STEP {step} ---")
+        print(f"TRADERS: T0(Agg) {t0.get('direction')} | T3(Neu) {t3.get('direction')} | T6(Con) {t6.get('direction')}")
+        print(f"MARKET : Spread ATM {mm.get('atm_spread', 0):.3f} | ITM {mm.get('itm_spread', 0):.3f}")
+        print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Fine {ov.get('fine_amount', 0)}")
+        
+        if use_lora:
+            print(f"  [T0 Reason] {t0.get('reasoning', 'No reasoning provided')}")
+            print(f"  [T3 Reason] {t3.get('reasoning', 'No reasoning provided')}")
+            print(f"  [T6 Reason] {t6.get('reasoning', 'No reasoning provided')}")
+            print(f"  [MM Reason] {mm.get('reasoning', 'No reasoning provided')}")
+            print(f"  [SEC Reason] {ov.get('reasoning', 'No reasoning provided')}")
 
         if done:
             break
