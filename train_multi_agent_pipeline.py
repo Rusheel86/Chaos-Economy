@@ -293,13 +293,20 @@ def parse_json(text: str, role: str = "trader") -> tuple:
         raw_fine = safe_float(parsed.get("fine_amount"), 0.0)
         capped_fine = max(0.0, min(5000.0, raw_fine))
 
+        raw_conf = safe_float(parsed.get("confidence"), 0.0)
+        clean_conf = max(0.0, min(1.0, raw_conf))
+
+        intervention_type = str(parsed.get("intervention_type", "none")).lower()
+        if intervention_type not in {"fine", "halt", "none"}:
+            intervention_type = "none"
+
         return {
             "flagged_agents": clean_flagged,
             "flag_type": str(parsed.get("flag_type", "none")),
             "fine_amount": capped_fine,
             "halt_strikes": clean_halts,
-            "confidence": safe_float(parsed.get("confidence"), 0.0),
-            "intervention_type": str(parsed.get("intervention_type", "none")),
+            "confidence": clean_conf,
+            "intervention_type": intervention_type,
             "reasoning": str(parsed.get("reasoning") or "")[:150],
         }, {"valid": len(parsed) > 0}
 
@@ -634,7 +641,13 @@ def train_unified_model(args):
             # Override target agent with the LLM's action
             actions[agent_id] = action
 
-            obs, r, done, _ = env.step(actions)
+            try:
+                obs, r, done, _ = env.step(actions)
+            except Exception:
+                # Defensive fallback: malformed/generated action should be penalized,
+                # not crash the entire RL run.
+                rewards.append(-2.0)
+                continue
 
             total_reward = 0.0
 
