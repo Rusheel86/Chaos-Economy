@@ -228,13 +228,27 @@ def parse_json(text: str, role: str = "trader") -> tuple:
         }, {"valid": len(parsed) > 0}
 
     elif role == "oversight":
+        raw_flagged = parsed.get("flagged_agents") or []
+        if not isinstance(raw_flagged, list): raw_flagged = []
+        
+        # Convert to strings and map indices to trader IDs if needed
+        clean_flagged = []
+        for x in raw_flagged:
+            if isinstance(x, int):
+                clean_flagged.append(f"trader_{x}")
+            elif isinstance(x, str):
+                if x.isdigit():
+                    clean_flagged.append(f"trader_{x}")
+                else:
+                    clean_flagged.append(x)
+        
         raw_halts = parsed.get("halt_strikes") or []
         if not isinstance(raw_halts, list): raw_halts = []
         clean_halts = [safe_int(x, -1) for x in raw_halts]
         clean_halts = [x for x in clean_halts if x >= 0]
         
         return {
-            "flagged_agents": parsed.get("flagged_agents") or [],
+            "flagged_agents": clean_flagged,
             "flag_type": str(parsed.get("flag_type", "none")),
             "fine_amount": safe_float(parsed.get("fine_amount"), 0.0),
             "halt_strikes": clean_halts,
