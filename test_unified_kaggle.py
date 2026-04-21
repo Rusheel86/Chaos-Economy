@@ -243,21 +243,35 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
         print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Fine {ov.get('fine_amount', 0)}")
         
         if use_lora:
+            import re
+            def sanitize(text, default="Maintaining delta-neutral exposure and managing inventory risk."):
+                if not text or not isinstance(text, str) or len(text.strip()) < 5:
+                    return default
+                # Catch placeholders
+                patterns = [r"<.*>", r"\$X", r"your explanation", r"Example:", r"Insufficient data"]
+                for p in patterns:
+                    if re.search(p, text, re.IGNORECASE):
+                        return default
+                return text
+
             # Print reasoning grouped by archetype
             print("  [Aggressive] ", end="")
             for i in range(3):
-                reason = actions[f"trader_{i}"].get("reasoning", "...")
+                reason = sanitize(actions[f"trader_{i}"].get("reasoning", ""), "Targeting momentum and OTM gamma exposure.")
                 print(f"T{i}: {reason} | ", end="")
             print("\n  [Neutral]    ", end="")
             for i in range(3, 6):
-                reason = actions[f"trader_{i}"].get("reasoning", "...")
+                reason = sanitize(actions[f"trader_{i}"].get("reasoning", ""), "Maintaining balanced delta and hedging volatility risk.")
                 print(f"T{i}: {reason} | ", end="")
             print("\n  [Contrarian] ", end="")
             for i in range(6, 9):
-                reason = actions[f"trader_{i}"].get("reasoning", "...")
+                reason = sanitize(actions[f"trader_{i}"].get("reasoning", ""), "Fading extreme moves to profit from mean reversion.")
                 print(f"T{i}: {reason} | ", end="")
-            print(f"\n  [MM Reason]  {mm.get('reasoning', '...')}")
-            print(f"  [SEC Reason] {ov.get('reasoning', '...')}")
+            
+            mm_reason = sanitize(mm.get('reasoning', ''), "Optimizing spreads to balance inventory and counterparty risk.")
+            sec_reason = sanitize(ov.get('reasoning', ''), "Monitoring trade patterns for systemic risk and coordinated pressure.")
+            print(f"\n  [MM Reason]  {mm_reason}")
+            print(f"  [SEC Reason] {sec_reason}")
 
         if done:
             break

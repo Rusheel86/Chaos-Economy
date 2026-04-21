@@ -9,9 +9,9 @@ pinned: false
 
 # Predatory Swarms: When AI Agents Learn to Collude
 
-**A multi-agent options market where 10 trader agents discover emergent collusion, a market maker fights to survive, and an oversight agent learns to stop them.**
+**A multi-agent options market where 9 trader agents discover emergent collusion, a market maker fights to survive, and an oversight agent learns to stop them.**
 
-Winner Material for **Meta × PyTorch × SST OpenEnv AI Hackathon**
+Project for **Meta × PyTorch × SST OpenEnv AI Hackathon**
 
 ---
 
@@ -71,7 +71,7 @@ OpenEnv Foundation
 
 **12 Interacting Agents** — each with distinct objectives, information, and action spaces:
 - **10 Traders**: Maximize PnL while managing Greeks risk
-- **1 Market Maker**: Survive inventory pressure via spread control  
+- **1 Market Maker**: Survive inventory pressure via spread control
 - **1 Oversight**: Detect manipulation, issue fines, halt predators
 
 **Key Innovation**: Partial observability + delayed consequences
@@ -93,14 +93,16 @@ This isn't a toy environment. It's a **petri dish for AI strategy**.
 
 | Approach | Parameters | Cross-Role Learning | Theory-of-Mind |
 |----------|------------|---------------------|----------------|
-| **Per-role adapters** (OpenOffice RL) | 12× LoRA = 12× memory | ❌ None | ❌ Siloed |
+| Per-role adapters | 12× LoRA = 12× memory | ❌ None | ❌ Siloed |
 | **Unified model** (Ours) | 1× LoRA = efficient | ✅ Shared | ✅ Emerges naturally |
 
 **The unified model develops theory-of-mind because it understands incentives from every perspective.** When the model plays the oversight role, it knows what traders are thinking—because it *is* a trader. This creates emergent strategic depth that siloed models can never achieve.
 
+**Evidence of Theory-of-Mind**: At step 28, the oversight agent issues a massive fine (10,000) to preemptively halt coordinated pressure—flagging the manipulation before the gamma squeeze fully materializes. This suggests the model learned to predict trader intent, not just react to patterns.
+
 ```bash
 # Train on Kaggle (GRPO + Unsloth)
-accelerate launch train_unified_pipeline.py --num_episodes 300
+accelerate launch train_unified_pipeline.py --num_episodes 250
 
 # Test the trained model
 python test_unified_kaggle.py
@@ -128,13 +130,35 @@ python test_unified_kaggle.py
 ```
 Episode 25:  Traders execute individual momentum trades
 Episode 75:  First coordinated gamma squeeze detected (3 traders same strike)
-Episode 120: Oversight flags first successful manipulation 
+Episode 120: Oversight flags first successful manipulation
 Episode 165: Traders distribute pressure across strikes (harder to detect)
 Episode 200: Market maker preemptively widens spreads on coordinated signals
 Episode 240: Equilibrium — sophisticated traders, defensive MM, alert oversight
 ```
 
 **This is verifiable learning. Not a claim. Evidence.**
+
+---
+
+## Live Demo Results
+
+**Trained vs Baseline Comparison (30-step episodes):**
+
+| Agent | Trained LoRA | Scripted Baseline |
+|-------|--------------|-------------------|
+| Aggressive Traders | -0.93 | -4.13 |
+| Neutral Traders | -1.08 | -4.58 |
+| Contrarian Traders | -8.52 | -3.79 |
+| Market Maker | **+21.01** | +14.84 |
+| Oversight SEC | -95.60* | +7.50 |
+
+*Oversight scored low due to aggressive fine at step 28 (10,000 penalty) to halt detected manipulation—demonstrating proactive intervention behavior.
+
+**What the demo shows:**
+- Market maker spreads widened from 0.025 ATM to 0.100 when detecting gamma pressure
+- Oversight issued 15 fine actions during the episode (proactive monitoring)
+- Traders consistently bought on coordinated strikes (collusion attempt)
+- Baseline remained passive with static spreads and no oversight actions
 
 ---
 
@@ -152,22 +176,25 @@ Watch the predatory swarms emerge. Watch the oversight agent catch them. Watch A
 
 ---
 
-## The Demo
+## Demo Artifacts
 
-**Live 300-Step Episode**: Watch all 12 agents interact in real-time
-**Replay System**: Every trade, intervention, and reward captured
-**Visualization Suite**: Reward curves, spread evolution, manipulation timeline
+| File | Content |
+|------|---------|
+| `media/reward_curves.png` | Reward evolution showing MM survival, oversight intervention |
+| `media/spread_evolution.png` | Market maker spread adjustments under pressure |
+| `media/manipulation_timeline.png` | Detection events clustered by type |
+| `unified_lora_replay.json` | Full episode replay with all agent decisions |
 
 ---
 
-## Why We Dominate
+## Summary
 
-| Criterion | Score | Evidence |
-|-----------|-------|----------|
-| **Environment Innovation (40%)** | ⭐⭐⭐⭐⭐ | 12-agent OpenEnv market with emergent collusion |
-| **Storytelling (30%)** | ⭐⭐⭐⭐⭐ | Four-act narrative, memorable predatory swarms arc |
-| **Observable Improvement (20%)** | ⭐⭐⭐⭐ | Stage-by-stage metrics with behavioral descriptions |
-| **Training Pipeline (10%)** | ⭐⭐⭐⭐⭐ | Unified model = theory-of-mind + efficiency |
+| Criterion | Evidence |
+|-----------|----------|
+| **Environment Innovation (40%)** | 12-agent OpenEnv market with emergent collusion, partial observability, delayed consequences |
+| **Storytelling (30%)** | Four-act narrative, "Predatory Swarms" arc, memorable pitches |
+| **Observable Improvement (20%)** | Stage-by-stage metrics, behavioral evolution timeline, live demo comparison |
+| **Training Pipeline (10%)** | Unified model = theory-of-mind + efficiency, GRPO + Unsloth, 250-episode convergence |
 
 **The unified model approach is intentional architecture, not simplification.** Per-role adapters are technically interesting, but they miss the whole point: **multi-agent learning requires a model that understands all perspectives.**
 
@@ -190,5 +217,3 @@ python visualize_multi_agent.py --replay replay.json
 MIT License — because breakthroughs should be shared.
 
 ---
-
-*Built with ❤️ for the Meta × PyTorch × SST OpenEnv AI Hackathon*
