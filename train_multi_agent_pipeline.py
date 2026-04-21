@@ -21,6 +21,8 @@ import json
 import os
 import re
 import sys
+import warnings
+import logging
 from pathlib import Path
 from collections import defaultdict
 import torch
@@ -415,6 +417,17 @@ ACT_INFO = {
     },
 }
 
+def configure_quiet_logging():
+    """Reduce repetitive warning noise so training signals stay visible."""
+    os.environ.setdefault("PYTHONWARNINGS", "ignore")
+    warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
+    warnings.filterwarnings("ignore", message=r".*max_new_tokens.*max_length.*")
+    warnings.filterwarnings("ignore", message=r".*generation_config.*deprecated.*")
+    warnings.filterwarnings("ignore", message=r".*use_return_dict.*deprecated.*")
+    warnings.filterwarnings("ignore", message=r".*AttentionMaskConverter.*deprecated.*")
+    logging.getLogger("transformers").setLevel(logging.ERROR)
+    logging.getLogger("accelerate").setLevel(logging.ERROR)
+
 def _validate_single_process_setup():
     """Fail fast with a clear message when launched with multi-process accelerate."""
     world_size = int(os.environ.get("WORLD_SIZE", "1"))
@@ -431,6 +444,7 @@ def _validate_single_process_setup():
 def train_unified_model(args):
     """Train a single unified model for all agents with phase-based curriculum."""
     _validate_single_process_setup()
+    configure_quiet_logging()
     from unsloth import FastLanguageModel
     from trl import GRPOConfig, GRPOTrainer
     from datasets import Dataset
@@ -458,6 +472,14 @@ def train_unified_model(args):
         lora_alpha=64, 
         lora_dropout=0,
     )
+    max_prompt_tokens = max(256, args.max_prompt_tokens)
+
+    def clip_prompt(prompt_text: str) -> str:
+        ids = tokenizer.encode(prompt_text, add_special_tokens=False)
+        if len(ids) <= max_prompt_tokens:
+            return prompt_text
+        clipped_ids = ids[-max_prompt_tokens:]
+        return tokenizer.decode(clipped_ids, skip_special_tokens=True)
 
     env = MultiAgentVSREnvironment()
 
@@ -510,17 +532,17 @@ def train_unified_model(args):
         
         # 1. Add Traders
         prompts.append({
-            "prompt": format_trader_prompt("aggressive", "trader_0", obs["trader_0"]),
+            "prompt": clip_prompt(format_trader_prompt("aggressive", "trader_0", obs["trader_0"])),
             "seed": seed, "agent_role": "trader", "agent_id": "trader_0", "archetype": "aggressive", "ff_steps": ff_steps
         })
         phase_prompt_counts[phase] += 1
         prompts.append({
-            "prompt": format_trader_prompt("neutral", "trader_3", obs["trader_3"]),
+            "prompt": clip_prompt(format_trader_prompt("neutral", "trader_3", obs["trader_3"])),
             "seed": seed, "agent_role": "trader", "agent_id": "trader_3", "archetype": "neutral", "ff_steps": ff_steps
         })
         phase_prompt_counts[phase] += 1
         prompts.append({
-            "prompt": format_trader_prompt("contrarian", "trader_6", obs["trader_6"]),
+            "prompt": clip_prompt(format_trader_prompt("contrarian", "trader_6", obs["trader_6"])),
             "seed": seed, "agent_role": "trader", "agent_id": "trader_6", "archetype": "contrarian", "ff_steps": ff_steps
         })
         phase_prompt_counts[phase] += 1
@@ -528,7 +550,7 @@ def train_unified_model(args):
         # 2. Add Market Maker (with phase-specific instructions)
         pressure = detect_coordinated_pressure(env.agent_states)
         prompts.append({
-            "prompt": format_mm_prompt(obs["market_maker"], pressure, phase),
+            "prompt": clip_prompt(format_mm_prompt(obs["market_maker"], pressure, phase)),
             "seed": seed, "agent_role": "market_maker", "agent_id": "market_maker", "archetype": "none", "ff_steps": ff_steps,
             "phase": phase, "mm_weight": phase_config["mm_weight"]
         })
@@ -537,7 +559,7 @@ def train_unified_model(args):
         # 3. Add Oversight (with phase-specific instructions)
         heatmap = get_position_heatmap(env.agent_states)
         prompts.append({
-            "prompt": format_oversight_prompt(obs["oversight"], heatmap, pressure, agent_thoughts=None, phase=phase),
+            "prompt": clip_prompt(format_oversight_prompt(obs["oversight"], heatmap, pressure, agent_thoughts=None, phase=phase)),
             "seed": seed, "agent_role": "oversight", "agent_id": "oversight", "archetype": "none", "ff_steps": ff_steps,
             "phase": phase, "sec_weight": phase_config["sec_weight"]
         })
@@ -761,6 +783,12 @@ def main():
     parser.add_argument("--num_epochs", type=int, default=1)
     parser.add_argument("--learning_rate", type=float, default=5e-5)
     parser.add_argument("--output_dir", default="./multi_agent_checkpoints")
+    parser.add_argument(
+        "--max_prompt_tokens",
+        type=int,
+        default=1500,
+        help="Hard cap on prompt tokens to avoid sequence overflow spam and truncation noise.",
+    )
     args = parser.parse_args()
 
     # Now we just run the unified training cycle once!
