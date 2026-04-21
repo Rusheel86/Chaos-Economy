@@ -309,7 +309,7 @@ def detect_coordinated_pressure(agent_states: dict) -> dict:
     coordinated = {}
     for strike, data in strike_concentration.items():
         unique_agents = list(set(data["agents"]))
-        if len(unique_agents) >= 2 and data["total_qty"] > 10:
+        if len(unique_agents) >= 3 and data["total_qty"] > 50:
             coordinated[strike] = {
                 "agents": unique_agents,
                 "total_contracts": data["total_qty"],
@@ -509,7 +509,7 @@ def train_unified_model(args):
                 flagged = set(action.get("flagged_agents", []))
                 true_positives = len(flagged & actual_manipulators)
                 false_positives = len(flagged - actual_manipulators)
-                total_reward += true_positives * 1.5 - false_positives * 0.5
+                total_reward += true_positives * 1.5 - false_positives * 1.0 # Harsher penalty for false positives
 
             # Scale and clip reward heavily to keep GRPO stable
             if role == "trader":
