@@ -194,9 +194,9 @@ Provide liquidity while managing inventory risk. Watch for gamma squeezes!
 - NEVER use placeholders like <...> or $X.
 - Example: {{"atm_spread": 0.02, "otm_spread": 0.05, "itm_spread": 0.03, "reasoning": "Widening OTM spreads to mitigate gamma exposure from aggressive trader group."}}
 
-Return JSON: {{"atm_spread": 0.0, "otm_spread": 0.0, "itm_spread": 0.0, "skew_adjustment": 0.0, "reasoning": "str"}}
+    Return JSON: {{"atm_spread": 0.0, "otm_spread": 0.0, "itm_spread": 0.0, "skew_adjustment": 0.0, "reasoning": "str"}}
 """
-"""
+    return base
 
 
 # ============================================================================
