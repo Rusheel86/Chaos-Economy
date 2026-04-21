@@ -427,7 +427,11 @@ def train_unified_model(args):
     prompts = []
     print("Building unified dataset with phase-based curriculum...")
 
-    for seed in range(args.num_episodes):
+    dataset_episodes = args.dataset_episodes if args.dataset_episodes is not None else args.num_episodes
+    dataset_episodes = max(1, min(dataset_episodes, args.num_episodes))
+    print(f"Using {dataset_episodes}/{args.num_episodes} episodes for dataset construction.")
+
+    for seed in range(dataset_episodes):
         # Determine training phase based on episode/seed
         phase = get_training_phase(seed)
         phase_config = {
@@ -440,7 +444,9 @@ def train_unified_model(args):
         obs = env.reset(seed=seed)
         
         # Fast-forward to a random step so the agent's portfolio isn't always empty
-        ff_steps = random.randint(0, args.episode_length - 5)
+        done = False
+        ff_cap = max(0, min(args.max_fast_forward_steps, args.episode_length - 1))
+        ff_steps = 0 if args.disable_fast_forward else random.randint(0, ff_cap)
         if ff_steps > 0:
             for step in range(ff_steps):
                 actions = {}
@@ -522,6 +528,7 @@ def train_unified_model(args):
             obs = env.reset(seed=seed)
 
             # 1. Fast-forward the environment to recreate the exact state seen in the prompt
+            done = False
             for step in range(ff_steps):
                 actions = {}
                 for i in range(10):
@@ -675,7 +682,24 @@ def main():
     parser = argparse.ArgumentParser(description="Train multi-agent system")
     parser.add_argument("--base_model", default="unsloth/Llama-3.2-3B-Instruct")
     parser.add_argument("--num_episodes", type=int, default=64)
+    parser.add_argument(
+        "--dataset_episodes",
+        type=int,
+        default=None,
+        help="Use only this many episodes to build the training dataset (<= num_episodes).",
+    )
     parser.add_argument("--episode_length", type=int, default=50)
+    parser.add_argument(
+        "--disable_fast_forward",
+        action="store_true",
+        help="Disable random fast-forward during dataset creation for faster startup.",
+    )
+    parser.add_argument(
+        "--max_fast_forward_steps",
+        type=int,
+        default=20,
+        help="Upper bound for random fast-forward steps when creating dataset prompts.",
+    )
     parser.add_argument("--num_epochs", type=int, default=1)
     parser.add_argument("--learning_rate", type=float, default=5e-5)
     parser.add_argument("--output_dir", default="./multi_agent_checkpoints")
