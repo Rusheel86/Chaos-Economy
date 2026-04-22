@@ -482,13 +482,13 @@ def train_unified_model(args):
     print("- Act IV: The Watcher Awakens\n")
 
     if use_unsloth:
-        import torch
-        target_dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        # Force float16 — Unsloth's internal LoRA kernels use fp16 and will crash
+        # with a "Half vs BFloat16" error if we mix dtypes.
         model, tokenizer = FastLanguageModel.from_pretrained(
             args.base_model, 
             max_seq_length=2048, 
             load_in_4bit=True,
-            dtype=target_dtype,
+            dtype=torch.float16,
         )
         model = FastLanguageModel.get_peft_model(
             model, 
@@ -902,8 +902,8 @@ def train_unified_model(args):
         logging_steps=5,
         save_steps=100,
         learning_rate=args.learning_rate,
-        bf16=torch.cuda.is_bf16_supported(),
-        fp16=False if torch.cuda.is_bf16_supported() else True,
+        bf16=False,   # Must be False — Unsloth kernels use fp16 internally
+        fp16=True,    # Match Unsloth's internal dtype
         max_grad_norm=1.0,
     )
 
