@@ -190,7 +190,16 @@ class MultiAgentVSREnvironment:
         
         mm_raw = actions.get("market_maker")
         if isinstance(mm_raw, dict):
-            mm_action = MarketMakerAction(**mm_raw)
+            # Clamp all constrained fields to prevent Pydantic validation crashes
+            mm_raw = dict(mm_raw)  # shallow copy
+            mm_raw["atm_spread"] = max(0.001, min(0.20, float(mm_raw.get("atm_spread", 0.02))))
+            mm_raw["otm_spread"] = max(0.001, min(0.30, float(mm_raw.get("otm_spread", 0.04))))
+            mm_raw["itm_spread"] = max(0.001, min(0.25, float(mm_raw.get("itm_spread", 0.03))))
+            mm_raw["skew_adjustment"] = max(-0.05, min(0.05, float(mm_raw.get("skew_adjustment", 0.0))))
+            try:
+                mm_action = MarketMakerAction(**mm_raw)
+            except Exception:
+                mm_action = MarketMakerAction()
         elif isinstance(mm_raw, MarketMakerAction):
             mm_action = mm_raw
         else:
@@ -204,11 +213,22 @@ class MultiAgentVSREnvironment:
 
         oversight_raw = actions.get("oversight")
         if isinstance(oversight_raw, dict):
-             oversight_action = OversightAction(**oversight_raw)
+            # Clamp all constrained fields to prevent Pydantic validation crashes
+            oversight_raw = dict(oversight_raw)  # shallow copy
+            oversight_raw["confidence"] = max(0.0, min(1.0, float(oversight_raw.get("confidence", 0.0))))
+            oversight_raw["fine_amount"] = max(0.0, min(50000.0, float(oversight_raw.get("fine_amount", 0.0))))
+            if not isinstance(oversight_raw.get("flagged_agents"), list):
+                oversight_raw["flagged_agents"] = []
+            if not isinstance(oversight_raw.get("halt_strikes"), list):
+                oversight_raw["halt_strikes"] = []
+            try:
+                oversight_action = OversightAction(**oversight_raw)
+            except Exception:
+                oversight_action = OversightAction()
         elif isinstance(oversight_raw, OversightAction):
-             oversight_action = oversight_raw
+            oversight_action = oversight_raw
         else:
-             oversight_action = OversightAction()
+            oversight_action = OversightAction()
             
         # 2. Trader orders + Matching
         executed_trades = self.matching_engine.match_orders(
