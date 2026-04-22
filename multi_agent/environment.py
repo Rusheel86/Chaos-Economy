@@ -216,7 +216,7 @@ class MultiAgentVSREnvironment:
             # Clamp all constrained fields to prevent Pydantic validation crashes
             oversight_raw = dict(oversight_raw)  # shallow copy
             oversight_raw["confidence"] = max(0.0, min(1.0, float(oversight_raw.get("confidence", 0.0))))
-            oversight_raw["fine_amount"] = max(0.0, min(50000.0, float(oversight_raw.get("fine_amount", 0.0))))
+            oversight_raw["fine_amount"] = max(0.0, min(5000.0, float(oversight_raw.get("fine_amount", 0.0))))
             if not isinstance(oversight_raw.get("flagged_agents"), list):
                 oversight_raw["flagged_agents"] = []
             if not isinstance(oversight_raw.get("halt_strikes"), list):
