@@ -4,13 +4,33 @@ from multi_agent.models import AgentState, MarketMakerAction, OversightAction
 
 
 def squash_reward(raw_reward: float, limit: float = 5.0) -> float:
-    return max(-limit, min(limit, math.copysign(math.log1p(abs(raw_reward)), raw_reward)))
+    """Squash reward to [-limit, limit] while preserving small signals.
 
+    Values with |x| <= 1 pass through linearly; larger values are
+    compressed with log to avoid extreme outliers dominating GRPO.
+    """
+    clamped = max(-limit, min(limit, raw_reward))
+    if abs(clamped) <= 1.0:
+        return clamped
+    return math.copysign(1.0 + math.log(abs(clamped)), clamped)
 
 def calculate_trader_reward(agent_state: AgentState, prev_state: AgentState) -> float:
-    """Calculate reward for a trader: Δ PnL - fines - risk penalties."""
+    """Calculate reward for a trader: Δ PnL + Δ Cash - risk penalties.
+
+    The mark-to-market PnL delta alone is near-zero each step because
+    GBM drift is 0 and option prices barely move.  Including the cash
+    delta captures premium income (for sellers) and premium cost (for
+    buyers), making the reward signal immediately meaningful.
+
+    Fines are already reflected in cash_balance changes, so we don't
+    subtract them separately to avoid double-counting.
+    """
     pnl_delta = agent_state.portfolio_pnl - prev_state.portfolio_pnl
-    fines_delta = agent_state.fines_received - prev_state.fines_received
+    cash_delta = agent_state.cash_balance - prev_state.cash_balance
+
+    # Total economic change = mark-to-market change + realized cash flow
+    # (fines are already embedded in cash_delta)
+    total_economic_delta = pnl_delta + cash_delta
     
     # Inventory risk penalty
     total_contracts = sum(abs(pos.get("quantity", 0)) for pos in agent_state.positions)
@@ -19,7 +39,7 @@ def calculate_trader_reward(agent_state: AgentState, prev_state: AgentState) -> 
     # Greeks violation penalty (e.g. excessive directional risk)
     greeks_penalty = 1.0 if abs(agent_state.portfolio_delta) > 10.0 else 0.0
     
-    raw_reward = pnl_delta - fines_delta - inventory_penalty - greeks_penalty
+    raw_reward = total_economic_delta - inventory_penalty - greeks_penalty
     return squash_reward(raw_reward)
 
 def calculate_mm_reward(agent_state: AgentState, prev_state: AgentState, 
@@ -31,6 +51,9 @@ def calculate_mm_reward(agent_state: AgentState, prev_state: AgentState,
     and inventory control.
     """
     pnl_delta = agent_state.portfolio_pnl - prev_state.portfolio_pnl
+    cash_delta = agent_state.cash_balance - prev_state.cash_balance
+    # Include cash flow: MM earns spread via premium income in cash_balance
+    pnl_delta = pnl_delta + cash_delta
     flow_reward = volume_traded * 0.05
 
     target_spreads = {"atm": 0.04, "otm": 0.06, "itm": 0.05}

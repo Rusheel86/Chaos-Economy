@@ -732,11 +732,8 @@ def train_unified_model(args):
                     false_positives = len(flagged - actual_manipulators)
                     total_reward += (true_positives * 1.5 - false_positives * 1.0) * sec_weight
 
-            # Scale and clip reward heavily to keep GRPO stable
-            if role == "trader":
-                scaled = total_reward * 0.1 # Dampen massive immediate PnL swings
-            else:
-                scaled = total_reward * 0.1
+            # Moderate scaling – squash_reward already bounds to [-5, 5]
+            scaled = total_reward * 0.5
 
             rewards.append(max(-5.0, min(5.0, scaled)))
 

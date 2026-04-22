@@ -253,8 +253,13 @@ class MultiAgentVSREnvironment:
                 step_trades.append(step_trade)
                 self.trade_log.append(step_trade)
 
-                self.agent_states[agent_id].cash_balance -= premium
-                self.agent_states["market_maker"].cash_balance += premium
+                # Cash flow: buyers pay premium, sellers receive premium
+                if trade["direction"] == "buy":
+                    self.agent_states[agent_id].cash_balance -= premium
+                    self.agent_states["market_maker"].cash_balance += premium
+                else:  # sell
+                    self.agent_states[agent_id].cash_balance += premium
+                    self.agent_states["market_maker"].cash_balance -= premium
 
                 # Trader position
                 add_position(
