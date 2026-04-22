@@ -641,6 +641,10 @@ def train_unified_model(args):
     import time
     _env_state_cache = {}
     _eval_cache = {}
+    # Rolling action history per agent — tracks last N directions to detect monotony
+    _action_history = {}   # agent_id -> list of recent directions
+    _MONOTONY_WINDOW = 4   # penalize if last 4+ actions are identical
+    _MONOTONY_PENALTY_BASE = -0.3  # per-step escalation
 
     def _evaluate_all(prompts, completions, kwargs):
         seeds = kwargs.get("seed", list(range(len(completions))))
@@ -689,6 +693,29 @@ def train_unified_model(args):
 
             # Valid format bonus
             comp["format"] = 1.0
+
+            # --- MONOTONY TRACKING ---
+            # Record direction for this agent and compute streak penalty
+            current_direction = action.get("direction", "hold") if role == "trader" else None
+            monotony_penalty = 0.0
+            if current_direction is not None:
+                history = _action_history.setdefault(agent_id, [])
+                history.append(current_direction)
+                # Keep only a reasonable window (last 8 actions)
+                if len(history) > 8:
+                    _action_history[agent_id] = history[-8:]
+                    history = _action_history[agent_id]
+                # Count consecutive identical actions from the tail
+                streak = 0
+                for past in reversed(history):
+                    if past == current_direction:
+                        streak += 1
+                    else:
+                        break
+                # Penalize streaks >= MONOTONY_WINDOW with escalating severity
+                if streak >= _MONOTONY_WINDOW:
+                    excess = streak - _MONOTONY_WINDOW + 1  # 1, 2, 3...
+                    monotony_penalty = _MONOTONY_PENALTY_BASE * excess
 
             state_key = (seed, ff_steps)
             if state_key in _env_state_cache:
@@ -763,7 +790,7 @@ def train_unified_model(args):
                     pos_penalty = -2.0 if phase != "slaughter" else -0.5
                 comp["risk"] = pos_penalty * weights["risk_penalty"]
 
-                # Diversity Incentive — INACTIVITY PENALTY replaces hold bonus
+                # Diversity Incentive — INACTIVITY PENALTY + MONOTONY PENALTY
                 div_score = 0.0
                 
                 # Penalize holding for aggressive traders (they should always be trading)
@@ -774,6 +801,10 @@ def train_unified_model(args):
                         div_score = -0.3  # moderate penalty
                     else:  # contrarian
                         div_score = -0.1  # mild penalty — contrarians can hold sometimes
+                
+                # MONOTONY PENALTY: penalize repeating the SAME action for too long
+                # (applies to ALL directions — hold, buy, or sell streaks)
+                div_score += monotony_penalty
                 
                 # Anti-herding: penalize following the crowd ONLY for contrarian/neutral
                 if is_active and archetype in ["contrarian", "neutral"]:
