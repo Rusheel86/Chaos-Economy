@@ -705,7 +705,28 @@ def train_unified_model(args):
                 if abs(final_state.portfolio_delta) > 25:
                     pos_penalty = -2.0 if phase != "slaughter" else -0.5
 
-                total_reward += r.get(agent_id, 0) * weights["pnl"] * phase_scale + pos_penalty * weights["risk_penalty"] + coordination_bonus
+                # Diversity Incentive: penalize taking the same direction as majority if contrarian
+                diversity_penalty = 0.0
+                if archetype in ["contrarian", "neutral"]:
+                    sell_count = sum(1 for a in actions.values() if a.get("direction") == "sell")
+                    buy_count = sum(1 for a in actions.values() if a.get("direction") == "buy")
+                    my_direction = action.get("direction", "hold")
+                    
+                    if my_direction == "sell" and sell_count >= 5:
+                        diversity_penalty = -0.5
+                    elif my_direction == "buy" and buy_count >= 5:
+                        diversity_penalty = -0.5
+                    elif my_direction == "hold" and (sell_count >= 5 or buy_count >= 5):
+                        diversity_penalty = 0.5 # Reward contrarian holding when market herds
+                        
+                # Anti-churn bonus
+                my_direction = action.get("direction", "hold")
+                if my_direction == "hold":
+                    diversity_penalty += 0.2
+
+                raw_trader_reward = r.get(agent_id, 0) * weights["pnl"] * phase_scale + pos_penalty * weights["risk_penalty"] + coordination_bonus + diversity_penalty
+                # Cap the maximum positive reward for any single trader step to prevent hacking
+                total_reward += max(-5.0, min(5.0, raw_trader_reward))
 
             # SCORE: MARKET MAKER
             elif role == "market_maker":
@@ -722,7 +743,9 @@ def train_unified_model(args):
                 elif phase in ["adaptation", "collusion"]:
                     # Wider spreads = reward survival
                     if abs(mm_state.portfolio_gamma) > 5 and mm_action.get("atm_spread", 0.04) > 0.05:
-                        total_reward += 0.3  # Bonus for widening under pressure
+                        total_reward += 1.0  # Increased bonus for widening under pressure
+                    elif abs(mm_state.portfolio_gamma) > 5 and mm_action.get("atm_spread", 0.04) <= 0.04:
+                        total_reward -= 0.5  # Explicit penalty for tight spreads under pressure
 
                 if abs(mm_state.portfolio_gamma) > 5:
                     greeks_penalty = -1.0
@@ -793,7 +816,7 @@ def train_unified_model(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Train multi-agent system")
-    parser.add_argument("--base_model", default="unsloth/Llama-3.2-3B-Instruct")
+    parser.add_argument("--base_model", default="unsloth/Llama-3.2-1B-Instruct")
     parser.add_argument("--num_episodes", type=int, default=64)
     parser.add_argument(
         "--dataset_episodes",

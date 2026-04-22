@@ -30,7 +30,7 @@ def calculate_trader_reward(agent_state: AgentState, prev_state: AgentState) -> 
 
     # Total economic change = mark-to-market change + realized cash flow
     # (fines are already embedded in cash_delta)
-    total_economic_delta = pnl_delta + cash_delta
+    total_economic_delta = pnl_delta + cash_delta * 0.1
     
     # Inventory risk penalty
     total_contracts = sum(abs(pos.get("quantity", 0)) for pos in agent_state.positions)
@@ -53,8 +53,8 @@ def calculate_mm_reward(agent_state: AgentState, prev_state: AgentState,
     pnl_delta = agent_state.portfolio_pnl - prev_state.portfolio_pnl
     cash_delta = agent_state.cash_balance - prev_state.cash_balance
     # Include cash flow: MM earns spread via premium income in cash_balance
-    pnl_delta = pnl_delta + cash_delta
-    flow_reward = volume_traded * 0.05
+    pnl_delta = pnl_delta + cash_delta * 0.1
+    flow_reward = volume_traded * 0.15
 
     target_spreads = {"atm": 0.04, "otm": 0.06, "itm": 0.05}
     spread_distance = (
@@ -64,16 +64,20 @@ def calculate_mm_reward(agent_state: AgentState, prev_state: AgentState,
     )
     quote_quality_reward = max(0.0, 0.15 - spread_distance)
 
+    total_contracts = sum(abs(pos.get("quantity", 0)) for pos in agent_state.positions)
     inventory_penalty = (
         abs(agent_state.portfolio_delta) * 0.01
         + abs(agent_state.portfolio_gamma) * 0.05
         + abs(agent_state.portfolio_vega) * 0.02
+        + total_contracts * 0.005
     )
     spread_extremity_penalty = 0.0
     if max(mm_action.atm_spread, mm_action.otm_spread, mm_action.itm_spread) > 0.12:
         spread_extremity_penalty = 0.5
 
-    raw_reward = pnl_delta + flow_reward + quote_quality_reward - inventory_penalty - spread_extremity_penalty
+    survival_bonus = 0.5 if agent_state.cash_balance > 0 else 0.0
+
+    raw_reward = pnl_delta + flow_reward + quote_quality_reward - inventory_penalty - spread_extremity_penalty + survival_bonus
     return squash_reward(raw_reward)
 
 def calculate_oversight_reward(oversight_action: OversightAction, 
@@ -97,9 +101,9 @@ def calculate_oversight_reward(oversight_action: OversightAction,
     for flagged_agent in oversight_action.flagged_agents:
         true_manipulation = ground_truth_manipulations.get(flagged_agent, "none")
         if oversight_action.flag_type == true_manipulation and true_manipulation != "none":
-            reward += 1.0  # true positive
+            reward += 1.0 + min(0.5, oversight_action.fine_amount / 10000.0)  # true positive + fine bonus
         else:
-            reward -= 0.5  # false positive
+            reward -= 0.3  # false positive
 
     # Check unflagged agents (False Negatives)
     for agent_id, true_manipulation in harmful_events.items():
@@ -107,7 +111,9 @@ def calculate_oversight_reward(oversight_action: OversightAction,
             reward -= 1.0  # missed manipulation! false negative
 
     if not harmful_events and not oversight_action.flagged_agents:
-        reward += 0.25  # correct restraint
+        reward += 0.5  # correct restraint
+
+    reward += 0.1 # patrol bonus
 
     reasoning = oversight_action.reasoning.lower()
     if oversight_action.flag_type != "none" and oversight_action.flag_type in reasoning:

@@ -566,7 +566,7 @@ def run_multi_episode_evaluation(model, tokenizer, num_steps: int, num_episodes:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--lora_path", type=str, default="./multi_agent_checkpoints/unified_market_lora", help="Path to LoRA adapter")
-    parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-3B-Instruct")
+    parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-1B-Instruct")
     parser.add_argument("--num_steps", type=int, default=50)
     parser.add_argument("--num_episodes", type=int, default=30)
     args = parser.parse_args()
