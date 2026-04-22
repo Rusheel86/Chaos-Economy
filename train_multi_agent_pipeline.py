@@ -482,11 +482,13 @@ def train_unified_model(args):
     print("- Act IV: The Watcher Awakens\n")
 
     if use_unsloth:
+        import torch
+        target_dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
         model, tokenizer = FastLanguageModel.from_pretrained(
             args.base_model, 
             max_seq_length=2048, 
             load_in_4bit=True,
-            dtype=None, # Auto-detect (will pick BF16 on L4)
+            dtype=target_dtype,
         )
         model = FastLanguageModel.get_peft_model(
             model, 
