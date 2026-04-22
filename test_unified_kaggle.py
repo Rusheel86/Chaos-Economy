@@ -91,56 +91,80 @@ from train_multi_agent_pipeline import (
     get_position_heatmap
 )
 
-def _extract_market_features(trader_obs: dict) -> tuple[float, float]:
-    """Best-effort extraction of spot/IV features from trader observations."""
+def _extract_market_features(trader_obs) -> tuple[float, float]:
+    """Best-effort extraction of spot/IV features from trader observations.
+    
+    Handles both dict and Pydantic MultiAgentObservation objects.
+    Computes ATM IV from iv_surface (8 strikes x 3 maturities) if atm_iv is absent.
+    """
+    # Convert Pydantic models to dict
+    if hasattr(trader_obs, 'model_dump'):
+        trader_obs = trader_obs.model_dump()
     if not isinstance(trader_obs, dict):
-        return 100.0, 0.22
-    spot = float(
-        trader_obs.get("spot_price")
-        or trader_obs.get("spot")
-        or trader_obs.get("underlier_price")
-        or 100.0
-    )
-    atm_iv = float(
+        return 100.0, 0.20
+
+    spot = float(trader_obs.get("spot_price") or 100.0)
+
+    # Try direct atm_iv keys first
+    atm_iv = (
         trader_obs.get("atm_iv")
         or trader_obs.get("iv_atm")
         or trader_obs.get("iv")
         or trader_obs.get("implied_vol")
-        or 0.22
     )
-    return spot, atm_iv
+    if atm_iv is not None:
+        return spot, float(atm_iv)
+
+    # Compute from iv_surface: pick middle strike (index 3 or 4), shortest maturity
+    iv_surface = trader_obs.get("iv_surface")
+    if iv_surface and isinstance(iv_surface, list) and len(iv_surface) > 0:
+        mid_strike = len(iv_surface) // 2
+        row = iv_surface[mid_strike]
+        if isinstance(row, list) and len(row) > 0:
+            return spot, float(row[0])  # shortest maturity ATM IV
+
+    return spot, 0.20
 
 
-def scripted_trader(agent_index: int, step: int, trader_obs: dict | None = None) -> dict:
-    """Heuristic trader with role-aware behavior and lower churn than alternating buy/sell."""
+def scripted_trader(agent_index: int, step: int, trader_obs=None) -> dict:
+    """Heuristic trader with role-aware behavior.
+    
+    IV bands are calibrated so that at the typical starting IV of 0.20,
+    aggressive and contrarian traders will actively trade while neutral
+    traders remain cautious.  This ensures the scripted baseline
+    generates meaningful PnL for a fair comparison against LoRA agents.
+    """
     spot, atm_iv = _extract_market_features(trader_obs or {})
     strike = (agent_index + step) % 8
     maturity = (agent_index + step) % 3
 
-    # Aggressive traders (0-2): attack high IV, but avoid random churn
+    # Aggressive traders (0-2): always in the market, directionally biased
     if agent_index <= 2:
-        if atm_iv >= 0.24:
-            direction, quantity = "buy", 1.25
-        elif atm_iv <= 0.14:
+        if atm_iv >= 0.22:
             direction, quantity = "sell", 1.0
+        elif atm_iv <= 0.18:
+            direction, quantity = "buy", 1.0
         else:
-            direction, quantity = "hold", 0.0
-    # Neutral traders (3-5): mostly hold, small position changes at extremes
+            # In the 0.18-0.22 band, alternate based on step parity
+            direction = "buy" if (agent_index + step) % 2 == 0 else "sell"
+            quantity = 0.75
+    # Neutral traders (3-5): trade at wider extremes, otherwise hold
     elif agent_index <= 5:
-        if atm_iv >= 0.30:
+        if atm_iv >= 0.25:
             direction, quantity = "sell", 0.75
-        elif atm_iv <= 0.12:
+        elif atm_iv <= 0.16:
             direction, quantity = "buy", 0.75
         else:
             direction, quantity = "hold", 0.0
-    # Contrarian traders (6-8): fade extremes
+    # Contrarian traders (6-8): fade any deviation from 0.20
     else:
-        if atm_iv >= 0.26:
-            direction, quantity = "sell", 1.0
-        elif atm_iv <= 0.13:
-            direction, quantity = "buy", 1.0
+        if atm_iv >= 0.21:
+            direction, quantity = "sell", 0.8
+        elif atm_iv <= 0.19:
+            direction, quantity = "buy", 0.8
         else:
-            direction, quantity = "hold", 0.0
+            direction = "sell" if step % 2 == 0 else "buy"
+            quantity = 0.5
 
     # Keep strike targeting dynamic when market is moving around round levels.
     if abs((spot % 10) - 5) < 1.5:
@@ -156,7 +180,7 @@ def scripted_trader(agent_index: int, step: int, trader_obs: dict | None = None)
     }
 
 
-def normalize_trader_action(action: dict, agent_index: int, step: int, trader_obs: dict | None = None) -> dict:
+def normalize_trader_action(action: dict, agent_index: int, step: int, trader_obs=None) -> dict:
     """Normalize model output into valid action schema and clamp risky extremes."""
     fallback = scripted_trader(agent_index, step, trader_obs=trader_obs)
     if not isinstance(action, dict):
