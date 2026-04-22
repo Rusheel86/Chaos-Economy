@@ -483,7 +483,10 @@ def train_unified_model(args):
 
     if use_unsloth:
         model, tokenizer = FastLanguageModel.from_pretrained(
-            args.base_model, max_seq_length=2048, load_in_4bit=True,
+            args.base_model, 
+            max_seq_length=2048, 
+            load_in_4bit=True,
+            dtype=None, # Auto-detect (will pick BF16 on L4)
         )
         model = FastLanguageModel.get_peft_model(
             model, 
@@ -898,7 +901,8 @@ def train_unified_model(args):
         save_steps=100,
         learning_rate=args.learning_rate,
         bf16=torch.cuda.is_bf16_supported(),
-        fp16=not torch.cuda.is_bf16_supported(),
+        fp16=False if torch.cuda.is_bf16_supported() else True,
+        max_grad_norm=1.0,
     )
 
     trainer = GRPOTrainer(
