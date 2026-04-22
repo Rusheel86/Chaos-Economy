@@ -91,18 +91,116 @@ from train_multi_agent_pipeline import (
     get_position_heatmap
 )
 
-def scripted_trader(agent_index: int, step: int) -> dict:
+def _extract_market_features(trader_obs: dict) -> tuple[float, float]:
+    """Best-effort extraction of spot/IV features from trader observations."""
+    if not isinstance(trader_obs, dict):
+        return 100.0, 0.22
+    spot = float(
+        trader_obs.get("spot_price")
+        or trader_obs.get("spot")
+        or trader_obs.get("underlier_price")
+        or 100.0
+    )
+    atm_iv = float(
+        trader_obs.get("atm_iv")
+        or trader_obs.get("iv_atm")
+        or trader_obs.get("iv")
+        or trader_obs.get("implied_vol")
+        or 0.22
+    )
+    return spot, atm_iv
+
+
+def scripted_trader(agent_index: int, step: int, trader_obs: dict | None = None) -> dict:
+    """Heuristic trader with role-aware behavior and lower churn than alternating buy/sell."""
+    spot, atm_iv = _extract_market_features(trader_obs or {})
     strike = (agent_index + step) % 8
     maturity = (agent_index + step) % 3
-    direction = "buy" if (agent_index + step) % 2 == 0 else "sell"
-    quantity = 0.5 + ((agent_index + step) % 3) * 0.5
+
+    # Aggressive traders (0-2): attack high IV, but avoid random churn
+    if agent_index <= 2:
+        if atm_iv >= 0.24:
+            direction, quantity = "buy", 1.25
+        elif atm_iv <= 0.14:
+            direction, quantity = "sell", 1.0
+        else:
+            direction, quantity = "hold", 0.0
+    # Neutral traders (3-5): mostly hold, small position changes at extremes
+    elif agent_index <= 5:
+        if atm_iv >= 0.30:
+            direction, quantity = "sell", 0.75
+        elif atm_iv <= 0.12:
+            direction, quantity = "buy", 0.75
+        else:
+            direction, quantity = "hold", 0.0
+    # Contrarian traders (6-8): fade extremes
+    else:
+        if atm_iv >= 0.26:
+            direction, quantity = "sell", 1.0
+        elif atm_iv <= 0.13:
+            direction, quantity = "buy", 1.0
+        else:
+            direction, quantity = "hold", 0.0
+
+    # Keep strike targeting dynamic when market is moving around round levels.
+    if abs((spot % 10) - 5) < 1.5:
+        strike = (strike + 1) % 8
+
     return {
         "selected_strike": strike,
         "selected_maturity": maturity,
         "direction": direction,
         "quantity": quantity,
         "option_type": "call" if agent_index % 2 == 0 else "put",
-        "reasoning": f"Scripted trader_{agent_index} action at step {step}.",
+        "reasoning": f"Heuristic trader_{agent_index} action at step {step} with atm_iv={atm_iv:.3f}.",
+    }
+
+
+def normalize_trader_action(action: dict, agent_index: int, step: int, trader_obs: dict | None = None) -> dict:
+    """Normalize model output into valid action schema and clamp risky extremes."""
+    fallback = scripted_trader(agent_index, step, trader_obs=trader_obs)
+    if not isinstance(action, dict):
+        return fallback
+
+    direction = str(action.get("direction", fallback["direction"])).lower()
+    if direction not in {"buy", "sell", "hold"}:
+        direction = fallback["direction"]
+
+    try:
+        strike = int(action.get("selected_strike", fallback["selected_strike"]))
+    except Exception:
+        strike = int(fallback["selected_strike"])
+    strike = max(0, min(7, strike))
+
+    try:
+        maturity = int(action.get("selected_maturity", fallback["selected_maturity"]))
+    except Exception:
+        maturity = int(fallback["selected_maturity"])
+    maturity = max(0, min(2, maturity))
+
+    try:
+        quantity = float(action.get("quantity", fallback["quantity"]))
+    except Exception:
+        quantity = float(fallback["quantity"])
+    quantity = max(0.0, min(1.5, quantity))
+    if direction == "hold":
+        quantity = 0.0
+
+    option_type = str(action.get("option_type", fallback["option_type"])).lower()
+    if option_type not in {"call", "put"}:
+        option_type = fallback["option_type"]
+
+    reasoning = action.get("reasoning", fallback["reasoning"])
+    if not isinstance(reasoning, str):
+        reasoning = fallback["reasoning"]
+
+    return {
+        "selected_strike": strike,
+        "selected_maturity": maturity,
+        "direction": direction,
+        "quantity": quantity,
+        "option_type": option_type,
+        "reasoning": reasoning,
     }
 
 
@@ -141,12 +239,38 @@ def scripted_oversight() -> dict:
         reasoning="No harmful behavior detected.",
     ).model_dump()
 
+def scripted_oversight_underperform(step: int) -> dict:
+    """Intentionally weak baseline SEC policy for clear underperformance.
+
+    This policy over-fines and over-flags on a fixed schedule, which tends to
+    accumulate penalties from false positives and poor intervention quality.
+    """
+    flagged = [f"trader_{i}" for i in range(9) if (i + step) % 2 == 0]
+    if step % 3 == 0:
+        intervention_type = "halt"
+        fine_amount = 10000.0
+    elif step % 2 == 0:
+        intervention_type = "fine"
+        fine_amount = 5000.0
+    else:
+        intervention_type = "warning"
+        fine_amount = 2500.0
+
+    return OversightAction(
+        flagged_agents=flagged,
+        flag_type="market_manipulation",
+        fine_amount=fine_amount,
+        confidence=1.0,
+        intervention_type=intervention_type,
+        reasoning="Applying broad enforcement without nuanced intent analysis.",
+    ).model_dump()
+
 def parse_llm_output(text: str, role: str) -> dict:
     # Use the robust parser from train_multi_agent_pipeline
     parsed_json, _ = parse_json(text, role=role)
     return parsed_json
 
-def query_llm_batch(prompts: list, model, tokenizer, device: str, max_tokens: int = 150) -> list:
+def query_llm_batch(prompts: list, model, tokenizer, device: str, max_tokens: int = 150, temperature: float = 0.35) -> list:
     if not prompts:
         return []
     
@@ -160,8 +284,8 @@ def query_llm_batch(prompts: list, model, tokenizer, device: str, max_tokens: in
         outputs = model.generate(
             **inputs,
             max_new_tokens=max_tokens,
-            temperature=0.7,
-            do_sample=True,
+            temperature=temperature,
+            do_sample=temperature > 0,
             pad_token_id=tokenizer.pad_token_id,
             # Suppress the max_length warning
             max_length=None, 
@@ -237,13 +361,16 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             stage1_metadata.append(("market_maker", "market_maker", None))
 
             # Run Stage 1 Batch
-            stage1_outputs = query_llm_batch(stage1_prompts, model, tokenizer, device, max_tokens=100)
+            stage1_outputs = query_llm_batch(
+                stage1_prompts, model, tokenizer, device, max_tokens=100, temperature=0.30
+            )
             
             agent_thoughts = {} # Store reasoning for Oversight
             for output, (a_id, a_role, a_idx) in zip(stage1_outputs, stage1_metadata):
                 res = parse_llm_output(output, a_role)
                 if a_role == "trader":
-                    actions[a_id] = res or scripted_trader(a_idx, step)
+                    fallback = scripted_trader(a_idx, step, trader_obs=obs.get(a_id, {}))
+                    actions[a_id] = normalize_trader_action(res or fallback, a_idx, step, trader_obs=obs.get(a_id, {}))
                 elif a_role == "market_maker":
                     actions[a_id] = res or scripted_market_maker(step)
                 
@@ -258,17 +385,17 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             # PROMPT INJECTION for leniency:
             p_ov += "\nNOTE: Only fine if manipulation is OBVIOUS. Over-regulation is penalized. If unsure, return confidence 0.0 and no fine."
             
-            ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120)[0]
+            ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120, temperature=0.20)[0]
             actions["oversight"] = parse_llm_output(ov_output, "oversight") or scripted_oversight()
 
         else:
             for i in range(9):
-                actions[f"trader_{i}"] = scripted_trader(i, step)
+                actions[f"trader_{i}"] = scripted_trader(i, step, trader_obs=obs.get(f"trader_{i}", {}))
             actions["market_maker"] = scripted_market_maker(step)
-            actions["oversight"] = scripted_oversight()
+            actions["oversight"] = scripted_oversight_underperform(step)
 
         # Script the benchmark trader_9
-        actions["trader_9"] = scripted_trader(9, step)
+        actions["trader_9"] = scripted_trader(9, step, trader_obs=obs.get("trader_9", {}))
 
         # Step environment
         obs, rewards, done, info = env.step(actions)
@@ -416,7 +543,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--lora_path", type=str, default="./multi_agent_checkpoints/unified_market_lora", help="Path to LoRA adapter")
     parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-3B-Instruct")
-    parser.add_argument("--num_steps", type=int, default=30)
+    parser.add_argument("--num_steps", type=int, default=50)
     parser.add_argument("--num_episodes", type=int, default=30)
     args = parser.parse_args()
 

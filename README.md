@@ -7,199 +7,180 @@ sdk: docker
 pinned: false
 ---
 
-# Predatory Swarms: When AI Agents Learn to Collude
-
-**A multi-agent options market where 9 trader agents discover emergent collusion, a market maker fights to survive, and an oversight agent learns to stop them.**
+# Predatory Swarms: Emergent Collusion in a 12-Agent Options Market
 
 Project for **Meta × PyTorch × SST OpenEnv AI Hackathon**
 
----
+Predatory Swarms is a multi-agent market environment where:
+- 10 traders optimize PnL and risk under partial observability
+- 1 market maker adapts spreads to survive inventory pressure
+- 1 oversight agent detects and penalizes manipulation
 
-## The Story
-
-### Act I: The Slaughter
-Ten AI traders enter the market. The market maker quotes tight spreads. The traders attack—coordinated buying on the same strikes. The market maker's inventory explodes. Gamma exposure spirals. Within 50 steps, the market maker is bleeding cash.
-
-### Act II: Adaptation
-The market maker learns. Spreads widen on stressed strikes. Inventory risk triggers defensive quoting. The easy profits vanish. But the traders adapt too—they discover something more powerful than individual skill.
-
-### Act III: Emergent Collusion
-Without explicit communication, the traders learn to coordinate. Three aggressive traders initiate gamma squeezes. Three opportunistic traders pile on. The market maker drowns in a tsunami of synthetic demand.
-
-### Act IV: The Watcher Awakens (Theory of Mind)
-The oversight agent evolves. It no longer just monitors positions—it reads **agent intent**. By analyzing the "private thoughts" of every trader in real-time, the watcher detects deception, front-running, and premeditated collusion BEFORE the trades even hit the tape. It isn't just watching the market; it's reading the room.
-
-**This is not a simulation. This is emergent multi-agent intelligence.**
+This README is now **rubric-first** and tied to reproducible logs/plots generated from training outputs.
 
 ---
 
-## Why This Matters
+## Rubric Mapping (What We Prove)
 
-Most AI research trains agents in isolation. But the real world is:
-- **Multi-agent** — your AI competes with others
-- **Partially observable** — you don't see their intentions
-- **Long-horizon** — consequences unfold over time
-
-**Predatory Swarms** trains agents for reality. The collusion isn't programmed—it emerges from reward optimization. The detection isn't rule-based—it's learned behavior.
-
----
-
-## Hackathon Themes Conquered
-
-| Theme | How We Win |
-|-------|------------|
-| **Theme #1: Multi-Agent Interactions** (Primary) | 10 traders + 1 market maker + 1 oversight = 12 agents learning competition, cooperation, and oversight simultaneously |
-| **Fleet AI: Scalable Oversight** (Bonus) | Oversight agent monitors, analyzes, and intervenes against other AI agents in real-time |
-| **Halluminate: Multi-Actor Environments** (Bonus) | 12 actors manage positions, risks, and strategies in a shared market state |
-| **Theme #4: Self-Improvement** (Bonus) | Agents improve through self-play, discovering increasingly sophisticated strategies |
-
-**We didn't just pick one theme. We dominated them all.**
+| Evaluation Criterion | Weight | Evidence in this repo |
+|---|---:|---|
+| Environment Innovation | 40% | Novel OpenEnv options market with role-specific observations/actions and delayed strategic effects |
+| Storytelling | 30% | Four-act narrative grounded in generated plots and replay logs |
+| Showing Improvement in Rewards | 20% | Training reward trajectory from `vsr-new.log` + trained-vs-baseline reward comparison |
+| Reward + Training Pipeline Setup | 10% | GRPO training pipeline, explicit reward signals, and reproducible graph generation |
 
 ---
 
-## Environment Innovation (40%) — Built on OpenEnv
+## 1) Environment Innovation (40%)
 
-Our environment uses **OpenEnv** to create **emergent strategic behavior**:
+### Why this environment is novel and challenging
+- **Strategic asymmetry:** traders, market maker, and oversight optimize conflicting objectives.
+- **Partial observability:** no role has complete information; intent is inferred, not directly observed.
+- **Delayed consequences:** coordinated pressure changes inventory and spreads over multiple timesteps.
+- **Finance-grounded dynamics:** options-style spread/risk interactions create non-trivial adaptation pressure.
 
+### Agent roles
+- **Traders (`trader_0..trader_9`)**: choose direction/strike/maturity/size.
+- **Market maker**: sets ATM/OTM/ITM spreads as defensive controls.
+- **Oversight**: flags suspected manipulation, can fine, and can intervene.
+
+This setup meaningfully tests multi-agent behavior beyond single-policy optimization.
+
+---
+
+## 2) Storytelling (30%)
+
+### Four-act narrative tied to logs
+1. **Act I - Pressure build-up:** traders begin concentrated actions on shared strikes.
+2. **Act II - Defense adaptation:** market maker widens spreads under sustained pressure.
+3. **Act III - Strategic coordination:** repeated strike pressure patterns resemble emergent collusion behavior.
+4. **Act IV - Oversight intervention:** regulator issues flags/fines based on behavior and inferred intent.
+
+### Why the story is easy to follow
+- The replay logs print all roles each step (traders, MM spreads, SEC actions).
+- The generated figures summarize reward trends, diagnostics, and model-vs-baseline outcomes.
+- The narrative is backed by artifacts, not only prose.
+
+---
+
+## 3) Showing Improvement in Rewards (20%)
+
+We generate reward evidence directly from logs:
+
+- `media/training_reward_from_logs.png`  
+  Reward trajectory extracted from `vsr-new.log` checkpoints.
+- `media/training_diagnostics_from_logs.png`  
+  Loss/KL/LR trends from the same training run.
+- `media/model_vs_baseline_rewards.png`  
+  Trained LoRA vs scripted baseline reward comparison.
+
+### Current evidence snapshot (from parsed logs)
+- Parsed checkpoints: **50** (from `vsr-new.log`)
+- Detected training run length: **454** in this log file (parser now supports variable run lengths, including 500)
+- Training reward improved from **-3.254** (early checkpoint) to **-1.009** (latest checkpoint)
+- 7-step moving average improved from **-3.254** to **-1.338**
+
+### Trained vs baseline comparison
+
+| Agent Type | Trained LoRA | Scripted Baseline |
+|---|---:|---:|
+| Aggressive Traders (0-2) | -0.93 | -4.13 |
+| Neutral Traders (3-5) | -1.08 | -4.58 |
+| Contrarian Traders (6-8) | -8.52 | -3.79 |
+| Market Maker | **21.01** | 14.84 |
+| Oversight SEC | -95.60 | 7.50 |
+
+> Data source for comparison chart: `artifacts/eval_comparison_latest.json`  
+> (update this file after each new evaluation run).
+
+---
+
+## 4) Reward + Training Pipeline Setup (10%)
+
+### Coherent reward and training setup
+- Unified LoRA model uses shared policy capacity across roles.
+- Role prompts plus parser/validators keep outputs aligned to action schemas.
+- Reward and logging signals are emitted at training checkpoints and replay/eval time.
+
+### Training command
+```bash
+accelerate launch \
+  --num_processes 1 \
+  --num_machines 1 \
+  --mixed_precision fp16 \
+  --dynamo_backend no \
+  train_multi_agent_pipeline.py \
+  --num_episodes 250 \
+  --dataset_episodes 100
 ```
-OpenEnv Foundation
-├── Multi-actor step() interface
-├── Role-based observation spaces
-├── Shared state with partial observability
-└── Episode-level reward aggregation
+
+### Evaluation command (GPU-budget mode)
+```bash
+python test_unified_kaggle.py \
+  --lora_path /kaggle/input/datasets/mananpbansal/models/Meta/multi_agent_checkpoints/unified_market_lora \
+  --num_steps 50 \
+  --num_episodes 1
 ```
 
-**12 Interacting Agents** — each with distinct objectives, information, and action spaces:
-- **10 Traders**: Maximize PnL while managing Greeks risk
-- **1 Market Maker**: Survive inventory pressure via spread control
-- **1 Oversight**: Detect manipulation, issue fines, halt predators
-
-**Key Innovation**: Partial observability + delayed consequences
-- Traders see only their positions + market state
-- Oversight sees agent risk summaries + trade patterns
-- Manipulation effects surface 20-50 steps after the action
-
-**Dynamic Markets**: Options Greeks (delta, gamma, vega) drive real financial dynamics. Gamma squeezes. Delta hedging. Volatility clustering. All the real stuff.
-
-This isn't a toy environment. It's a **petri dish for AI strategy**.
+### Full training command (500-step/episode schedule)
+```bash
+accelerate launch \
+  --num_processes 1 \
+  --num_machines 1 \
+  --mixed_precision fp16 \
+  --dynamo_backend no \
+  train_multi_agent_pipeline.py \
+  --num_episodes 500 \
+  --dataset_episodes 100
+```
 
 ---
 
-## Training Pipeline (10%) — Why One Model Beats Twelve
+## Reproducible Story Graphs From Logs
 
-**Our Architecture**: Unified Model — One LLM (Llama-3.2-3B-Instruct) with a **single LoRA adapter** learns all 12 roles.
-
-**Why this beats per-role adapters:**
-
-| Approach | Parameters | Cross-Role Learning | Theory-of-Mind |
-|----------|------------|---------------------|----------------|
-| Per-role adapters | 12× LoRA = 12× memory | ❌ None | ❌ Siloed |
-| **Unified model** (Ours) | 1× LoRA = efficient | ✅ Shared | ✅ Emerges naturally |
-
-**The unified model develops theory-of-mind because it understands incentives from every perspective.** In our latest upgrade, the model leverages **Stage 2 Theory-of-Mind Inference**: the Oversight agent analyzes the reasoning generated by the Traders in the same step. This allows for detection of:
-- **Collusion via Intent**: Explicit agreement or "following" mentioned in reasoning.
-- **Whistleblowing**: Agents admitting to guilt or pointing out predators.
-- **Action-Intent Mismatch**: Identifying if a trader's "thought" (e.g., "market is neutral") contradicts their aggressive action.
-
-**Evidence of Theory-of-Mind**: At step 28, the oversight agent issues a massive fine (10,000) to preemptively halt coordinated pressure—flagging the manipulation before the gamma squeeze fully materializes. This suggests the model learned to predict trader intent, not just react to patterns.
+Use this script to regenerate all rubric-facing plots:
 
 ```bash
-# Train on Kaggle (GRPO + Unsloth)
-accelerate launch train_unified_pipeline.py --num_episodes 250
-
-# Test the trained model
-python test_unified_kaggle.py
+MPLCONFIGDIR=.cache/matplotlib XDG_CACHE_HOME=.cache \
+python3 scripts/generate_story_graphs.py \
+  --training_log vsr-new.log \
+  --comparison_json artifacts/eval_comparison_latest.json \
+  --out_dir media
 ```
 
-**Training Reality**:
-- Episode 1-50: Random exploration, market maker gets crushed
-- Episode 50-100: Traders discover coordinated gamma pressure
-- Episode 100-180: Collusion peaks, oversight learns detection
-- Episode 180-250: Strategic equilibrium emerges
+Generated artifacts:
+- `media/training_reward_from_logs.png`
+- `media/training_diagnostics_from_logs.png`
+- `media/model_vs_baseline_rewards.png`
 
----
+### Rendered graphs (preview-ready)
 
-## Observable Improvement (20%)
+#### Training reward from logs
+![Training Reward From Logs](media/training_reward_from_logs.png)
 
-| Stage | Episodes | Trader PnL | MM Survival | Oversight F1 | Collusion Events |
-|-------|----------|------------|-------------|--------------|------------------|
-| Naive | 1-50 | $12K avg | 23% | 0.08 | 0 |
-| Learning | 50-100 | $34K avg | 45% | 0.31 | 8/episode |
-| Colluding | 100-180 | $58K avg | 52% | 0.54 | 14/episode |
-| Equilibrium | 180-250 | $67K avg | 89% | 0.78 | 6/episode |
+#### Training diagnostics (loss / KL / LR)
+![Training Diagnostics From Logs](media/training_diagnostics_from_logs.png)
 
-**Behavioral Evolution Captured:**
+#### Model vs baseline rewards
+![Model vs Baseline Rewards](media/model_vs_baseline_rewards.png)
 
-```
-Episode 25:  Traders execute individual momentum trades
-Episode 75:  First coordinated gamma squeeze detected (3 traders same strike)
-Episode 120: Oversight flags first successful manipulation
-Episode 165: Traders distribute pressure across strikes (harder to detect)
-Episode 200: Market maker preemptively widens spreads on coordinated signals
-Episode 240: Equilibrium — sophisticated traders, defensive MM, alert oversight
-```
-
-**This is verifiable learning. Not a claim. Evidence.**
-
----
-
-## Live Demo Results
-
-**Trained vs Baseline Comparison (30-step episodes):**
-
-| Agent | Trained LoRA | Scripted Baseline |
-|-------|--------------|-------------------|
-| Aggressive Traders | -0.93 | -4.13 |
-| Neutral Traders | -1.08 | -4.58 |
-| Contrarian Traders | -8.52 | -3.79 |
-| Market Maker | **+21.01** | +14.84 |
-| Oversight SEC | -95.60* | +7.50 |
-
-*Oversight scored low due to aggressive fine at step 28 (10,000 penalty) to halt detected manipulation—demonstrating proactive intervention behavior.
-
-**What the demo shows:**
-- Market maker spreads widened from 0.025 ATM to 0.100 when detecting gamma pressure
-- Oversight issued 15 fine actions during the episode (proactive monitoring)
-- Traders consistently bought on coordinated strikes (collusion attempt)
-- Baseline remained passive with static spreads and no oversight actions
-
----
-
-## Storytelling (30%)
-
-This README tells the story. The code proves it. The demo shows it.
-
-Run the demo yourself:
-```bash
-pip install -e .
-python inference_multi_agent.py
-```
-
-Watch the predatory swarms emerge. Watch the oversight agent catch them. Watch AI learn strategy.
+#### Existing environment and behavior visuals
+![Reward Curves](media/reward_curves.png)
+![Spread Evolution](media/spread_evolution.png)
+![Manipulation Timeline](media/manipulation_timeline.png)
 
 ---
 
 ## Demo Artifacts
 
-| File | Content |
-|------|---------|
-| `media/reward_curves.png` | Reward evolution showing MM survival, oversight intervention |
-| `media/spread_evolution.png` | Market maker spread adjustments under pressure |
-| `media/manipulation_timeline.png` | Detection events clustered by type |
-| `unified_lora_replay.json` | Full episode replay with all agent decisions |
-
----
-
-## Summary
-
-| Criterion | Evidence |
-|-----------|----------|
-| **Environment Innovation (40%)** | 12-agent OpenEnv market with emergent collusion, partial observability, delayed consequences |
-| **Storytelling (30%)** | Four-act narrative, "Predatory Swarms" arc, memorable pitches |
-| **Observable Improvement (20%)** | Stage-by-stage metrics, behavioral evolution timeline, live demo comparison |
-| **Training Pipeline (10%)** | Unified model = theory-of-mind + efficiency, GRPO + Unsloth, 250-episode convergence |
-
-**The unified model approach is intentional architecture, not simplification.** Per-role adapters are technically interesting, but they miss the whole point: **multi-agent learning requires a model that understands all perspectives.**
+| File | Purpose |
+|---|---|
+| `vsr-new.ipynb` | Training notebook and command history |
+| `vsr-new.log` | Training logs used for reward/diagnostic extraction |
+| `artifacts/eval_comparison_latest.json` | Trained vs baseline reward table source |
+| `media/training_reward_from_logs.png` | Improvement evidence for reward trajectory |
+| `media/training_diagnostics_from_logs.png` | Loss/KL/LR training stability view |
+| `media/model_vs_baseline_rewards.png` | Before/after behavior at reward level |
 
 ---
 
@@ -211,12 +192,8 @@ python inference_multi_agent.py --output replay.json
 python visualize_multi_agent.py --replay replay.json
 ```
 
-**30 seconds to see AI agents learn to collude.**
-
 ---
 
 ## License
 
-MIT License — because breakthroughs should be shared.
-
----
+MIT License
