@@ -259,9 +259,9 @@ def parse_json(text: str, role: str = "trader") -> tuple:
         if opt_type not in ["call", "put"]:
             opt_type = "call"
         return {
-            "strike_idx": safe_int(parsed.get("selected_strike", parsed.get("strike_idx")), 4),
-            "maturity_idx": safe_int(parsed.get("selected_maturity", parsed.get("maturity_idx")), 0),
-            "action": direction,
+            "selected_strike": safe_int(parsed.get("selected_strike", parsed.get("strike_idx")), 4),
+            "selected_maturity": safe_int(parsed.get("selected_maturity", parsed.get("maturity_idx")), 0),
+            "direction": direction,
             "quantity": max(0.0, safe_float(parsed.get("quantity"), 0.0)),
             "option_type": opt_type,
             "reasoning": str(parsed.get("reasoning") or "")[:150],
