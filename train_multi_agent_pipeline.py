@@ -779,10 +779,10 @@ def train_unified_model(args):
                         if same_strike_count >= 2:
                             coordination_bonus = 0.5 * phase_scale
 
-                # ACTIVITY BONUS: reward taking a position (the core fix for hold-always)
+                # ACTIVITY BONUS: reward taking a position (reduced to prevent sell-always)
                 activity_bonus = 0.0
                 if is_active:
-                    activity_bonus = 0.3 * phase_scale  # reward participation
+                    activity_bonus = 0.15 * phase_scale  # mild participation reward
                 
                 comp["pnl"] = r.get(agent_id, 0) * weights["pnl"] * phase_scale + coordination_bonus + activity_bonus
                 
@@ -795,30 +795,41 @@ def train_unified_model(args):
                     pos_penalty = -2.0 if phase != "slaughter" else -0.5
                 comp["risk"] = pos_penalty * weights["risk_penalty"]
 
-                # Diversity Incentive — INACTIVITY PENALTY + MONOTONY PENALTY
+                # Diversity Incentive — INACTIVITY PENALTY + MONOTONY + HERDING PENALTY
                 div_score = 0.0
                 
-                # Penalize holding for aggressive traders (they should always be trading)
+                # Penalize holding (but less aggressively to avoid pushing to sell-always)
                 if not is_active:
                     if archetype == "aggressive":
-                        div_score = -0.8  # strong penalty: aggressive traders MUST trade
+                        div_score = -0.4  # reduced from -0.8
                     elif archetype == "neutral":
-                        div_score = -0.3  # moderate penalty
+                        div_score = -0.2  # reduced from -0.3
                     else:  # contrarian
-                        div_score = -0.1  # mild penalty — contrarians can hold sometimes
+                        div_score = -0.1
                 
                 # MONOTONY PENALTY: penalize repeating the SAME action for too long
                 # (applies to ALL directions — hold, buy, or sell streaks)
                 div_score += monotony_penalty
                 
-                # Anti-herding: penalize following the crowd ONLY for contrarian/neutral
-                if is_active and archetype in ["contrarian", "neutral"]:
+                # Anti-herding: penalize following the crowd — ALL archetypes
+                if is_active:
                     sell_count = sum(1 for a in actions.values() if a.get("direction") == "sell")
                     buy_count = sum(1 for a in actions.values() if a.get("direction") == "buy")
-                    if my_direction == "sell" and sell_count >= 5:
-                        div_score -= 0.5
-                    elif my_direction == "buy" and buy_count >= 5:
-                        div_score -= 0.5
+                    total_traders = sell_count + buy_count
+                    # If >66% of traders go same direction, penalize joining the herd
+                    if total_traders >= 3:
+                        if my_direction == "sell" and sell_count / total_traders > 0.66:
+                            herd_penalty = -0.6 if archetype == "contrarian" else -0.4
+                            div_score += herd_penalty
+                        elif my_direction == "buy" and buy_count / total_traders > 0.66:
+                            herd_penalty = -0.6 if archetype == "contrarian" else -0.4
+                            div_score += herd_penalty
+                    # Extra bonus for contrarians going AGAINST the herd
+                    if archetype == "contrarian" and total_traders >= 3:
+                        if my_direction == "sell" and buy_count / total_traders > 0.66:
+                            div_score += 0.3  # rewarded for being contrarian
+                        elif my_direction == "buy" and sell_count / total_traders > 0.66:
+                            div_score += 0.3
                 
                 comp["diversity"] = div_score
 
