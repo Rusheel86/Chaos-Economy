@@ -252,16 +252,16 @@ def parse_json(text: str, role: str = "trader") -> tuple:
             parsed = {}
 
     if role == "trader":
-        direction = str(parsed.get("direction", "hold")).lower()
+        direction = str(parsed.get("direction", parsed.get("action", "hold"))).lower()
         if direction not in ["buy", "sell", "hold"]:
             direction = "hold"
         opt_type = str(parsed.get("option_type", "call")).lower()
         if opt_type not in ["call", "put"]:
             opt_type = "call"
         return {
-            "selected_strike": safe_int(parsed.get("selected_strike"), 4),
-            "selected_maturity": safe_int(parsed.get("selected_maturity"), 0),
-            "direction": direction,
+            "strike_idx": safe_int(parsed.get("selected_strike", parsed.get("strike_idx")), 4),
+            "maturity_idx": safe_int(parsed.get("selected_maturity", parsed.get("maturity_idx")), 0),
+            "action": direction,
             "quantity": max(0.0, safe_float(parsed.get("quantity"), 0.0)),
             "option_type": opt_type,
             "reasoning": str(parsed.get("reasoning") or "")[:150],

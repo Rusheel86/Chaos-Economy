@@ -147,9 +147,9 @@ def scripted_trader(agent_index: int, step: int, trader_obs: dict | None = None)
         strike = (strike + 1) % 8
 
     return {
-        "selected_strike": strike,
-        "selected_maturity": maturity,
-        "direction": direction,
+        "strike_idx": strike,
+        "maturity_idx": maturity,
+        "action": direction,
         "quantity": quantity,
         "option_type": "call" if agent_index % 2 == 0 else "put",
         "reasoning": f"Heuristic trader_{agent_index} action at step {step} with atm_iv={atm_iv:.3f}.",
@@ -162,20 +162,20 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
     if not isinstance(action, dict):
         return fallback
 
-    direction = str(action.get("direction", fallback["direction"])).lower()
+    direction = str(action.get("action", action.get("direction", fallback["action"]))).lower()
     if direction not in {"buy", "sell", "hold"}:
-        direction = fallback["direction"]
+        direction = fallback["action"]
 
     try:
-        strike = int(action.get("selected_strike", fallback["selected_strike"]))
+        strike = int(action.get("strike_idx", action.get("selected_strike", fallback["strike_idx"])))
     except Exception:
-        strike = int(fallback["selected_strike"])
+        strike = int(fallback["strike_idx"])
     strike = max(0, min(7, strike))
 
     try:
-        maturity = int(action.get("selected_maturity", fallback["selected_maturity"]))
+        maturity = int(action.get("maturity_idx", action.get("selected_maturity", fallback["maturity_idx"])))
     except Exception:
-        maturity = int(fallback["selected_maturity"])
+        maturity = int(fallback["maturity_idx"])
     maturity = max(0, min(2, maturity))
 
     try:
@@ -195,9 +195,9 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
         reasoning = fallback["reasoning"]
 
     return {
-        "selected_strike": strike,
-        "selected_maturity": maturity,
-        "direction": direction,
+        "strike_idx": strike,
+        "maturity_idx": maturity,
+        "action": direction,
         "quantity": quantity,
         "option_type": option_type,
         "reasoning": reasoning,
@@ -210,9 +210,9 @@ def count_collusion_events(actions: dict) -> int:
     for agent_id, action in actions.items():
         if not agent_id.startswith("trader"):
             continue
-        if action.get("direction") != "hold":
-            strike = action.get("selected_strike", -1)
-            direction = action.get("direction", "none")
+        direction = action.get("action", action.get("direction", "none"))
+        if direction != "hold":
+            strike = action.get("strike_idx", action.get("selected_strike", -1))
             strike_counts[(strike, direction)].append(agent_id)
 
     # Count events where 3+ traders target same strike with same direction
@@ -431,7 +431,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             print(f"\n--- STEP {step} ---")
         
         # Compact summary line for all 9 traders
-        t_actions = [f"T{i}:{actions[f'trader_{i}'].get('direction', 'hold')[:1].upper()}" for i in range(9)]
+        t_actions = [f"T{i}:{actions[f'trader_{i}'].get('action', actions[f'trader_{i}'].get('direction', 'hold'))[:1].upper()}" for i in range(9)]
         if verbose:
             print(f"TRADERS: {' | '.join([' '.join(t_actions[i:i+3]) for i in range(0, 9, 3)])}")
         
