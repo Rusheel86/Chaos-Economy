@@ -583,6 +583,22 @@ def train_unified_model(args):
             )
     print()
 
+    # Pre-compute scripted actions for all steps to avoid repeated calls
+    _scripted_actions_cache = {}
+    def _get_scripted_actions(step):
+        if step not in _scripted_actions_cache:
+            a = {}
+            for i in range(10):
+                a[f"trader_{i}"] = scripted_trader(i, step)
+            a["market_maker"] = scripted_mm(step)
+            a["oversight"] = scripted_oversight()
+            _scripted_actions_cache[step] = a
+        return _scripted_actions_cache[step]
+
+    # Cache env states to avoid replaying fast-forward for each completion
+    import copy
+    _env_state_cache = {}
+
     def reward_fn(prompts, completions, **kwargs):
         rewards = []
         seeds = kwargs.get("seed", list(range(len(completions))))
@@ -611,32 +627,31 @@ def train_unified_model(args):
                 rewards.append(-5.0)
                 continue
 
-            env = MultiAgentVSREnvironment()
-            obs = env.reset(seed=seed)
-
-            # 1. Fast-forward the environment to recreate the exact state seen in the prompt
-            done = False
-            for step in range(ff_steps):
-                actions = {}
-                for i in range(10):
-                    actions[f"trader_{i}"] = scripted_trader(i, step)
-                actions["market_maker"] = scripted_mm(step)
-                actions["oversight"] = scripted_oversight()
-                obs, r, done, _ = env.step(actions)
+            # Use cached env state if available, otherwise create & replay
+            cache_key = (seed, ff_steps)
+            if cache_key in _env_state_cache:
+                env, done = copy.deepcopy(_env_state_cache[cache_key])
                 if done:
-                    break
+                    rewards.append(0.0)
+                    continue
+            else:
+                env = MultiAgentVSREnvironment()
+                obs = env.reset(seed=seed)
 
-            if done:
-                rewards.append(0.0)
-                continue
+                done = False
+                for step in range(ff_steps):
+                    obs, r, done, _ = env.step(copy.deepcopy(_get_scripted_actions(step)))
+                    if done:
+                        break
 
-            # 2. Execute the LLM's action for EXACTLY ONE STEP (so it learns step-by-step logic)
+                _env_state_cache[cache_key] = copy.deepcopy((env, done))
+                if done:
+                    rewards.append(0.0)
+                    continue
+
+            # 2. Execute the LLM's action for EXACTLY ONE STEP
             step = ff_steps
-            actions = {}
-            for i in range(10):
-                actions[f"trader_{i}"] = scripted_trader(i, step)
-            actions["market_maker"] = scripted_mm(step)
-            actions["oversight"] = scripted_oversight()
+            actions = copy.deepcopy(_get_scripted_actions(step))
 
             # Override target agent with the LLM's action
             actions[agent_id] = action
