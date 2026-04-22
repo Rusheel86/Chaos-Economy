@@ -150,9 +150,9 @@ def scripted_trader(agent_index: int, step: int, trader_obs=None) -> dict:
             quantity = 0.75
     # Neutral traders (3-5): trade at wider extremes, otherwise hold
     elif agent_index <= 5:
-        if atm_iv >= 0.25:
+        if atm_iv >= 0.22:
             direction, quantity = "sell", 0.75
-        elif atm_iv <= 0.16:
+        elif atm_iv <= 0.18:
             direction, quantity = "buy", 0.75
         else:
             direction, quantity = "hold", 0.0
