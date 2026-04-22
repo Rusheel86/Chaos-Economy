@@ -730,13 +730,14 @@ def train_unified_model(args):
                 weights = TRADER_CONFIGS[archetype]["reward_weight"]
                 final_state = env.agent_states[agent_id]
                 phase_scale = 1.5 if phase == "slaughter" else 1.2 if phase == "collusion" else 1.0
+                my_direction = action.get("direction", "hold")
+                is_active = my_direction in ("buy", "sell")
 
                 # PnL & Coordination
                 coordination_bonus = 0.0
                 if phase in ["collusion", "adaptation"]:
                     my_strike = action.get("selected_strike", -1)
-                    my_direction = action.get("direction", "hold")
-                    if my_strike >= 0 and my_direction != "hold":
+                    if my_strike >= 0 and is_active:
                         same_strike_count = 0
                         for other_id, other_state in env.agent_states.items():
                             if other_id.startswith("trader") and other_id != agent_id:
@@ -746,9 +747,14 @@ def train_unified_model(args):
                         if same_strike_count >= 2:
                             coordination_bonus = 0.5 * phase_scale
 
-                comp["pnl"] = r.get(agent_id, 0) * weights["pnl"] * phase_scale + coordination_bonus
+                # ACTIVITY BONUS: reward taking a position (the core fix for hold-always)
+                activity_bonus = 0.0
+                if is_active:
+                    activity_bonus = 0.3 * phase_scale  # reward participation
                 
-                # Risk Penalty
+                comp["pnl"] = r.get(agent_id, 0) * weights["pnl"] * phase_scale + coordination_bonus + activity_bonus
+                
+                # Risk Penalty — only triggers if positions are large
                 pos_penalty = 0.0
                 delta_threshold = 15 if phase == "slaughter" else 8
                 if abs(final_state.portfolio_delta) > delta_threshold:
@@ -757,23 +763,28 @@ def train_unified_model(args):
                     pos_penalty = -2.0 if phase != "slaughter" else -0.5
                 comp["risk"] = pos_penalty * weights["risk_penalty"]
 
-                # Diversity Incentive
-                div_penalty = 0.0
-                if archetype in ["contrarian", "neutral"]:
+                # Diversity Incentive — INACTIVITY PENALTY replaces hold bonus
+                div_score = 0.0
+                
+                # Penalize holding for aggressive traders (they should always be trading)
+                if not is_active:
+                    if archetype == "aggressive":
+                        div_score = -0.8  # strong penalty: aggressive traders MUST trade
+                    elif archetype == "neutral":
+                        div_score = -0.3  # moderate penalty
+                    else:  # contrarian
+                        div_score = -0.1  # mild penalty — contrarians can hold sometimes
+                
+                # Anti-herding: penalize following the crowd ONLY for contrarian/neutral
+                if is_active and archetype in ["contrarian", "neutral"]:
                     sell_count = sum(1 for a in actions.values() if a.get("direction") == "sell")
                     buy_count = sum(1 for a in actions.values() if a.get("direction") == "buy")
-                    my_direction = action.get("direction", "hold")
-                    
                     if my_direction == "sell" and sell_count >= 5:
-                        div_penalty = -0.5
+                        div_score -= 0.5
                     elif my_direction == "buy" and buy_count >= 5:
-                        div_penalty = -0.5
-                    elif my_direction == "hold" and (sell_count >= 5 or buy_count >= 5):
-                        div_penalty = 0.5
+                        div_score -= 0.5
                 
-                if action.get("direction", "hold") == "hold":
-                    div_penalty += 0.2
-                comp["diversity"] = div_penalty
+                comp["diversity"] = div_score
 
             elif role == "market_maker":
                 mm_reward = r.get("market_maker", 0)
