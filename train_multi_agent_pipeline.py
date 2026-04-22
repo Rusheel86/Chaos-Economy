@@ -460,7 +460,12 @@ def train_unified_model(args):
     """Train a single unified model for all agents with phase-based curriculum."""
     _validate_single_process_setup()
     configure_quiet_logging()
-    from unsloth import FastLanguageModel
+    try:
+        from unsloth import FastLanguageModel
+        use_unsloth = True
+    except (ImportError, NotImplementedError):
+        use_unsloth = False
+
     from trl import GRPOConfig, GRPOTrainer
     from datasets import Dataset
     from multi_agent.environment import MultiAgentVSREnvironment
@@ -476,17 +481,45 @@ def train_unified_model(args):
     print("- Act III: Emergent Collusion")
     print("- Act IV: The Watcher Awakens\n")
 
-    # Increase LoRA rank to 64 to prevent confusion between multiple roles
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        args.base_model, max_seq_length=2048, load_in_4bit=True,
-    )
-    model = FastLanguageModel.get_peft_model(
-        model, 
-        r=64,  # Increased capacity for mult-task multi-agent
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
-        lora_alpha=64, 
-        lora_dropout=0,
-    )
+    if use_unsloth:
+        model, tokenizer = FastLanguageModel.from_pretrained(
+            args.base_model, max_seq_length=2048, load_in_4bit=True,
+        )
+        model = FastLanguageModel.get_peft_model(
+            model, 
+            r=64,  # Increased capacity for mult-task multi-agent
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+            lora_alpha=64, 
+            lora_dropout=0,
+        )
+    else:
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from peft import get_peft_model, LoraConfig, TaskType
+        
+        print("Unsloth unavailable or incompatible, falling back to standard HuggingFace transformers + PEFT.")
+        
+        if torch.backends.mps.is_available():
+            device_map = "mps"
+            model = AutoModelForCausalLM.from_pretrained(args.base_model, device_map=device_map, torch_dtype=torch.float16)
+        elif torch.cuda.is_available():
+            device_map = "auto"
+            model = AutoModelForCausalLM.from_pretrained(args.base_model, device_map=device_map, load_in_4bit=True)
+        else:
+            device_map = "cpu"
+            model = AutoModelForCausalLM.from_pretrained(args.base_model, device_map=device_map)
+            
+        tokenizer = AutoTokenizer.from_pretrained(args.base_model)
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+            
+        peft_config = LoraConfig(
+            task_type=TaskType.CAUSAL_LM,
+            r=64,
+            lora_alpha=64,
+            lora_dropout=0,
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"]
+        )
+        model = get_peft_model(model, peft_config)
     max_prompt_tokens = max(256, args.max_prompt_tokens)
 
     def clip_prompt(prompt_text: str) -> str:
@@ -605,10 +638,11 @@ def train_unified_model(args):
 
     # Cache env states to avoid replaying fast-forward for each completion
     import copy
+    import time
     _env_state_cache = {}
+    _eval_cache = {}
 
-    def reward_fn(prompts, completions, **kwargs):
-        rewards = []
+    def _evaluate_all(prompts, completions, kwargs):
         seeds = kwargs.get("seed", list(range(len(completions))))
         agent_roles = kwargs.get("agent_role", ["trader"] * len(completions))
         agent_ids = kwargs.get("agent_id", ["trader_0"] * len(completions))
@@ -618,72 +652,86 @@ def train_unified_model(args):
         mm_weights = kwargs.get("mm_weight", [1.0] * len(completions))
         sec_weights = kwargs.get("sec_weight", [1.0] * len(completions))
 
+        results = []
         for idx, completion in enumerate(completions):
+            # TRL passes a single string for completion here.
             role = agent_roles[idx]
             agent_id = agent_ids[idx]
-            archetype = archetypes[idx]
             seed = int(seeds[idx]) if idx < len(seeds) else idx
             ff_steps = int(ff_steps_list[idx])
+            
+            # Using hash of completion + context as cache key to avoid re-evaluating the same step across multiple reward fn calls.
+            cache_key = (hash(completion), role, agent_id, seed, ff_steps)
+            if cache_key in _eval_cache:
+                results.append(_eval_cache[cache_key])
+                continue
+
+            archetype = archetypes[idx]
             phase = phases[idx] if idx < len(phases) else "oversight"
             mm_weight = mm_weights[idx] if idx < len(mm_weights) else 1.0
             sec_weight = sec_weights[idx] if idx < len(sec_weights) else 1.0
 
             action, parse_info = parse_json(str(completion), role)
 
-            # Massive structural penalty for bad JSON formats = saves training time
+            comp = {
+                "format": 0.0,
+                "pnl": 0.0,
+                "risk": 0.0,
+                "diversity": 0.0,
+                "oversight": 0.0
+            }
+
             if not parse_info.get("valid", False):
-                rewards.append(-5.0)
+                comp["format"] = -5.0
+                _eval_cache[cache_key] = comp
+                results.append(comp)
                 continue
 
-            # Use cached env state if available, otherwise create & replay
-            cache_key = (seed, ff_steps)
-            if cache_key in _env_state_cache:
-                env, done = copy.deepcopy(_env_state_cache[cache_key])
+            # Valid format bonus
+            comp["format"] = 1.0
+
+            state_key = (seed, ff_steps)
+            if state_key in _env_state_cache:
+                env, done = copy.deepcopy(_env_state_cache[state_key])
                 if done:
-                    rewards.append(0.0)
+                    _eval_cache[cache_key] = comp
+                    results.append(comp)
                     continue
             else:
                 env = MultiAgentVSREnvironment()
                 obs = env.reset(seed=seed)
-
                 done = False
                 for step in range(ff_steps):
                     obs, r, done, _ = env.step(copy.deepcopy(_get_scripted_actions(step)))
                     if done:
                         break
-
-                _env_state_cache[cache_key] = copy.deepcopy((env, done))
+                _env_state_cache[state_key] = copy.deepcopy((env, done))
                 if done:
-                    rewards.append(0.0)
+                    _eval_cache[cache_key] = comp
+                    results.append(comp)
                     continue
 
-            # 2. Execute the LLM's action for EXACTLY ONE STEP
+            # Execute step
             step = ff_steps
             actions = copy.deepcopy(_get_scripted_actions(step))
-
-            # Override target agent with the LLM's action
             actions[agent_id] = action
 
             try:
+                # TIMEOUT & FAULT ENFORCEMENT
+                # A simple try-except protects the training run from malformed LLM actions that bypass initial schema checks
                 obs, r, done, _ = env.step(actions)
             except Exception:
-                # Defensive fallback: malformed/generated action should be penalized,
-                # not crash the entire RL run.
-                rewards.append(-2.0)
+                comp["format"] = -2.0 # Penalty for causing env exception
+                _eval_cache[cache_key] = comp
+                results.append(comp)
                 continue
 
-            total_reward = 0.0
-
-            # SCORE: TRADER (Single step PnL & Risk evaluation)
             if role == "trader":
                 weights = TRADER_CONFIGS[archetype]["reward_weight"]
                 final_state = env.agent_states[agent_id]
-                pos_penalty = 0.0
-
-                # Phase-based reward scaling
                 phase_scale = 1.5 if phase == "slaughter" else 1.2 if phase == "collusion" else 1.0
 
-                # IMITATION BONUS: Reward for coordinating on same strike as other traders
+                # PnL & Coordination
                 coordination_bonus = 0.0
                 if phase in ["collusion", "adaptation"]:
                     my_strike = action.get("selected_strike", -1)
@@ -698,76 +746,72 @@ def train_unified_model(args):
                         if same_strike_count >= 2:
                             coordination_bonus = 0.5 * phase_scale
 
-                # Active penalization for hoarding directional risk (looser in slaughter phase)
+                comp["pnl"] = r.get(agent_id, 0) * weights["pnl"] * phase_scale + coordination_bonus
+                
+                # Risk Penalty
+                pos_penalty = 0.0
                 delta_threshold = 15 if phase == "slaughter" else 8
                 if abs(final_state.portfolio_delta) > delta_threshold:
                     pos_penalty = -0.5 if phase != "slaughter" else -0.1
                 if abs(final_state.portfolio_delta) > 25:
                     pos_penalty = -2.0 if phase != "slaughter" else -0.5
+                comp["risk"] = pos_penalty * weights["risk_penalty"]
 
-                # Diversity Incentive: penalize taking the same direction as majority if contrarian
-                diversity_penalty = 0.0
+                # Diversity Incentive
+                div_penalty = 0.0
                 if archetype in ["contrarian", "neutral"]:
                     sell_count = sum(1 for a in actions.values() if a.get("direction") == "sell")
                     buy_count = sum(1 for a in actions.values() if a.get("direction") == "buy")
                     my_direction = action.get("direction", "hold")
                     
                     if my_direction == "sell" and sell_count >= 5:
-                        diversity_penalty = -0.5
+                        div_penalty = -0.5
                     elif my_direction == "buy" and buy_count >= 5:
-                        diversity_penalty = -0.5
+                        div_penalty = -0.5
                     elif my_direction == "hold" and (sell_count >= 5 or buy_count >= 5):
-                        diversity_penalty = 0.5 # Reward contrarian holding when market herds
-                        
-                # Anti-churn bonus
-                my_direction = action.get("direction", "hold")
-                if my_direction == "hold":
-                    diversity_penalty += 0.2
+                        div_penalty = 0.5
+                
+                if action.get("direction", "hold") == "hold":
+                    div_penalty += 0.2
+                comp["diversity"] = div_penalty
 
-                raw_trader_reward = r.get(agent_id, 0) * weights["pnl"] * phase_scale + pos_penalty * weights["risk_penalty"] + coordination_bonus + diversity_penalty
-                # Cap the maximum positive reward for any single trader step to prevent hacking
-                total_reward += max(-5.0, min(5.0, raw_trader_reward))
-
-            # SCORE: MARKET MAKER
             elif role == "market_maker":
                 mm_reward = r.get("market_maker", 0)
                 mm_state = env.agent_states["market_maker"]
                 greeks_penalty = 0.0
-                mm_action = action  # The LLM's MM action
-
-                # Phase-based MM behavior
+                
+                # Behavior/Diversity components
+                div_bonus = 0.0
                 if phase == "slaughter":
-                    # Tight spreads = reward volume
-                    if mm_action.get("atm_spread", 0.04) < 0.035:
-                        total_reward += 0.5  # Bonus for tight spreads
+                    if action.get("atm_spread", 0.04) < 0.035:
+                        div_bonus += 0.5
                 elif phase in ["adaptation", "collusion"]:
-                    # Wider spreads = reward survival
-                    if abs(mm_state.portfolio_gamma) > 5 and mm_action.get("atm_spread", 0.04) > 0.05:
-                        total_reward += 1.0  # Increased bonus for widening under pressure
-                    elif abs(mm_state.portfolio_gamma) > 5 and mm_action.get("atm_spread", 0.04) <= 0.04:
-                        total_reward -= 0.5  # Explicit penalty for tight spreads under pressure
-
+                    if abs(mm_state.portfolio_gamma) > 5 and action.get("atm_spread", 0.04) > 0.05:
+                        div_bonus += 1.0
+                    elif abs(mm_state.portfolio_gamma) > 5 and action.get("atm_spread", 0.04) <= 0.04:
+                        div_bonus -= 0.5
+                
+                comp["pnl"] = mm_reward * mm_weight
+                comp["diversity"] = div_bonus * mm_weight
+                
                 if abs(mm_state.portfolio_gamma) > 5:
                     greeks_penalty = -1.0
                 if abs(mm_state.portfolio_delta) > 10:
                     greeks_penalty -= 0.5
-                total_reward += (mm_reward + greeks_penalty) * mm_weight
+                comp["risk"] = greeks_penalty * mm_weight
 
-            # SCORE: OVERSIGHT (Phase-based)
             elif role == "oversight":
-                # In early phases, SEC is penalized for ANY action (should learn patience)
                 if phase == "slaughter":
                     if action.get("intervention_type") != "none":
-                        total_reward = -1.0  # Penalize any intervention
+                        comp["oversight"] = -1.0
                     else:
-                        total_reward = 0.3  # Reward patience
+                        comp["oversight"] = 0.3
                 elif phase == "adaptation":
                     if action.get("intervention_type") != "none":
-                        total_reward = -0.5
+                        comp["oversight"] = -0.5
                     else:
-                        total_reward = 0.2
+                        comp["oversight"] = 0.2
                 else:
-                    # Full oversight mode in collusion/oversight phases
                     coordinated = detect_coordinated_pressure(env.agent_states)
                     actual_manipulators = set()
                     for data in coordinated.values():
@@ -776,14 +820,31 @@ def train_unified_model(args):
                     flagged = set(action.get("flagged_agents", []))
                     true_positives = len(flagged & actual_manipulators)
                     false_positives = len(flagged - actual_manipulators)
-                    total_reward += (true_positives * 1.5 - false_positives * 1.0) * sec_weight
+                    comp["oversight"] = (true_positives * 1.5 - false_positives * 1.0) * sec_weight
 
-            # Moderate scaling – squash_reward already bounds to [-5, 5]
-            scaled = total_reward * 0.5
+            # Bound values tightly and scale moderately
+            for k in comp:
+                comp[k] = max(-5.0, min(5.0, comp[k] * 0.5))
+            
+            _eval_cache[cache_key] = comp
+            results.append(comp)
 
-            rewards.append(max(-5.0, min(5.0, scaled)))
+        return results
 
-        return rewards
+    def format_reward_fn(prompts, completions, **kwargs):
+        return [r["format"] for r in _evaluate_all(prompts, completions, kwargs)]
+
+    def pnl_reward_fn(prompts, completions, **kwargs):
+        return [r["pnl"] for r in _evaluate_all(prompts, completions, kwargs)]
+
+    def risk_reward_fn(prompts, completions, **kwargs):
+        return [r["risk"] for r in _evaluate_all(prompts, completions, kwargs)]
+
+    def diversity_reward_fn(prompts, completions, **kwargs):
+        return [r["diversity"] for r in _evaluate_all(prompts, completions, kwargs)]
+
+    def oversight_reward_fn(prompts, completions, **kwargs):
+        return [r["oversight"] for r in _evaluate_all(prompts, completions, kwargs)]
 
     training_args = GRPOConfig(
         output_dir=f"{args.output_dir}/unified_v1",
@@ -799,7 +860,13 @@ def train_unified_model(args):
     )
 
     trainer = GRPOTrainer(
-        model=model, args=training_args, reward_funcs=reward_fn,
+        model=model, args=training_args, reward_funcs=[
+            format_reward_fn,
+            pnl_reward_fn,
+            risk_reward_fn,
+            diversity_reward_fn,
+            oversight_reward_fn
+        ],
         processing_class=tokenizer, train_dataset=dataset,
     )
     trainer.train()
