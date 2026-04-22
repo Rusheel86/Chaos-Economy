@@ -130,13 +130,21 @@ Return ONLY a JSON object on a single line. No extra text.
     return base
 
 
-def get_training_phase(episode: int) -> str:
-    """Determine training phase based on episode number."""
-    if episode < 60:
+def get_training_phase(episode: int, total_episodes: int = 250) -> str:
+    """Determine training phase based on episode number.
+
+    Boundaries are proportional to total_episodes so all four acts
+    receive coverage regardless of dataset size:
+      Act I  (Slaughter):  0 – 24%
+      Act II (Adaptation): 24% – 52%
+      Act III (Collusion): 52% – 80%
+      Act IV (Oversight):  80% – 100%
+    """
+    if episode < int(total_episodes * 0.24):
         return "slaughter"
-    elif episode < 130:
+    elif episode < int(total_episodes * 0.52):
         return "adaptation"
-    elif episode < 200:
+    elif episode < int(total_episodes * 0.80):
         return "collusion"
     else:
         return "oversight"
@@ -503,7 +511,7 @@ def train_unified_model(args):
 
     for seed in range(dataset_episodes):
         # Determine training phase based on episode/seed
-        phase = get_training_phase(seed)
+        phase = get_training_phase(seed, total_episodes=dataset_episodes)
         phase_seed_counts[phase] += 1
         if phase not in announced_phases:
             print(f"[{ACT_INFO[phase]['name']}] seed={seed} :: {ACT_INFO[phase]['tagline']}")
