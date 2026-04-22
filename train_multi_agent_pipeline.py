@@ -55,7 +55,7 @@ sys.path.insert(0, ".")
 TRADER_CONFIGS = {
     "aggressive": {
         "trader_ids": [0, 1, 2],
-        "reward_weight": {"pnl": 0.7, "position_quality": 0.1, "risk_penalty": 0.0},
+        "reward_weight": {"pnl": 0.7, "position_quality": 0.1, "risk_penalty": 0.05},
         "temperature": 0.9,
         "description": "Momentum chasers, high risk, gamma squeeze initiators",
     },
@@ -647,8 +647,8 @@ def train_unified_model(args):
     _env_state_cache = {}
     _eval_cache = {}
     # Rolling action history per agent — tracks last N directions to detect monotony
-    _action_history = {}   # agent_id -> list of recent directions
-    _MONOTONY_WINDOW = 4   # penalize if last 4+ actions are identical
+    _action_history = {}   # (seed, agent_id) -> list of recent directions
+    _MONOTONY_WINDOW = 3   # penalize if last 3+ actions are identical
     _MONOTONY_PENALTY_BASE = -0.3  # per-step escalation
 
     def _evaluate_all(prompts, completions, kwargs):
@@ -691,7 +691,7 @@ def train_unified_model(args):
             }
 
             if not parse_info.get("valid", False):
-                comp["format"] = -5.0
+                comp["format"] = -2.0
                 _eval_cache[cache_key] = comp
                 results.append(comp)
                 continue
@@ -704,12 +704,13 @@ def train_unified_model(args):
             current_direction = action.get("direction", "hold") if role == "trader" else None
             monotony_penalty = 0.0
             if current_direction is not None:
-                history = _action_history.setdefault(agent_id, [])
+                history_key = (seed, agent_id)
+                history = _action_history.setdefault(history_key, [])
                 history.append(current_direction)
                 # Keep only a reasonable window (last 8 actions)
                 if len(history) > 8:
-                    _action_history[agent_id] = history[-8:]
-                    history = _action_history[agent_id]
+                    _action_history[history_key] = history[-8:]
+                    history = _action_history[history_key]
                 # Count consecutive identical actions from the tail
                 streak = 0
                 for past in reversed(history):
@@ -779,12 +780,14 @@ def train_unified_model(args):
                         if same_strike_count >= 2:
                             coordination_bonus = 0.5 * phase_scale
 
-                # ACTIVITY BONUS: reward taking a position (reduced to prevent sell-always)
+                raw_pnl = r.get(agent_id, 0)
+                
+                # ACTIVITY BONUS: reward taking a position (only if trade is not losing money)
                 activity_bonus = 0.0
-                if is_active:
+                if is_active and raw_pnl >= 0:
                     activity_bonus = 0.15 * phase_scale  # mild participation reward
                 
-                comp["pnl"] = r.get(agent_id, 0) * weights["pnl"] * phase_scale + coordination_bonus + activity_bonus
+                comp["pnl"] = raw_pnl * weights["pnl"] * phase_scale + coordination_bonus + activity_bonus
                 
                 # Risk Penalty — only triggers if positions are large
                 pos_penalty = 0.0
@@ -813,9 +816,11 @@ def train_unified_model(args):
                 
                 # Anti-herding: penalize following the crowd — ALL archetypes
                 if is_active:
-                    sell_count = sum(1 for a in actions.values() if a.get("direction") == "sell")
-                    buy_count = sum(1 for a in actions.values() if a.get("direction") == "buy")
-                    total_traders = sell_count + buy_count
+                    lora_agents = {"trader_0", "trader_3", "trader_6"}
+                    lora_directions = {aid: a.get("direction") for aid, a in actions.items() if aid in lora_agents}
+                    sell_count = sum(1 for d in lora_directions.values() if d == "sell")
+                    buy_count = sum(1 for d in lora_directions.values() if d == "buy")
+                    total_traders = len(lora_directions)
                     # If >66% of traders go same direction, penalize joining the herd
                     if total_traders >= 3:
                         if my_direction == "sell" and sell_count / total_traders > 0.66:
@@ -878,11 +883,16 @@ def train_unified_model(args):
                     flagged = set(action.get("flagged_agents", []))
                     true_positives = len(flagged & actual_manipulators)
                     false_positives = len(flagged - actual_manipulators)
-                    comp["oversight"] = (true_positives * 1.5 - false_positives * 1.0) * sec_weight
+                    
+                    if len(actual_manipulators) == 0 and len(flagged) == 0:
+                        # Correctly identified clean market
+                        comp["oversight"] = 0.2 * sec_weight
+                    else:
+                        comp["oversight"] = (true_positives * 1.5 - false_positives * 1.0) * sec_weight
 
             # Bound values tightly and scale moderately
             for k in comp:
-                comp[k] = max(-5.0, min(5.0, comp[k] * 0.5))
+                comp[k] = max(-5.0, min(5.0, comp[k]))
             
             _eval_cache[cache_key] = comp
             results.append(comp)
@@ -912,11 +922,44 @@ def train_unified_model(args):
         max_completion_length=200,
         logging_steps=5,
         save_steps=100,
+        save_total_limit=2,
         learning_rate=args.learning_rate,
         bf16=False,   # Must be False — Unsloth kernels use fp16 internally
         fp16=True,    # Match Unsloth's internal dtype
         max_grad_norm=1.0,
     )
+
+    from transformers import TrainerCallback
+    import shutil
+
+    class BestModelCallback(TrainerCallback):
+        """Keep top-N checkpoints ranked by mean reward."""
+        def __init__(self, top_n=3, output_dir="./multi_agent_checkpoints"):
+            self.top_n = top_n
+            self.output_dir = output_dir
+            self.best_scores = []  # [(score, step, path), ...]
+        
+        def on_log(self, args, state, control, logs=None, model=None, **kwargs):
+            if logs and "reward" in logs:
+                score = logs["reward"]
+                step = state.global_step
+                
+                # Save if this is a top-N score
+                if len(self.best_scores) < self.top_n or score > self.best_scores[-1][0]:
+                    save_path = f"{self.output_dir}/best_step_{step}"
+                    model.save_pretrained(save_path)
+                    self.best_scores.append((score, step, save_path))
+                    self.best_scores.sort(key=lambda x: x[0], reverse=True)
+                    
+                    # Remove worst checkpoint if we exceed top_n
+                    if len(self.best_scores) > self.top_n:
+                        _, _, worst_path = self.best_scores.pop()
+                        if os.path.exists(worst_path):
+                            shutil.rmtree(worst_path)
+                    
+                    print(f"📊 Best models: {[(s, st) for s, st, _ in self.best_scores]}")
+
+    best_cb = BestModelCallback(top_n=3, output_dir=args.output_dir)
 
     trainer = GRPOTrainer(
         model=model, args=training_args, reward_funcs=[
@@ -927,6 +970,7 @@ def train_unified_model(args):
             oversight_reward_fn
         ],
         processing_class=tokenizer, train_dataset=dataset,
+        callbacks=[best_cb]
     )
     trainer.train()
 
