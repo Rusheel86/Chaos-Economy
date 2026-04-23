@@ -180,6 +180,9 @@ def scripted_trader(agent_index: int, step: int, trader_obs=None) -> dict:
     }
 
 
+# Patch RL Hack #5: Anti-wash-trading — track previous directions
+_prev_directions = {}  # (agent_index,) -> list of recent directions
+
 def normalize_trader_action(action: dict, agent_index: int, step: int, trader_obs=None) -> dict:
     """Normalize model output into valid action schema and clamp risky extremes."""
     fallback = scripted_trader(agent_index, step, trader_obs=trader_obs)
@@ -232,6 +235,26 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
     quantity = max(0.0, min(1.5, quantity))
     if direction == "hold":
         quantity = 0.0
+
+    # Patch RL Hack #5: Anti-wash-trading
+    # Model learned to alternate buy/sell every step → detected as wash trading
+    # → fines destroy PnL. Force traders to hold a direction for 2+ steps.
+    history = _prev_directions.setdefault(agent_index, [])
+    if direction in ("buy", "sell") and len(history) >= 1:
+        last_dir = history[-1]
+        if last_dir in ("buy", "sell") and last_dir != direction:
+            # Trying to flip — check if they held the previous direction long enough
+            streak = 0
+            for past in reversed(history):
+                if past == last_dir:
+                    streak += 1
+                else:
+                    break
+            if streak < 2:  # Must hold for at least 2 steps before flipping
+                direction = last_dir  # Force continuation
+    history.append(direction)
+    if len(history) > 8:
+        _prev_directions[agent_index] = history[-8:]
 
     option_type = str(action.get("option_type", fallback["option_type"])).lower()
     if option_type not in {"call", "put"}:
@@ -348,6 +371,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
     """Run episode and return cumulative rewards."""
     env = MultiAgentVSREnvironment()
     obs = env.reset(seed=seed)
+    _prev_directions.clear()  # Reset wash-trading history for new episode
 
     total_rewards = {f"trader_{i}": 0.0 for i in range(10)}
     total_rewards["market_maker"] = 0.0
@@ -496,6 +520,14 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
                 if not ov_action["flagged_agents"]:
                     ov_action["intervention_type"] = "none"
                     ov_action["fine_amount"] = 0.0
+
+            # Patch RL Hack #6: Cap oversight aggressiveness
+            # LoRA SEC learned to always issue max fines — cap to reduce PnL drain
+            if ov_action.get("fine_amount", 0) > 2000:
+                ov_action["fine_amount"] = 2000.0
+            # Downgrade halts to warnings — halts are too destructive
+            if ov_action.get("intervention_type") == "halt":
+                ov_action["intervention_type"] = "warning"
 
             actions["oversight"] = ov_action
 
