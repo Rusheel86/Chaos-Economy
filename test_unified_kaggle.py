@@ -74,7 +74,7 @@ elif Path("Meta/multi_agent").exists() and not Path("multi_agent").exists():
 
 sys.path.insert(0, ".")
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
 
 from multi_agent.environment import MultiAgentVSREnvironment
@@ -384,10 +384,44 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             stage1_prompts.append(p_mm)
             stage1_metadata.append(("market_maker", "market_maker", None))
 
-            # Run Stage 1 Batch
-            stage1_outputs = query_llm_batch(
-                stage1_prompts, model, tokenizer, device, max_tokens=100, temperature=0.30
-            )
+            # Run Stage 1 Batch — per-archetype temperatures matching training
+            # This matches the temperatures used during GRPO training for each persona
+            archetype_temps = {"aggressive": 0.9, "neutral": 0.7, "contrarian": 0.6}
+            stage1_outputs = []
+            
+            # Group prompts by archetype for batched inference at correct temperature
+            trader_groups = {}  # temp -> [(prompt, metadata_idx)]
+            mm_prompt_data = None
+            for idx, (prompt, (a_id, a_role, a_idx)) in enumerate(zip(stage1_prompts, stage1_metadata)):
+                if a_role == "market_maker":
+                    mm_prompt_data = (idx, prompt)
+                else:
+                    # Determine archetype from agent index
+                    if a_idx <= 2:
+                        temp = archetype_temps["aggressive"]
+                    elif a_idx <= 5:
+                        temp = archetype_temps["neutral"]
+                    else:
+                        temp = archetype_temps["contrarian"]
+                    trader_groups.setdefault(temp, []).append((idx, prompt))
+            
+            # Allocate output slots
+            stage1_outputs = [None] * len(stage1_prompts)
+            
+            # Run each temperature group
+            for temp, group in trader_groups.items():
+                indices, prompts_batch = zip(*group)
+                outputs = query_llm_batch(
+                    list(prompts_batch), model, tokenizer, device, max_tokens=100, temperature=temp
+                )
+                for idx, out in zip(indices, outputs):
+                    stage1_outputs[idx] = out
+            
+            # Run MM at low temperature (precise spreads)
+            if mm_prompt_data:
+                mm_idx, mm_p = mm_prompt_data
+                mm_out = query_llm_batch([mm_p], model, tokenizer, device, max_tokens=100, temperature=0.25)
+                stage1_outputs[mm_idx] = mm_out[0]
             
             agent_thoughts = {} # Store reasoning for Oversight
             for output, (a_id, a_role, a_idx) in zip(stage1_outputs, stage1_metadata):
@@ -428,6 +462,54 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
         # Count collusion events
         collusion_count = count_collusion_events(actions)
         mm_spreads = actions["market_maker"]
+        
+        # --- PRICE DISPLAY: Show market prices and executed trades ---
+        if verbose:
+            
+            import numpy as np
+            spot = env.vsr_state.spot_price
+            sigma = np.sqrt(env.vsr_state.variance)
+            atm_spread = mm_spreads.get("atm_spread", 0.04)
+            otm_spread = mm_spreads.get("otm_spread", 0.06)
+            itm_spread = mm_spreads.get("itm_spread", 0.05)
+            
+            # Show ATM option price (strike ~100, 30d maturity)
+            atm_strike_idx = 4  # K=100
+            short_mat_idx = 0   # 30d
+            K_atm = env.option_engine.STRIKES[atm_strike_idx]
+            T_short = env.option_engine.MATURITIES[short_mat_idx]
+            call_theo = env.option_engine.bs_price(spot, np.array([K_atm]), np.array([T_short]), np.array([sigma]), option_type="call")[0]
+            put_theo = env.option_engine.bs_price(spot, np.array([K_atm]), np.array([T_short]), np.array([sigma]), option_type="put")[0]
+            
+            price_lines = []
+            price_lines.append(f"  [PRICES] Spot=${spot:.2f} | IV={sigma:.4f}")
+            price_lines.append(f"           ATM Call K={K_atm:.0f} 30d: Theo=${call_theo:.3f}  Bid=${max(0.01,call_theo - atm_spread/2):.3f}  Ask=${call_theo + atm_spread/2:.3f}")
+            price_lines.append(f"           ATM Put  K={K_atm:.0f} 30d: Theo=${put_theo:.3f}  Bid=${max(0.01,put_theo - atm_spread/2):.3f}  Ask=${put_theo + atm_spread/2:.3f}")
+            
+            # Show executed trades with prices
+            exec_trades = env.matching_engine.match_orders(
+                {k: v for k, v in actions.items() if k.startswith("trader")},
+                MarketMakerAction(atm_spread=atm_spread, otm_spread=otm_spread, itm_spread=itm_spread),
+                spot, env.option_engine, env.vsr_state.variance
+            ) if hasattr(env, 'matching_engine') else {}
+            # Actually use the trade log from the step
+            if hasattr(env, 'trade_log') and env.trade_log:
+                recent_trades = [t for t in env.trade_log if t.get("step") == env.current_step - 1]
+                if recent_trades:
+                    price_lines.append(f"  [TRADES] {len(recent_trades)} executed:")
+                    for t in recent_trades[:5]:  # Show up to 5
+                        d = t.get("direction", "?")
+                        ep = t.get("execution_price", 0)
+                        tp = t.get("theo_price", 0)
+                        q = t.get("quantity", 0)
+                        ot = t.get("option_type", "call")
+                        aid = t.get("agent_id", "?")
+                        si = t.get("selected_strike", 0)
+                        K_trade = env.option_engine.STRIKES[min(si, 7)]
+                        price_lines.append(f"           {aid}: {d.upper()} {q:.1f}x {ot} K={K_trade:.0f} @ ${ep:.3f} (theo=${tp:.3f})")
+            
+            for line in price_lines:
+                print(line)
 
         replay_data["steps"].append({
             "step": step + 1,
@@ -566,7 +648,7 @@ def run_multi_episode_evaluation(model, tokenizer, num_steps: int, num_episodes:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--lora_path", type=str, default="./multi_agent_checkpoints/unified_market_lora", help="Path to LoRA adapter")
-    parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-1B-Instruct")
+    parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-3B-Instruct-bnb-4bit")
     parser.add_argument("--num_steps", type=int, default=50)
     parser.add_argument("--num_episodes", type=int, default=30)
     args = parser.parse_args()
@@ -586,10 +668,11 @@ def main():
 
     print(f"\nLoading base model: {args.base_model}")
     tokenizer = AutoTokenizer.from_pretrained(args.base_model)
+    bnb_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16 if device == "cuda" else torch.float32)
     model = AutoModelForCausalLM.from_pretrained(
         args.base_model,
-        torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-        device_map="auto" if device == "cuda" else None,
+        
+        quantization_config=bnb_config, device_map="auto" if device == "cuda" else None
     )
 
     print(f"Loading LoRA adapter: {lora_path}")
