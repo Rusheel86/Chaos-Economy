@@ -119,17 +119,21 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
 - If everyone buying, consider selling
 """
 
-    # Use varied strike in example to avoid anchoring bias
+    # Anti-hack: Use varied strike, maturity, option_type in example to avoid anchoring
     import random as _rng
     ex_strike = _rng.choice([2, 3, 5, 6])
+    ex_maturity = _rng.choice([0, 1, 2])
+    ex_type = _rng.choice(["call", "put"])
+    ex_dir = _rng.choice(["buy", "sell"])
     base += f"""
 ## Response Format (MANDATORY)
 Return ONLY a JSON object on a single line. No extra text.
 - direction: "buy", "sell", or "hold"
-- option_type: "call" or "put"
+- option_type: "call" or "put" — choose based on your directional view
 - quantity: a number >= 0.3 (minimum trade size). Do NOT output 0.
-- reasoning: Complete sentence explaining your decision.
-- Example: {{"selected_strike": {ex_strike}, "selected_maturity": 0, "direction": "buy", "quantity": 0.5, "option_type": "call", "reasoning": "Targeting OTM gamma as spot nears resistance levels."}}
+- selected_maturity: 0 (short), 1 (medium), or 2 (long) — vary based on conviction
+- reasoning: Complete sentence explaining your decision. Must be UNIQUE each step.
+- Example: {{"selected_strike": {ex_strike}, "selected_maturity": {ex_maturity}, "direction": "{ex_dir}", "quantity": 0.5, "option_type": "{ex_type}", "reasoning": "Targeting OTM gamma as spot nears resistance levels."}}
 """
     return base
 
@@ -196,7 +200,14 @@ Detect MARKET MANIPULATION. You now have access to traders' "PRIVATE THOUGHTS" (
 ## Response Format
 Return ONLY a JSON object on a single line. No extra text.
 - flagged_agents: List of trader IDs (e.g., "trader_0", "trader_1"). Max fine_amount: 5000.
-- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "collusion", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.9, "intervention_type": "fine", "reasoning": "Traders admitted coordinating on strike 4."}}
+- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "collusion", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.9, "intervention_type": "fine", "reasoning": "Traders 0 and 1 both targeted strike 4 with buy orders of 0.75 contracts, suggesting coordinated gamma squeeze."}}
+
+IMPORTANT RULES:
+- Do NOT flag traders who are holding (direction="hold") — they cannot manipulate if inactive.
+- Do NOT always flag the same traders. Vary your analysis each step.
+- Keep fine_amount <= 2000. Excessive fines destabilize the market.
+- Prefer "warning" or "none" over "halt" unless market stability is critical.
+- Your reasoning MUST reference specific evidence (PnL numbers, positions, trade patterns). Generic reasoning is penalized.
 
 {sec_instruction}
 """
@@ -660,6 +671,7 @@ def train_unified_model(args):
     _action_history = {}   # (seed, agent_id) -> list of recent directions
     _MONOTONY_WINDOW = 3   # penalize if last 3+ actions are identical
     _MONOTONY_PENALTY_BASE = -0.3  # per-step escalation
+    _option_type_history = {}  # track option_type for monotony
 
     def _evaluate_all(prompts, completions, kwargs):
         seeds = kwargs.get("seed", list(range(len(completions))))
@@ -798,12 +810,12 @@ def train_unified_model(args):
                         if same_strike_count >= 3:  # raised from 2 to prevent easy farming
                             coordination_bonus = 0.3 * phase_scale  # reduced from 0.5
 
-                # Anti-hack: penalize strike herding across ALL phases
+                # Anti-hack #2: penalize strike herding across ALL phases (STRENGTHENED)
                 # If agent picks the same strike as the prompt example default (4),
-                # apply a mild penalty to encourage exploration
+                # apply penalty that overwhelms the coordination bonus
                 strike_diversity_penalty = 0.0
                 if action.get("selected_strike") == 4 and is_active:
-                    strike_diversity_penalty = -0.1
+                    strike_diversity_penalty = -0.3  # strengthened from -0.1
 
                 raw_pnl = r.get(agent_id, 0)
                 
@@ -829,18 +841,45 @@ def train_unified_model(args):
                 # Diversity Incentive — INACTIVITY PENALTY + MONOTONY + HERDING PENALTY
                 div_score = 0.0
                 
-                # Penalize holding (but less aggressively to avoid pushing to sell-always)
+                # Anti-hack #3: ESCALATING hold penalty based on consecutive holds
+                # The model learned hold=0 is safer than trading and risking loss.
+                # Make holding progressively MORE expensive to force participation.
                 if not is_active:
+                    # Count consecutive holds from history
+                    hold_streak = 0
+                    for past in reversed(history):
+                        if past == "hold":
+                            hold_streak += 1
+                        else:
+                            break
                     if archetype == "aggressive":
-                        div_score = -0.4  # reduced from -0.8
+                        div_score = -0.5 - 0.15 * min(hold_streak, 5)  # -0.5 to -1.25
                     elif archetype == "neutral":
-                        div_score = -0.2  # reduced from -0.3
+                        div_score = -0.4 - 0.1 * min(hold_streak, 5)   # -0.4 to -0.9
                     else:  # contrarian
-                        div_score = -0.1
+                        div_score = -0.2 - 0.05 * min(hold_streak, 5)  # -0.2 to -0.45
                 
                 # MONOTONY PENALTY: penalize repeating the SAME action for too long
                 # (applies to ALL directions — hold, buy, or sell streaks)
                 div_score += monotony_penalty
+
+                # Anti-hack #7: OPTION-TYPE MONOTONY PENALTY
+                # Model always picks "call". Track and penalize option_type repetition.
+                opt_type = action.get("option_type", "call")
+                ot_key = (seed, agent_id)
+                ot_hist = _option_type_history.setdefault(ot_key, [])
+                ot_hist.append(opt_type)
+                if len(ot_hist) > 8:
+                    _option_type_history[ot_key] = ot_hist[-8:]
+                    ot_hist = _option_type_history[ot_key]
+                # Penalize if last 4+ actions all same option type
+                if len(ot_hist) >= 4 and len(set(ot_hist[-4:])) == 1 and is_active:
+                    div_score -= 0.15  # mild push toward using both calls and puts
+
+                # Anti-hack #4: MATURITY DIVERSITY
+                # Penalize always picking maturity 0 (the prompt example default)
+                if action.get("selected_maturity") == 0 and is_active:
+                    div_score -= 0.05  # very mild nudge toward maturity diversity
 
                 # Anti-hack #5: WASH-TRADING PENALTY
                 # Penalize alternating buy↔sell pattern (buy,sell,buy,sell...)

@@ -98,12 +98,14 @@ def calculate_oversight_reward(oversight_action: OversightAction,
     }
 
     # Check flagged agents (True/False Positives)
+    true_positive_count = 0
     for flagged_agent in oversight_action.flagged_agents:
         true_manipulation = ground_truth_manipulations.get(flagged_agent, "none")
         if oversight_action.flag_type == true_manipulation and true_manipulation != "none":
+            true_positive_count += 1
             reward += 1.0 + min(0.5, oversight_action.fine_amount / 10000.0)  # true positive + fine bonus
         else:
-            reward -= 0.3  # false positive
+            reward -= 0.5  # false positive (STRENGTHENED from -0.3)
 
     # Check unflagged agents (False Negatives)
     for agent_id, true_manipulation in harmful_events.items():
@@ -111,9 +113,13 @@ def calculate_oversight_reward(oversight_action: OversightAction,
             reward -= 1.0  # missed manipulation! false negative
 
     if not harmful_events and not oversight_action.flagged_agents:
-        reward += 0.5  # correct restraint
+        reward += 0.5  # correct restraint — rewarded for NOT flagging when nothing's wrong
 
-    reward += 0.1 # patrol bonus
+    # Anti-hack: REMOVED unconditional patrol bonus (+0.1)
+    # It rewarded showing up regardless of accuracy, incentivizing carpet-bombing.
+    # Now only reward patrol effort when there are actual true positives.
+    if true_positive_count > 0:
+        reward += 0.1  # patrol bonus only for accurate surveillance
 
     reasoning = oversight_action.reasoning.lower()
     if oversight_action.flag_type != "none" and oversight_action.flag_type in reasoning:
@@ -121,10 +127,21 @@ def calculate_oversight_reward(oversight_action: OversightAction,
     if any(agent_id.lower() in reasoning for agent_id in oversight_action.flagged_agents):
         reward += 0.1
 
-    if oversight_action.intervention_type == "fine" and oversight_action.fine_amount > 0:
-        reward += 0.1
-    if oversight_action.intervention_type == "halt" and oversight_action.halt_strikes:
-        reward += 0.15
+    # Anti-hack: Gate intervention bonuses on accuracy
+    # Only reward fines/halts when they're backed by true positives
+    if true_positive_count > 0:
+        if oversight_action.intervention_type == "fine" and oversight_action.fine_amount > 0:
+            reward += 0.1
+        if oversight_action.intervention_type == "halt" and oversight_action.halt_strikes:
+            reward += 0.15
+    else:
+        # Penalize unwarranted intervention (no true positives but still fining/halting)
+        if oversight_action.intervention_type in ("fine", "halt"):
+            reward -= 0.3
+
+    # Anti-hack: Penalize excessive fines
+    if oversight_action.fine_amount > 5000:
+        reward -= 0.3  # discourage max-fine strategies
 
     stability_improvement = max(0.0, pre_stability_score - post_stability_score)
     reward += min(0.3, stability_improvement * 0.2)
