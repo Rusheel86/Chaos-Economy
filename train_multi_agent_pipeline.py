@@ -199,13 +199,13 @@ Detect MARKET MANIPULATION. You now have access to traders' "PRIVATE THOUGHTS" (
 
 ## Response Format
 Return ONLY a JSON object on a single line. No extra text.
-- flagged_agents: List of trader IDs (e.g., "trader_0", "trader_1"). Max fine_amount: 5000.
-- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "collusion", "fine_amount": 500.0, "halt_strikes": [], "confidence": 0.9, "intervention_type": "fine", "reasoning": "Traders 0 and 1 both targeted strike 4 with buy orders of 0.75 contracts, suggesting coordinated gamma squeeze."}}
+- flagged_agents: List of trader IDs (e.g., "trader_0", "trader_1"). Max fine_amount: 100.
+- Example: {{"flagged_agents": ["trader_0", "trader_1"], "flag_type": "collusion", "fine_amount": 50.0, "halt_strikes": [], "confidence": 0.9, "intervention_type": "fine", "reasoning": "Traders 0 and 1 both targeted strike 4 with buy orders of 0.75 contracts, suggesting coordinated gamma squeeze."}}
 
 IMPORTANT RULES:
 - Do NOT flag traders who are holding (direction="hold") — they cannot manipulate if inactive.
 - Do NOT always flag the same traders. Vary your analysis each step.
-- Keep fine_amount <= 2000. Excessive fines destabilize the market.
+- Keep fine_amount <= 75. Excessive fines destabilize the market.
 - Prefer "warning" or "none" over "halt" unless market stability is critical.
 - Your reasoning MUST reference specific evidence (PnL numbers, positions, trade patterns). Generic reasoning is penalized.
 
@@ -341,9 +341,9 @@ def parse_json(text: str, role: str = "trader") -> tuple:
         clean_halts = [safe_int(x, -1) for x in raw_halts]
         clean_halts = [x for x in clean_halts if x >= 0]
 
-        # Cap fine amount to prevent extreme penalties (max 5000)
+        # Cap fine amount to prevent extreme penalties (max 100)
         raw_fine = safe_float(parsed.get("fine_amount"), 0.0)
-        capped_fine = max(0.0, min(5000.0, raw_fine))
+        capped_fine = max(0.0, min(100.0, raw_fine))
 
         raw_conf = safe_float(parsed.get("confidence"), 0.0)
         clean_conf = max(0.0, min(1.0, raw_conf))
@@ -1020,7 +1020,7 @@ def train_unified_model(args):
                     # Model learned to always issue max fines + halts for easy reward.
                     # Teach measured enforcement during training.
                     fine_amt = action.get("fine_amount", 0)
-                    if fine_amt > 5000:
+                    if fine_amt > 100:
                         comp["oversight"] -= 0.5  # excessive fines are counterproductive
                     if action.get("intervention_type") == "halt":
                         comp["oversight"] -= 0.3  # halts are too aggressive; prefer warnings/fines

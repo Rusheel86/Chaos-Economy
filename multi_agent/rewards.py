@@ -103,7 +103,7 @@ def calculate_oversight_reward(oversight_action: OversightAction,
         true_manipulation = ground_truth_manipulations.get(flagged_agent, "none")
         if oversight_action.flag_type == true_manipulation and true_manipulation != "none":
             true_positive_count += 1
-            reward += 1.0 + min(0.5, oversight_action.fine_amount / 10000.0)  # true positive + fine bonus
+            reward += 1.0 + min(0.5, oversight_action.fine_amount / 200.0)  # true positive + fine bonus
         else:
             reward -= 0.5  # false positive (STRENGTHENED from -0.3)
 
@@ -140,7 +140,7 @@ def calculate_oversight_reward(oversight_action: OversightAction,
             reward -= 0.3
 
     # Anti-hack: Penalize excessive fines
-    if oversight_action.fine_amount > 5000:
+    if oversight_action.fine_amount > 100:
         reward -= 0.3  # discourage max-fine strategies
 
     stability_improvement = max(0.0, pre_stability_score - post_stability_score)

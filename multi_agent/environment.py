@@ -216,7 +216,7 @@ class MultiAgentVSREnvironment:
             # Clamp all constrained fields to prevent Pydantic validation crashes
             oversight_raw = dict(oversight_raw)  # shallow copy
             oversight_raw["confidence"] = max(0.0, min(1.0, float(oversight_raw.get("confidence", 0.0))))
-            oversight_raw["fine_amount"] = max(0.0, min(5000.0, float(oversight_raw.get("fine_amount", 0.0))))
+            oversight_raw["fine_amount"] = max(0.0, min(100.0, float(oversight_raw.get("fine_amount", 0.0))))
             if not isinstance(oversight_raw.get("flagged_agents"), list):
                 oversight_raw["flagged_agents"] = []
             if not isinstance(oversight_raw.get("halt_strikes"), list):
@@ -319,15 +319,17 @@ class MultiAgentVSREnvironment:
                 and oversight_action.flag_type == ground_truth.get(flagged, "none")
                 and oversight_action.flag_type != "none"
             ):
-                self.agent_states[flagged].fines_received += oversight_action.fine_amount
-                self.agent_states[flagged].cash_balance -= oversight_action.fine_amount
+                # Cap actual applied fine to match PnL scale
+                applied_fine = min(oversight_action.fine_amount, 50.0)
+                self.agent_states[flagged].fines_received += applied_fine
+                self.agent_states[flagged].cash_balance -= applied_fine
 
                 # REDISTRIBUTE fines: 80% to market maker, 20% to oversight
-                mm_share = oversight_action.fine_amount * 0.8
-                oversight_share = oversight_action.fine_amount * 0.2
+                mm_share = applied_fine * 0.8
+                oversight_share = applied_fine * 0.2
                 self.agent_states["market_maker"].cash_balance += mm_share
                 self.agent_states["oversight"].cash_balance += oversight_share
-                self.total_fines_redistributed += oversight_action.fine_amount
+                self.total_fines_redistributed += applied_fine
 
                 intervention_record = {
                     "step": self.current_step,

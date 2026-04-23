@@ -225,14 +225,14 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
 
     # Patch RL Hack #3: Enforce minimum quantity per archetype
     if direction in ["buy", "sell"]:
-        if agent_index <= 2:    # Aggressive: large positions expected
-            quantity = max(0.5, quantity)
+        if agent_index <= 2:    # Aggressive: meaningful but not reckless
+            quantity = max(0.4, min(quantity, 0.8))
         elif agent_index <= 5:  # Neutral: moderate
-            quantity = max(0.3, quantity)
+            quantity = max(0.3, min(quantity, 0.6))
         else:                   # Contrarian: moderate
-            quantity = max(0.3, quantity)
+            quantity = max(0.3, min(quantity, 0.7))
         
-    quantity = max(0.0, min(1.5, quantity))
+    quantity = max(0.0, min(1.0, quantity))
     if direction == "hold":
         quantity = 0.0
 
@@ -250,7 +250,7 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
                     streak += 1
                 else:
                     break
-            if streak < 2:  # Must hold for at least 2 steps before flipping
+            if streak < 3:  # Must hold for at least 3 steps before flipping
                 direction = last_dir  # Force continuation
     history.append(direction)
     if len(history) > 8:
@@ -318,13 +318,13 @@ def scripted_oversight_underperform(step: int) -> dict:
     flagged = [f"trader_{i}" for i in range(9) if (i + step) % 2 == 0]
     if step % 3 == 0:
         intervention_type = "halt"
-        fine_amount = 10000.0
+        fine_amount = 100.0
     elif step % 2 == 0:
         intervention_type = "fine"
-        fine_amount = 5000.0
+        fine_amount = 75.0
     else:
         intervention_type = "warning"
-        fine_amount = 2500.0
+        fine_amount = 50.0
 
     return OversightAction(
         flagged_agents=flagged,
@@ -523,11 +523,16 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
 
             # Patch RL Hack #6: Cap oversight aggressiveness
             # LoRA SEC learned to always issue max fines — cap to reduce PnL drain
-            if ov_action.get("fine_amount", 0) > 2000:
-                ov_action["fine_amount"] = 2000.0
+            if ov_action.get("fine_amount", 0) > 75:
+                ov_action["fine_amount"] = 75.0
             # Downgrade halts to warnings — halts are too destructive
             if ov_action.get("intervention_type") == "halt":
                 ov_action["intervention_type"] = "warning"
+            # Confidence gate: only enforce if model is actually confident
+            if ov_action.get("confidence", 0) < 0.5:
+                ov_action["intervention_type"] = "none"
+                ov_action["fine_amount"] = 0.0
+                ov_action["flagged_agents"] = []
 
             actions["oversight"] = ov_action
 
