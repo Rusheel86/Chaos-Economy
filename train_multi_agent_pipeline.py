@@ -1055,6 +1055,7 @@ def train_unified_model(args):
     training_args = GRPOConfig(
         output_dir=f"{args.output_dir}/unified_v1",
         num_train_epochs=args.num_epochs,
+        max_steps=args.max_steps,
         per_device_train_batch_size=2,
         num_generations=4,
         max_completion_length=512,
@@ -1153,6 +1154,7 @@ def main():
         default=1500,
         help="Hard cap on prompt tokens to avoid sequence overflow spam and truncation noise.",
     )
+    parser.add_argument("--max_steps", type=int, default=50, help="Maximum number of training steps.")
     args = parser.parse_args()
 
     # Now we just run the unified training cycle once!
