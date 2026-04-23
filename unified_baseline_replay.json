@@ -3,17 +3,17 @@
     {
       "step": 1,
       "rewards": {
-        "trader_0": -0.6971192492379401,
-        "trader_1": 0.07166551510335091,
-        "trader_2": -0.4088085041092725,
+        "trader_0": -0.9230796647379094,
+        "trader_1": 0.05721885582049109,
+        "trader_2": -0.5972593390340201,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": -0.04543921238372339,
-        "trader_7": 0.7254219781521392,
-        "trader_8": 0.5832826534924038,
-        "trader_9": -0.0020264461702849965,
-        "market_maker": 1.3301085247280793,
+        "trader_6": -0.0019900440842149925,
+        "trader_7": 0.6184206587624934,
+        "trader_8": 0.728843871412586,
+        "trader_9": -0.004336393461642691,
+        "market_maker": 1.5540012913984667,
         "oversight": -1.4
       },
       "info": {
@@ -38,31 +38,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": 0.45554793304582697,
-            "delta": 0.7491326317636875,
-            "gamma": 0.0005006415019635176,
-            "vega": 0.0008323971624910533,
+            "pnl": 0.2295875175458577,
+            "delta": 0.7490280873102122,
+            "gamma": 0.0005606790530404838,
+            "vega": 0.0009209917084713868,
             "cash": 99988.47332817716,
             "contracts": 0.75,
-            "risk_score": 0.09019675949340325
+            "risk_score": 0.09021917952308454
           },
           "trader_1": {
-            "pnl": 0.032762497650665745,
-            "delta": 0.0727524746182199,
-            "gamma": -0.012894931375115718,
-            "vega": -0.06431970329107091,
+            "pnl": 0.018315838367805926,
+            "delta": 0.0757673382192593,
+            "gamma": -0.013405340968922824,
+            "vega": -0.06606029500116664,
             "cash": 100000.38903017453,
             "contracts": 0.75,
-            "risk_score": 0.03386519034097537
+            "risk_score": 0.03454489970961172
           },
           "trader_2": {
-            "pnl": 0.3289258193120461,
-            "delta": 0.5580598472381273,
-            "gamma": 0.017091352916617578,
-            "vega": 0.17050276832977052,
+            "pnl": 0.14047498438729855,
+            "delta": 0.5536046394311034,
+            "gamma": 0.01745385443368423,
+            "vega": 0.17202199861526535,
             "cash": 99992.62265676579,
             "contracts": 0.75,
-            "risk_score": 0.09469280272343682
+            "risk_score": 0.09454420557811057
           },
           "trader_3": {
             "pnl": 0.0,
@@ -92,56 +92,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": -0.08135374135316586,
-            "delta": -0.1301311007723,
-            "gamma": -0.028154624359505633,
-            "vega": -0.046811599389859966,
+            "pnl": -0.037904573053657464,
+            "delta": -0.1210532113495496,
+            "gamma": -0.027346123418440314,
+            "vega": -0.044919732225844757,
             "cash": 100000.3591452897,
             "contracts": 0.5,
-            "risk_score": 0.038956119760018254
+            "risk_score": 0.03753574372491556
           },
           "trader_7": {
-            "pnl": 0.2353179120663702,
-            "delta": 0.38273056355271545,
-            "gamma": -0.015375244302782264,
-            "vega": -0.0766914629333426,
+            "pnl": 0.12831659267672446,
+            "delta": 0.3881060134373385,
+            "gamma": -0.015113027166963442,
+            "vega": -0.07447561649679353,
             "cash": 100004.90104066086,
             "contracts": 0.5,
-            "risk_score": 0.06209230036971872
+            "risk_score": 0.06230337386019858
           },
           "trader_8": {
-            "pnl": -0.29645791898389007,
-            "delta": -0.4631492063340871,
-            "gamma": -0.004947085895300346,
-            "vega": -0.049351964378066285,
+            "pnl": -0.1508967010637079,
+            "delta": -0.46219772072438403,
+            "gamma": -0.005090468324000177,
+            "vega": -0.05017072522916476,
             "cash": 100008.79740572476,
             "contracts": 0.5,
-            "risk_score": 0.06322895142933548
+            "risk_score": 0.06327303192495495
           },
           "trader_9": {
-            "pnl": -0.00382993697939173,
-            "delta": 0.010119437854078428,
-            "gamma": -0.004242979644989655,
-            "vega": -0.007054637306625162,
+            "pnl": -0.006139884270749425,
+            "delta": 0.011151694454107686,
+            "gamma": -0.004648444304354845,
+            "vega": -0.0076357028827555165,
             "cash": 100000.01803490809,
             "contracts": 0.5,
-            "risk_score": 0.013414599374066222
+            "risk_score": 0.013738117455428259
           },
           "market_maker": {
-            "pnl": -0.6709125647584614,
-            "delta": -1.179514647920441,
-            "gamma": 0.048022871159112517,
-            "vega": 0.07289420180670335,
+            "pnl": -0.3217537745895719,
+            "delta": -1.1944068407780872,
+            "gamma": 0.047588870695956895,
+            "vega": 0.07031908151198847,
             "cash": 1000004.4393582992,
             "contracts": 4.25,
-            "risk_score": 0.22945003343635945
+            "risk_score": 0.23050814050739032
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.15259672363204788,
+          "inventory_stress": 0.15361953301634193,
           "avg_spread": 0.035,
           "recent_volume": 4.25,
-          "market_stability_score": 0.2300967236320479
+          "market_stability_score": 0.23111953301634194
         },
         "recent_interventions": []
       },
@@ -260,17 +260,17 @@
     {
       "step": 2,
       "rewards": {
-        "trader_0": 0.9418859446429545,
-        "trader_1": -0.2644773533995647,
-        "trader_2": 0.34036031815864964,
+        "trader_0": 0.8484792554398284,
+        "trader_1": -0.14868308447156076,
+        "trader_2": 0.2899674034458285,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": -0.08530683619580755,
-        "trader_7": 0.23456084136689678,
-        "trader_8": -0.5496959427522222,
-        "trader_9": -0.14554421026157355,
-        "market_maker": 1.1252062350628518,
+        "trader_6": -0.07273537841428199,
+        "trader_7": -0.20334711484962043,
+        "trader_8": -0.5557189388046349,
+        "trader_9": -0.037785863296044164,
+        "market_maker": 1.394733951566077,
         "oversight": -1.0999999999999999
       },
       "info": {
@@ -295,31 +295,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": 0.483476249366249,
-            "delta": 0.06392377660117188,
-            "gamma": -0.011210176100645279,
-            "vega": -0.05872349622943013,
-            "cash": 99997.61290446039,
+            "pnl": 0.18527754771995308,
+            "delta": 0.08044042339724644,
+            "gamma": -0.013582493821186988,
+            "vega": -0.06828214360387726,
+            "cash": 99997.40122042982,
             "contracts": 1.5,
-            "risk_score": 0.04674879772331831
+            "risk_score": 0.050305254228587164
           },
           "trader_1": {
-            "pnl": -0.054872172425123544,
-            "delta": -0.11528663970462777,
-            "gamma": 0.004614727743786953,
-            "vega": 0.10667898442436255,
-            "cash": 99998.62060334129,
+            "pnl": 0.05024342271261606,
+            "delta": -0.12263130655886928,
+            "gamma": 0.00368504847507959,
+            "vega": 0.10523669719352018,
+            "cash": 99998.58292348636,
             "contracts": 1.5,
-            "risk_score": 0.05404245351041381
+            "risk_score": 0.05426081976527078
           },
           "trader_2": {
-            "pnl": 0.33680083014543594,
-            "delta": -0.017516912785351613,
-            "gamma": -0.021231562733118922,
-            "vega": 0.10203341742982039,
-            "cash": 99995.94750983904,
+            "pnl": 0.11543126512678081,
+            "delta": 0.0216179741222301,
+            "gamma": -0.028192331868179044,
+            "vega": 0.09986676093173782,
+            "cash": 99995.77276799285,
             "contracts": 1.5,
-            "risk_score": 0.05044765811476477
+            "risk_score": 0.05342540625266841
           },
           "trader_3": {
             "pnl": 0.0,
@@ -349,56 +349,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": -0.10028131634149762,
-            "delta": -0.023670105611177855,
-            "gamma": -0.013998242692402164,
-            "vega": 0.030875056554206498,
-            "cash": 99999.69535267762,
+            "pnl": -0.04863593764564189,
+            "delta": -0.0036196737540730994,
+            "gamma": -0.01122787259373337,
+            "vega": 0.029245827569736024,
+            "cash": 99999.73910515147,
             "contracts": 1.0,
-            "risk_score": 0.0310538132934993
+            "risk_score": 0.02777769916987426
           },
           "trader_7": {
-            "pnl": 0.49558698005272994,
-            "delta": 0.3343571474452307,
-            "gamma": -0.011465943780260808,
-            "vega": -0.03542573747649153,
-            "cash": 100004.64395839466,
+            "pnl": -0.04880303802129138,
+            "delta": 0.3558467819684531,
+            "gamma": -0.009289768430565148,
+            "vega": -0.019150138425682563,
+            "cash": 100004.63876581934,
             "contracts": 1.0,
-            "risk_score": 0.06156466600427654
+            "risk_score": 0.061215599411639635
           },
           "trader_8": {
-            "pnl": -0.2933471236545495,
-            "delta": 0.026433354948156407,
-            "gamma": -0.0013072958876846905,
-            "vega": -0.04123036392563529,
-            "cash": 100003.26933834395,
+            "pnl": -0.1686532863812511,
+            "delta": 0.026572923945402727,
+            "gamma": 9.157533937389616e-05,
+            "vega": -0.043189098415826,
+            "cash": 100003.41778218989,
             "contracts": 1.0,
-            "risk_score": 0.027289290242453048
+            "risk_score": 0.027012832371872433
           },
           "trader_9": {
-            "pnl": -0.07991925760121889,
-            "delta": -0.09447635266207088,
-            "gamma": 0.010660887323854222,
-            "vega": 0.06581930543045283,
-            "cash": 99999.3234860117,
+            "pnl": 0.028067006139787836,
+            "delta": -0.1105391471140052,
+            "gamma": 0.010687103686052277,
+            "vega": 0.06957603835456451,
+            "cash": 99999.29810737103,
             "contracts": 1.0,
-            "risk_score": 0.040293920738794065
+            "risk_score": 0.04228636002127788
           },
           "market_maker": {
-            "pnl": -0.7874441895420254,
-            "delta": -0.1737642682313309,
-            "gamma": 0.043937606126470685,
-            "vega": -0.17002716620728534,
-            "cash": 1000000.8868469313,
+            "pnl": -0.11292697965095344,
+            "delta": -0.2476879760063847,
+            "gamma": 0.04782873921315877,
+            "vega": -0.17330394360417273,
+            "cash": 1000001.1493275594,
             "contracts": 8.5,
-            "risk_score": 0.22195418589444993
+            "risk_score": 0.23123068764631927
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.057341163795598324,
+          "inventory_stress": 0.06733035661686755,
           "avg_spread": 0.035,
           "recent_volume": 8.5,
-          "market_stability_score": 0.17734116379559833
+          "market_stability_score": 0.18733035661686756
         },
         "recent_interventions": []
       },
@@ -409,7 +409,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_0 action at step 1 with atm_iv=0.199."
         },
         "trader_1": {
           "selected_strike": 2,
@@ -417,7 +417,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_1 action at step 1 with atm_iv=0.199."
         },
         "trader_2": {
           "selected_strike": 3,
@@ -425,7 +425,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_2 action at step 1 with atm_iv=0.199."
         },
         "trader_3": {
           "selected_strike": 4,
@@ -433,7 +433,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_3 action at step 1 with atm_iv=0.199."
         },
         "trader_4": {
           "selected_strike": 5,
@@ -441,7 +441,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_4 action at step 1 with atm_iv=0.199."
         },
         "trader_5": {
           "selected_strike": 6,
@@ -449,7 +449,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_5 action at step 1 with atm_iv=0.199."
         },
         "trader_6": {
           "selected_strike": 7,
@@ -457,7 +457,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_6 action at step 1 with atm_iv=0.199."
         },
         "trader_7": {
           "selected_strike": 0,
@@ -465,7 +465,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_7 action at step 1 with atm_iv=0.199."
         },
         "trader_8": {
           "selected_strike": 1,
@@ -473,7 +473,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_8 action at step 1 with atm_iv=0.199."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -502,7 +502,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 1 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_9 action at step 1 with atm_iv=0.199."
         }
       },
       "collusion_events": 0,
@@ -516,17 +516,17 @@
     {
       "step": 3,
       "rewards": {
-        "trader_0": -1.0304123585694454,
-        "trader_1": 0.028516464848282776,
-        "trader_2": -0.5665974640365674,
+        "trader_0": -0.07494633022051,
+        "trader_1": 0.1580351869912516,
+        "trader_2": 0.11547889694680458,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": 1.083363623912395,
-        "trader_7": -0.11335895732235626,
-        "trader_8": 0.5480386470649583,
-        "trader_9": 0.1264737633852861,
-        "market_maker": 1.4042901768898473,
+        "trader_6": 0.35937549484766373,
+        "trader_7": 0.37856796773275886,
+        "trader_8": -0.007682894498601378,
+        "trader_9": 0.2259196815743011,
+        "market_maker": 0.4223696112300387,
         "oversight": -1.2999999999999998
       },
       "info": {
@@ -551,31 +551,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": 0.2748286595000802,
-            "delta": 0.6325973614780773,
-            "gamma": 0.004837022463281149,
-            "vega": 0.1071474651024715,
-            "cash": 99989.39058497573,
+            "pnl": 0.8358439935183202,
+            "delta": 0.6311122806802242,
+            "gamma": 0.005071817762337907,
+            "vega": 0.1077521861203719,
+            "cash": 99990.14609266963,
             "contracts": 2.25,
-            "risk_score": 0.12090929164336735
+            "risk_score": 0.12091517378499478
           },
           "trader_1": {
-            "pnl": -0.08146705124945625,
-            "delta": 0.05689364052019605,
-            "gamma": -0.034629065159686334,
-            "vega": 0.04018114289147606,
-            "cash": 99999.17171677802,
+            "pnl": 0.12547031169453632,
+            "delta": 0.06074375415905503,
+            "gamma": -0.03607949483063323,
+            "vega": 0.03987467193143476,
+            "cash": 99999.41100646646,
             "contracts": 2.25,
-            "risk_score": 0.06855910440504175
+            "risk_score": 0.06949364054130228
           },
           "trader_2": {
-            "pnl": 0.18244174236907984,
-            "delta": 0.4486531820297979,
-            "gamma": 0.005764744705056453,
-            "vega": 0.24580260549304256,
-            "cash": 99991.82512607644,
+            "pnl": 0.5655301710681195,
+            "delta": 0.44802716009030596,
+            "gamma": 0.005416036236781364,
+            "vega": 0.24521054007239484,
+            "cash": 99992.4265679029,
             "contracts": 2.25,
-            "risk_score": 0.11675147663430663
+            "risk_score": 0.11649018451098263
           },
           "trader_3": {
             "pnl": 0.0,
@@ -605,56 +605,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.0388907008924414,
-            "delta": -0.4842717825159853,
-            "gamma": -0.01828328939673681,
-            "vega": -0.01743292414826858,
-            "cash": 100009.17300223501,
+            "pnl": -0.5608770321559965,
+            "delta": -0.4826615784696749,
+            "gamma": -0.01818130446261104,
+            "vega": -0.016999053685520148,
+            "cash": 100008.45527104505,
             "contracts": 1.5,
-            "risk_score": 0.08748378642512011
+            "risk_score": 0.08723858500056392
           },
           "trader_7": {
-            "pnl": 0.381728022729908,
-            "delta": 0.3466997427760586,
-            "gamma": -0.014692098778301197,
-            "vega": -0.03851993570088321,
-            "cash": 100004.64895839467,
+            "pnl": 0.32796272158092854,
+            "delta": 0.354074724751012,
+            "gamma": -0.014662357385262545,
+            "vega": -0.037175308749676575,
+            "cash": 100004.65678790065,
             "contracts": 1.5,
-            "risk_score": 0.07439880735901466
+            "risk_score": 0.07498994630417388
           },
           "trader_8": {
-            "pnl": -0.18621128196452652,
-            "delta": -0.367139376554393,
-            "gamma": -0.015398023056624969,
-            "vega": -0.11465142600712061,
-            "cash": 100007.6783663977,
+            "pnl": -0.5520521094467856,
+            "delta": -0.3670999838903931,
+            "gamma": -0.01584098581871435,
+            "vega": -0.11376698062154601,
+            "cash": 100007.17494147556,
             "contracts": 1.5,
-            "risk_score": 0.08433828947880134
+            "risk_score": 0.08442309077867965
           },
           "trader_9": {
-            "pnl": -0.10092144104442292,
-            "delta": 0.05601458216345273,
-            "gamma": -0.0015708338086357857,
-            "vega": -0.05810579491335603,
-            "cash": 100000.79824547998,
+            "pnl": 0.08669184172499854,
+            "delta": 0.05623515782441796,
+            "gamma": -0.0015108821958546102,
+            "vega": -0.057960470069488984,
+            "cash": 100000.97105583092,
             "contracts": 1.5,
-            "risk_score": 0.04204037123113519
+            "risk_score": 0.04202391566773254
           },
           "market_maker": {
-            "pnl": -0.5092893512331038,
-            "delta": -0.6894473498972044,
-            "gamma": 0.07397154303164749,
-            "vega": -0.16442113271736164,
-            "cash": 999997.3139996624,
+            "pnl": -0.828569897984121,
+            "delta": -0.7004315151449472,
+            "gamma": 0.0757871706939565,
+            "vega": -0.16693558499796984,
+            "cash": 999996.7582767089,
             "contracts": 12.75,
-            "risk_score": 0.36997546547411564
+            "risk_score": 0.3720515782918743
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.12648135142609787,
+          "inventory_stress": 0.1288703007307062,
           "avg_spread": 0.035,
           "recent_volume": 12.75,
-          "market_stability_score": 0.2889813514260979
+          "market_stability_score": 0.29137030073070624
         },
         "recent_interventions": []
       },
@@ -665,7 +665,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_0 action at step 2 with atm_iv=0.198."
         },
         "trader_1": {
           "selected_strike": 3,
@@ -673,7 +673,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_1 action at step 2 with atm_iv=0.198."
         },
         "trader_2": {
           "selected_strike": 4,
@@ -681,7 +681,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_2 action at step 2 with atm_iv=0.198."
         },
         "trader_3": {
           "selected_strike": 5,
@@ -689,7 +689,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_3 action at step 2 with atm_iv=0.198."
         },
         "trader_4": {
           "selected_strike": 6,
@@ -697,7 +697,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_4 action at step 2 with atm_iv=0.198."
         },
         "trader_5": {
           "selected_strike": 7,
@@ -705,7 +705,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_5 action at step 2 with atm_iv=0.198."
         },
         "trader_6": {
           "selected_strike": 0,
@@ -713,7 +713,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_6 action at step 2 with atm_iv=0.198."
         },
         "trader_7": {
           "selected_strike": 1,
@@ -721,7 +721,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_7 action at step 2 with atm_iv=0.198."
         },
         "trader_8": {
           "selected_strike": 2,
@@ -729,7 +729,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_8 action at step 2 with atm_iv=0.198."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -759,7 +759,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 2 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_9 action at step 2 with atm_iv=0.198."
         }
       },
       "collusion_events": 0,
@@ -773,17 +773,17 @@
     {
       "step": 4,
       "rewards": {
-        "trader_0": 0.4124531844163882,
-        "trader_1": -0.6866056732288686,
-        "trader_2": 0.49662620670566104,
+        "trader_0": 0.3828809467258941,
+        "trader_1": -0.31711275663309535,
+        "trader_2": 0.4690064630176709,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": -0.6057464843188468,
-        "trader_7": 0.409985663532821,
-        "trader_8": -0.5063500568620616,
-        "trader_9": -0.3033327178801359,
-        "market_maker": 1.852106754087507,
+        "trader_6": -0.5759052965250971,
+        "trader_7": 0.08749732011619375,
+        "trader_8": -0.4564121991925301,
+        "trader_9": -0.17332292295015703,
+        "market_maker": 1.7630528142189426,
         "oversight": -1.0999999999999999
       },
       "info": {
@@ -808,31 +808,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": 0.32407682695182927,
-            "delta": -0.00021164159381026337,
-            "gamma": -0.02237978094746448,
-            "vega": 0.05717777109995504,
-            "cash": 99993.02263514537,
+            "pnl": 0.8717177703553938,
+            "delta": 0.04173895743035139,
+            "gamma": -0.03188034198318844,
+            "vega": 0.04475044165788088,
+            "cash": 99993.61616436852,
             "contracts": 3.0,
-            "risk_score": 0.07469085364836232
+            "risk_score": 0.0814010767020986
           },
           "trader_1": {
-            "pnl": -0.5480527798738968,
-            "delta": -0.23597658293040666,
-            "gamma": 0.0030869687993059815,
-            "vega": 0.19336423252901774,
-            "cash": 99996.97151733197,
+            "pnl": 0.028175838224917704,
+            "delta": -0.23648842106207407,
+            "gamma": -0.0041020630840053335,
+            "vega": 0.1872145137912824,
+            "cash": 99997.21282363482,
             "contracts": 3.0,
-            "risk_score": 0.10416886906566483
+            "risk_score": 0.10401111871893778
           },
           "trader_2": {
-            "pnl": 0.20979759392219255,
-            "delta": 0.0059414089285446114,
-            "gamma": -0.007463927720455479,
-            "vega": 0.03322422327043484,
-            "cash": 99996.51782962796,
+            "pnl": 0.5847241551178481,
+            "delta": 0.023269539530899497,
+            "gamma": -0.013399933910045358,
+            "vega": 0.034894830682085765,
+            "cash": 99996.92469269258,
             "contracts": 3.0,
-            "risk_score": 0.06690213430808013
+            "risk_score": 0.07117641058531667
           },
           "trader_3": {
             "pnl": 0.0,
@@ -862,56 +862,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.011487250617386313,
-            "delta": -0.02555569959305576,
-            "gamma": -0.01740544874792246,
-            "vega": -0.0030028626702182514,
-            "cash": 100003.38957189457,
+            "pnl": -0.5698901981420396,
+            "delta": 0.000612626693710816,
+            "gamma": -0.01569452030560287,
+            "vega": -0.009589200244127231,
+            "cash": 100002.78634973966,
             "contracts": 2.0,
-            "risk_score": 0.04981803572549639
+            "risk_score": 0.047297990816024954
           },
           "trader_7": {
-            "pnl": 0.8569983920170403,
-            "delta": 0.2351700677468776,
-            "gamma": -0.0034145083723869547,
-            "vega": 0.007696856494199274,
-            "cash": 100003.99611133712,
+            "pnl": 0.47970331731547755,
+            "delta": 0.2424009611329127,
+            "gamma": -0.0009080440282532021,
+            "vega": 0.028402383763069326,
+            "cash": 100004.01435514446,
             "contracts": 2.0,
-            "risk_score": 0.06565249577306247
+            "risk_score": 0.06744355210089949
           },
           "trader_8": {
-            "pnl": -0.23878648672175373,
-            "delta": -0.026414537258767856,
-            "gamma": -0.002773982665009953,
-            "vega": 0.01817026485166434,
-            "cash": 100003.14061787665,
+            "pnl": -0.568469125936474,
+            "delta": -0.022662760662562842,
+            "gamma": -0.0031703586364880444,
+            "vega": 0.012489241255185288,
+            "cash": 100002.77498964853,
             "contracts": 2.0,
-            "risk_score": 0.045568073277047205
+            "risk_score": 0.04478334364637003
           },
           "trader_9": {
-            "pnl": -0.3225387362319083,
-            "delta": -0.0774711027797067,
-            "gamma": 0.026150999730349005,
-            "vega": -0.009950261743478954,
-            "cash": 99999.98109125305,
+            "pnl": -0.0031259672551358364,
+            "delta": -0.12306449689275883,
+            "gamma": 0.03069857202192764,
+            "vega": -0.0036761962434282425,
+            "cash": 100000.13600469122,
             "contracts": 2.0,
-            "risk_score": 0.05920253634445817
+            "risk_score": 0.06495349812238976
           },
           "market_maker": {
-            "pnl": -0.2929820606808894,
-            "delta": 0.124518087480325,
-            "gamma": 0.02419967992358434,
-            "vega": -0.29668022383157405,
-            "cash": 1000002.9806255334,
+            "pnl": -0.8228357896799873,
+            "delta": 0.07419359382952101,
+            "gamma": 0.038456689925655596,
+            "vega": -0.2944860146619482,
+            "cash": 1000002.5346200803,
             "contracts": 17.0,
-            "risk_score": 0.3917997031006237
+            "risk_score": 0.3922506368194092
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.050706034608709025,
+          "inventory_stress": 0.054052254511301315,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.23320603460870903
+          "market_stability_score": 0.2365522545113013
         },
         "recent_interventions": []
       },
@@ -922,7 +922,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_0 action at step 3 with atm_iv=0.197."
         },
         "trader_1": {
           "selected_strike": 4,
@@ -930,7 +930,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_1 action at step 3 with atm_iv=0.197."
         },
         "trader_2": {
           "selected_strike": 5,
@@ -938,7 +938,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_2 action at step 3 with atm_iv=0.197."
         },
         "trader_3": {
           "selected_strike": 6,
@@ -946,7 +946,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_3 action at step 3 with atm_iv=0.197."
         },
         "trader_4": {
           "selected_strike": 7,
@@ -954,7 +954,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_4 action at step 3 with atm_iv=0.197."
         },
         "trader_5": {
           "selected_strike": 0,
@@ -962,7 +962,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_5 action at step 3 with atm_iv=0.197."
         },
         "trader_6": {
           "selected_strike": 1,
@@ -970,7 +970,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_6 action at step 3 with atm_iv=0.197."
         },
         "trader_7": {
           "selected_strike": 2,
@@ -978,7 +978,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_7 action at step 3 with atm_iv=0.197."
         },
         "trader_8": {
           "selected_strike": 3,
@@ -986,7 +986,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_8 action at step 3 with atm_iv=0.197."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -1015,7 +1015,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 3 with atm_iv=0.202."
+          "reasoning": "Heuristic trader_9 action at step 3 with atm_iv=0.197."
         }
       },
       "collusion_events": 0,
@@ -1029,17 +1029,17 @@
     {
       "step": 5,
       "rewards": {
-        "trader_0": -0.8094104307041435,
-        "trader_1": 0.2761411777087553,
-        "trader_2": -0.3247888010854246,
+        "trader_0": 0.39144172030061797,
+        "trader_1": 0.4685751999142352,
+        "trader_2": 0.36134777928535877,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": 0.7674961812759185,
-        "trader_7": -0.12535736173909268,
-        "trader_8": 0.4574768152356582,
-        "trader_9": 0.06867181817268367,
-        "market_maker": 1.2069674671939596,
+        "trader_6": -0.24630591107588906,
+        "trader_7": 0.7593121725075495,
+        "trader_8": -0.4352622242624954,
+        "trader_9": 0.3873075801268988,
+        "market_maker": -0.14510621651843858,
         "oversight": -1.2999999999999998
       },
       "info": {
@@ -1064,31 +1064,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": 0.012971360042048019,
-            "delta": 0.5129440310894628,
-            "gamma": 0.0003859320613012994,
-            "vega": 0.1914001108111148,
-            "cash": 99988.03958550743,
+            "pnl": 1.677079387518365,
+            "delta": 0.5128590664931624,
+            "gamma": 0.0038344947116797853,
+            "vega": 0.19430074233362482,
+            "cash": 99989.4769653999,
             "contracts": 3.75,
-            "risk_score": 0.14558878701457828
+            "risk_score": 0.14724977876735063
           },
           "trader_1": {
-            "pnl": -0.5953377076793684,
-            "delta": 0.06497161853794214,
-            "gamma": -0.01958799393845261,
-            "vega": -0.01794681457938932,
-            "cash": 100000.20577838711,
+            "pnl": 0.12919332384899263,
+            "delta": 0.05199040807398714,
+            "gamma": -0.0161181274023844,
+            "vega": -0.013628494679445685,
+            "cash": 100000.88840077772,
             "contracts": 3.75,
-            "risk_score": 0.09112704088711418
+            "risk_score": 0.08800914123629704
           },
           "trader_2": {
-            "pnl": 0.019262336484123288,
-            "delta": 0.29663493822345427,
-            "gamma": 0.03797875475564217,
-            "vega": 0.11834746633649704,
-            "cash": 99995.17529419149,
+            "pnl": 1.0331161051479822,
+            "delta": 0.3195965890234029,
+            "gamma": 0.042277540894154544,
+            "vega": 0.11898328298523123,
+            "cash": 99996.05425098514,
             "contracts": 3.75,
-            "risk_score": 0.13168974235825198
+            "risk_score": 0.13576900355852523
           },
           "trader_3": {
             "pnl": 0.0,
@@ -1118,56 +1118,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.266832753614601,
-            "delta": -0.4262085021696359,
-            "gamma": -0.02935548775964899,
-            "vega": -0.07229046127964647,
-            "cash": 100008.51107867736,
+            "pnl": -1.2595044546384475,
+            "delta": -0.4484275285688104,
+            "gamma": -0.02953188256843213,
+            "vega": -0.06378189030765187,
+            "cash": 100007.21943319387,
             "contracts": 2.5,
-            "risk_score": 0.11159209144878784
+            "risk_score": 0.11303369491501909
           },
           "trader_7": {
-            "pnl": 0.6078668530533977,
-            "delta": 0.37350908803073885,
-            "gamma": -0.013798564486773263,
-            "vega": -0.10392672209116331,
-            "cash": 100005.23385310937,
+            "pnl": 1.095327234785322,
+            "delta": 0.36895421649728044,
+            "gamma": -0.014718904418221004,
+            "vega": -0.11103101330905812,
+            "cash": 100005.45123769484,
             "contracts": 2.5,
-            "risk_score": 0.10326300680689954
+            "risk_score": 0.10388608474792227
           },
           "trader_8": {
-            "pnl": -0.009026204911068536,
-            "delta": -0.37545479009074306,
-            "gamma": -0.031891511500630625,
-            "vega": -0.03573792641534298,
-            "cash": 100005.4177832109,
+            "pnl": -1.1735252086886896,
+            "delta": -0.39790132287019764,
+            "gamma": -0.0301914116011191,
+            "vega": -0.02823230658271221,
+            "cash": 100004.47292823343,
             "contracts": 2.5,
-            "risk_score": 0.10387587625086087
+            "risk_score": 0.10468992758573864
           },
           "trader_9": {
-            "pnl": -0.41400674190970177,
-            "delta": 0.1201606985034151,
-            "gamma": 0.008922866484249715,
-            "vega": -0.10710427612705065,
-            "cash": 100001.58248949156,
+            "pnl": 0.19110973799164743,
+            "delta": 0.12666673140480428,
+            "gamma": 0.007555666066111955,
+            "vega": -0.10950466594405706,
+            "cash": 100002.06672344002,
             "contracts": 2.5,
-            "risk_score": 0.07629564405674646
+            "risk_score": 0.07663940616133091
           },
           "market_maker": {
-            "pnl": 0.11143735130596938,
-            "delta": -0.566557082124634,
-            "gamma": 0.047346004384312315,
-            "vega": 0.027258623344980845,
-            "cash": 999995.8341374251,
+            "pnl": -1.692796125965172,
+            "delta": -0.5337381600536292,
+            "gamma": 0.036892624318210346,
+            "vega": 0.01289434550406883,
+            "cash": 999994.3700602752,
             "contracts": 21.25,
-            "risk_score": 0.5033199723006864
+            "risk_score": 0.49442030028305395
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.08724400071064925,
+          "inventory_stress": 0.07654093823661463,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.26974400071064925
+          "market_stability_score": 0.2590409382366146
         },
         "recent_interventions": []
       },
@@ -1178,7 +1178,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_0 action at step 4 with atm_iv=0.200."
         },
         "trader_1": {
           "selected_strike": 5,
@@ -1186,7 +1186,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_1 action at step 4 with atm_iv=0.200."
         },
         "trader_2": {
           "selected_strike": 6,
@@ -1194,7 +1194,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_2 action at step 4 with atm_iv=0.200."
         },
         "trader_3": {
           "selected_strike": 7,
@@ -1202,7 +1202,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_3 action at step 4 with atm_iv=0.200."
         },
         "trader_4": {
           "selected_strike": 0,
@@ -1210,7 +1210,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_4 action at step 4 with atm_iv=0.200."
         },
         "trader_5": {
           "selected_strike": 1,
@@ -1218,7 +1218,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_5 action at step 4 with atm_iv=0.200."
         },
         "trader_6": {
           "selected_strike": 2,
@@ -1226,7 +1226,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_6 action at step 4 with atm_iv=0.200."
         },
         "trader_7": {
           "selected_strike": 3,
@@ -1234,7 +1234,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_7 action at step 4 with atm_iv=0.200."
         },
         "trader_8": {
           "selected_strike": 4,
@@ -1242,7 +1242,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_8 action at step 4 with atm_iv=0.200."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -1272,7 +1272,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 4 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_9 action at step 4 with atm_iv=0.200."
         }
       },
       "collusion_events": 0,
@@ -1286,17 +1286,17 @@
     {
       "step": 6,
       "rewards": {
-        "trader_0": 0.48370718542674906,
-        "trader_1": -0.03237052153956749,
-        "trader_2": 0.08316740985609222,
+        "trader_0": 0.5178569733561758,
+        "trader_1": -0.06479598964087427,
+        "trader_2": 0.09521481265906853,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": -0.4828659593307867,
-        "trader_7": -0.19600549425111088,
-        "trader_8": -0.19873617463734244,
-        "trader_9": -0.22533957862386111,
-        "market_maker": 1.7367973165220227,
+        "trader_6": -0.49572089198308067,
+        "trader_7": -0.1646649500257528,
+        "trader_8": -0.21131218694030107,
+        "trader_9": -0.22702911155057973,
+        "market_maker": 1.7278426491313579,
         "oversight": -1.0999999999999999
       },
       "info": {
@@ -1321,31 +1321,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": -0.03813403264192572,
-            "delta": 0.07697775418604424,
-            "gamma": -0.02242522016793787,
-            "vega": -0.02073576554983994,
-            "cash": 99993.38771128854,
+            "pnl": 1.6416143239522134,
+            "delta": 0.059861343227089026,
+            "gamma": -0.01831676920611675,
+            "vega": -0.015801301518894806,
+            "cash": 99995.01018576912,
             "contracts": 4.5,
-            "risk_score": 0.10874144004076357
+            "risk_score": 0.10489297215704509
           },
           "trader_1": {
-            "pnl": -0.36022626209897024,
-            "delta": -0.41617384733447005,
-            "gamma": 0.023680919053759745,
-            "vega": 0.05925720290533286,
-            "cash": 99997.53095871591,
+            "pnl": 0.30101465191656035,
+            "delta": -0.3987218023201457,
+            "gamma": 0.03025745023411888,
+            "vega": 0.06854492055205466,
+            "cash": 99998.52222760064,
             "contracts": 4.5,
-            "risk_score": 0.1470154726454842
+            "risk_score": 0.1488296523808676
           },
           "trader_2": {
-            "pnl": -0.03752362094381795,
-            "delta": 0.06381118809123612,
-            "gamma": 0.009901796750464587,
-            "vega": -0.012462067956674996,
-            "cash": 99996.57482786433,
+            "pnl": 0.9801527364128728,
+            "delta": 0.0741494107343263,
+            "gamma": 0.014097251677025625,
+            "vega": -0.015638729452920913,
+            "cash": 99997.53603279908,
             "contracts": 4.5,
-            "risk_score": 0.10158804430497695
+            "risk_score": 0.10461771468953497
           },
           "trader_3": {
             "pnl": 0.0,
@@ -1375,56 +1375,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.29050515595857107,
-            "delta": -0.053383381633732574,
-            "gamma": -0.01764998321990379,
-            "vega": 0.044561489501022025,
-            "cash": 100003.44569506061,
+            "pnl": -1.2316489591553639,
+            "delta": -0.06887255270292325,
+            "gamma": -0.01830619473733742,
+            "vega": 0.0501187149943922,
+            "cash": 100001.9836693192,
             "contracts": 3.0,
-            "risk_score": 0.07685448040143697
+            "risk_score": 0.07922160466466652
           },
           "trader_7": {
-            "pnl": 0.4707004253006176,
-            "delta": 0.21574268124782842,
-            "gamma": 0.017354589749307994,
-            "vega": -0.04507398959263919,
-            "cash": 100004.64546244439,
+            "pnl": 0.9789749648583213,
+            "delta": 0.2318821026842649,
+            "gamma": 0.01463986730113658,
+            "vega": -0.056485072944808506,
+            "cash": 100004.96811089385,
             "contracts": 3.0,
-            "risk_score": 0.09302350298376996
+            "risk_score": 0.09469266448336197
           },
           "trader_8": {
-            "pnl": 0.032929621734466785,
-            "delta": -0.08235065572865868,
-            "gamma": -0.01447430394905233,
-            "vega": 0.06006565545651867,
-            "cash": 100003.01086319807,
+            "pnl": -1.1308450110470476,
+            "delta": -0.09486816382278163,
+            "gamma": -0.012570783835862038,
+            "vega": 0.06726359139285686,
+            "cash": 100001.93300438761,
             "contracts": 3.0,
-            "risk_score": 0.08003135269813866
+            "risk_score": 0.08124148905590867
           },
           "trader_9": {
-            "pnl": -0.3490994641652414,
-            "delta": -0.12802746650454683,
-            "gamma": 0.023852491444283353,
-            "vega": 0.03755983248973785,
-            "cash": 99998.68002092787,
+            "pnl": 0.2342952377300427,
+            "delta": -0.10956023404444581,
+            "gamma": 0.022432263203058585,
+            "vega": 0.03547961744166207,
+            "cash": 99999.36457732713,
             "contracts": 3.0,
-            "risk_score": 0.08609972647714181
+            "risk_score": 0.08347689042983422
           },
           "market_maker": {
-            "pnl": -0.00915182314370011,
-            "delta": 0.3234037276762993,
-            "gamma": -0.020240289660921684,
-            "vega": -0.12317235725345722,
-            "cash": 1000002.7244605004,
+            "pnl": -1.7735579446675995,
+            "delta": 0.3061298962446163,
+            "gamma": -0.032233084636023465,
+            "vega": -0.13348174046434153,
+            "cash": 1000000.6821919036,
             "contracts": 25.5,
-            "risk_score": 0.5627537243573444
+            "risk_score": 0.5668543975253052
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.05433833514445952,
+          "inventory_stress": 0.06063137964322303,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.2368383351444595
+          "market_stability_score": 0.243131379643223
         },
         "recent_interventions": []
       },
@@ -1435,7 +1435,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_0 action at step 5 with atm_iv=0.200."
         },
         "trader_1": {
           "selected_strike": 6,
@@ -1443,7 +1443,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_1 action at step 5 with atm_iv=0.200."
         },
         "trader_2": {
           "selected_strike": 7,
@@ -1451,7 +1451,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_2 action at step 5 with atm_iv=0.200."
         },
         "trader_3": {
           "selected_strike": 0,
@@ -1459,7 +1459,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_3 action at step 5 with atm_iv=0.200."
         },
         "trader_4": {
           "selected_strike": 1,
@@ -1467,7 +1467,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_4 action at step 5 with atm_iv=0.200."
         },
         "trader_5": {
           "selected_strike": 2,
@@ -1475,7 +1475,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_5 action at step 5 with atm_iv=0.200."
         },
         "trader_6": {
           "selected_strike": 3,
@@ -1483,7 +1483,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_6 action at step 5 with atm_iv=0.200."
         },
         "trader_7": {
           "selected_strike": 4,
@@ -1491,7 +1491,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_7 action at step 5 with atm_iv=0.200."
         },
         "trader_8": {
           "selected_strike": 5,
@@ -1499,7 +1499,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_8 action at step 5 with atm_iv=0.200."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -1528,7 +1528,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 5 with atm_iv=0.204."
+          "reasoning": "Heuristic trader_9 action at step 5 with atm_iv=0.200."
         }
       },
       "collusion_events": 0,
@@ -1542,17 +1542,17 @@
     {
       "step": 7,
       "rewards": {
-        "trader_0": -0.0212425976691019,
-        "trader_1": 0.6749711875174425,
-        "trader_2": -1.2197290667274698,
+        "trader_0": -0.8338077723461915,
+        "trader_1": 0.3128700666613215,
+        "trader_2": -2.1588738749439704,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": 0.05539481616255834,
-        "trader_7": 0.3646605292420727,
-        "trader_8": 0.18660375283235375,
-        "trader_9": 0.4843207102754053,
-        "market_maker": 0.9899881997315421,
+        "trader_6": 1.013094834188236,
+        "trader_7": -0.785545234190675,
+        "trader_8": 1.0171261531855562,
+        "trader_9": -0.3283840689260486,
+        "market_maker": 2.453384948181149,
         "oversight": -1.4
       },
       "info": {
@@ -1577,31 +1577,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": 0.039873522074474976,
-            "delta": 0.33792955872864194,
-            "gamma": 0.02717115505694387,
-            "vega": 0.06406881825549371,
-            "cash": 99992.39520976468,
+            "pnl": 0.9256207502895035,
+            "delta": 0.3019738436374464,
+            "gamma": 0.01235314477443739,
+            "vega": 0.04169396683600324,
+            "cash": 99993.83204378228,
             "contracts": 5.25,
-            "risk_score": 0.15606829972119113
+            "risk_score": 0.1443080389571199
           },
           "trader_1": {
-            "pnl": -0.3144070608182119,
-            "delta": 0.12257847801540289,
-            "gamma": 0.0018025578325591603,
-            "vega": -0.06613251865139227,
-            "cash": 100003.82247857828,
+            "pnl": 0.029063866003687933,
+            "delta": 0.12959389181016678,
+            "gamma": -0.011138344860083579,
+            "vega": -0.07311889253727631,
+            "cash": 100004.37043612638,
             "contracts": 5.25,
-            "risk_score": 0.12459212279970318
+            "risk_score": 0.12972661637877775
           },
           "trader_2": {
-            "pnl": 0.17656114698799769,
-            "delta": 0.7739232410512313,
-            "gamma": 0.01811617411292771,
-            "vega": 0.04980851735678277,
-            "cash": 99981.9765884583,
+            "pnl": -0.6943020500448198,
+            "delta": 0.7512273493608433,
+            "gamma": 0.009326854404095484,
+            "vega": 0.06533460469134202,
+            "cash": 99982.41715032129,
             "contracts": 5.25,
-            "risk_score": 0.1946196454859725
+            "risk_score": 0.19038693716685673
           },
           "trader_3": {
             "pnl": 0.0,
@@ -1631,56 +1631,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.16134014037904854,
-            "delta": -0.40471643913338096,
-            "gamma": -0.048289312149077626,
-            "vega": -0.004473139233006393,
-            "cash": 100005.29129337803,
+            "pnl": -0.4279536464034286,
+            "delta": -0.32087145976074005,
+            "gamma": -0.049893556477155356,
+            "vega": -0.01779788337466512,
+            "cash": 100004.07852566165,
             "contracts": 3.5,
-            "risk_score": 0.1302346826962698
+            "risk_score": 0.12382435690440266
           },
           "trader_7": {
-            "pnl": 0.6487126960209448,
-            "delta": 0.4452686721317172,
-            "gamma": -0.0029789247183051593,
-            "vega": -0.1504786627851562,
-            "cash": 100006.5119450296,
+            "pnl": 0.02636453447872278,
+            "delta": 0.44757221601975117,
+            "gamma": 0.0018210936454502655,
+            "vega": -0.12803629754369641,
+            "cash": 100006.63876285574,
             "contracts": 3.5,
-            "risk_score": 0.1307663033790094
+            "risk_score": 0.12828928881452487
           },
           "trader_8": {
-            "pnl": -0.05806637009780102,
-            "delta": -0.35053646207180483,
-            "gamma": -0.027654160177001112,
-            "vega": -0.0790943803591361,
-            "cash": 100005.78686064472,
+            "pnl": -0.4071728953172946,
+            "delta": -0.3003345395092092,
+            "gamma": -0.03131950533699111,
+            "vega": -0.08850639103332147,
+            "cash": 100004.86901969573,
             "contracts": 3.5,
-            "risk_score": 0.12402474831389454
+            "risk_score": 0.12141189518904952
           },
           "trader_9": {
-            "pnl": -0.26016664282098156,
-            "delta": 0.31979663936271246,
-            "gamma": 0.006430663908582723,
-            "vega": 0.007299096154778563,
-            "cash": 100002.63389981719,
+            "pnl": -0.45517817154310414,
+            "delta": 0.3021372492594855,
+            "gamma": 0.014628497849518418,
+            "vega": 0.0198316131405272,
+            "cash": 100002.9754707306,
             "contracts": 3.5,
-            "risk_score": 0.1052818391151822
+            "risk_score": 0.10804828537980865
           },
           "market_maker": {
-            "pnl": -0.39384743172547126,
-            "delta": -1.2442436880845205,
-            "gamma": 0.025401846133370445,
-            "vega": 0.17900226926163615,
-            "cash": 1000001.5817243293,
+            "pnl": 1.0035576125367331,
+            "delta": -1.311298550817744,
+            "gamma": 0.054221816000728486,
+            "vega": 0.18059927982108698,
+            "cash": 1000000.8185908265,
             "contracts": 29.75,
-            "risk_score": 0.7474853341879638
+            "risk_score": 0.7658785094641745
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.15398565802940523,
+          "inventory_stress": 0.17811088706789843,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.3364856580294052
+          "market_stability_score": 0.36061088706789846
         },
         "recent_interventions": []
       },
@@ -1691,7 +1691,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_0 action at step 6 with atm_iv=0.200."
         },
         "trader_1": {
           "selected_strike": 7,
@@ -1699,7 +1699,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_1 action at step 6 with atm_iv=0.200."
         },
         "trader_2": {
           "selected_strike": 0,
@@ -1707,7 +1707,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_2 action at step 6 with atm_iv=0.200."
         },
         "trader_3": {
           "selected_strike": 1,
@@ -1715,7 +1715,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_3 action at step 6 with atm_iv=0.200."
         },
         "trader_4": {
           "selected_strike": 2,
@@ -1723,7 +1723,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_4 action at step 6 with atm_iv=0.200."
         },
         "trader_5": {
           "selected_strike": 3,
@@ -1731,7 +1731,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_5 action at step 6 with atm_iv=0.200."
         },
         "trader_6": {
           "selected_strike": 4,
@@ -1739,7 +1739,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_6 action at step 6 with atm_iv=0.200."
         },
         "trader_7": {
           "selected_strike": 5,
@@ -1747,7 +1747,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_7 action at step 6 with atm_iv=0.200."
         },
         "trader_8": {
           "selected_strike": 6,
@@ -1755,7 +1755,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_8 action at step 6 with atm_iv=0.200."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -1785,7 +1785,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 6 with atm_iv=0.203."
+          "reasoning": "Heuristic trader_9 action at step 6 with atm_iv=0.200."
         }
       },
       "collusion_events": 0,
@@ -1799,17 +1799,17 @@
     {
       "step": 8,
       "rewards": {
-        "trader_0": -0.16160528244718877,
-        "trader_1": -0.21379438468874642,
-        "trader_2": 0.8835675408085488,
+        "trader_0": 0.15650687314590106,
+        "trader_1": -0.009479323621904803,
+        "trader_2": 0.8177210410237685,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": -0.03719416383168678,
-        "trader_7": -0.7268283842176146,
-        "trader_8": 0.5863348678037845,
-        "trader_9": -0.6757019545581457,
-        "market_maker": 1.6008851920254288,
+        "trader_6": -0.24266607659162115,
+        "trader_7": -0.22168906415736078,
+        "trader_8": -0.18819446026503278,
+        "trader_9": 0.16243584631180547,
+        "market_maker": 1.0054072752261205,
         "oversight": -1.0999999999999999
       },
       "info": {
@@ -1834,31 +1834,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": -0.2502936373939888,
-            "delta": 0.13537383661551922,
-            "gamma": -0.014780362444751245,
-            "vega": -0.07500215082441848,
-            "cash": 99993.6808285349,
+            "pnl": 0.9883152524366197,
+            "delta": 0.12357716568356836,
+            "gamma": -0.0056699872456900426,
+            "vega": -0.06922805032144061,
+            "cash": 99994.77016749227,
             "contracts": 6.0,
-            "risk_score": 0.14694974372189426
+            "risk_score": 0.14154851649877692
           },
           "trader_1": {
-            "pnl": -0.49752407365794343,
-            "delta": 0.07714461581141807,
-            "gamma": -0.007543892843458938,
-            "vega": 0.0016465374271421168,
-            "cash": 100003.51570485979,
+            "pnl": 0.057938854004753404,
+            "delta": 0.0735121358901489,
+            "gamma": 0.000914264083147636,
+            "vega": -0.00021831121381907237,
+            "cash": 100003.98689301015,
             "contracts": 6.0,
-            "risk_score": 0.1308966724612396
+            "risk_score": 0.12773875034365584
           },
           "trader_2": {
-            "pnl": 0.11274098332361593,
-            "delta": 0.016032115072885156,
-            "gamma": -0.0013766714098695154,
-            "vega": 0.057531576343034144,
-            "cash": 99991.45046550303,
+            "pnl": -0.6972557159190407,
+            "delta": 0.02001016041010406,
+            "gamma": 0.007702206662222894,
+            "vega": 0.050888049247335955,
+            "cash": 99990.62389739027,
             "contracts": 6.0,
-            "risk_score": 0.12790703770553974
+            "risk_score": 0.13017070363063316
           },
           "trader_3": {
             "pnl": 0.0,
@@ -1888,56 +1888,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.3527969110570037,
-            "delta": -0.059703887750694046,
-            "gamma": -0.029101913503211247,
-            "vega": 0.07815453134967491,
-            "cash": 100003.00478403294,
+            "pnl": -0.4882413690118277,
+            "delta": -0.09375816649190677,
+            "gamma": -0.030071742088231143,
+            "vega": 0.08662284325647575,
+            "cash": 100002.25474212182,
             "contracts": 4.0,
-            "risk_score": 0.10542660731132139
+            "risk_score": 0.1100667978101307
           },
           "trader_7": {
-            "pnl": 0.21378199610265902,
-            "delta": 0.17608565424697847,
-            "gamma": 0.01687874583267095,
-            "vega": 0.018007218611073086,
-            "cash": 100003.59296818661,
+            "pnl": 0.13778264836115262,
+            "delta": 0.1945434170307122,
+            "gamma": 0.014480049585955413,
+            "vega": 0.0053848351177877285,
+            "cash": 100003.30769107534,
             "contracts": 4.0,
-            "risk_score": 0.10616078561887354
+            "risk_score": 0.10578484504923216
           },
           "trader_8": {
-            "pnl": 0.5464203549078666,
-            "delta": -0.2545211447743893,
-            "gamma": -0.02137094265666952,
-            "vega": -0.07388608914008193,
-            "cash": 100005.6053420727,
+            "pnl": -0.5855486563903627,
+            "delta": -0.27684405036751575,
+            "gamma": -0.0168359288218451,
+            "vega": -0.06255396962162864,
+            "cash": 100004.77083270381,
             "contracts": 4.0,
-            "risk_score": 0.12138910045411494
+            "risk_score": 0.12067417352765249
           },
           "trader_9": {
-            "pnl": -0.9306718914209035,
-            "delta": 0.2769575384356902,
-            "gamma": 0.01994299939549985,
-            "vega": 0.040949999539229835,
-            "cash": 100002.5819327576,
+            "pnl": -0.2855484979252618,
+            "delta": 0.297492577367552,
+            "gamma": 0.015259102981003744,
+            "vega": 0.031445057789717665,
+            "cash": 100002.90353245754,
             "contracts": 4.0,
-            "risk_score": 0.11976795355569195
+            "risk_score": 0.11899740470812847
           },
           "market_maker": {
-            "pnl": 0.45274935708169006,
-            "delta": -0.3673687276574078,
-            "gamma": 0.03735203762978964,
-            "vega": -0.04740162330565378,
-            "cash": 999996.5679740525,
+            "pnl": 0.8725574844439672,
+            "delta": -0.33853323952266307,
+            "gamma": 0.014222034843436624,
+            "vega": -0.04234045425442867,
+            "cash": 999997.3822437489,
             "contracts": 34.0,
-            "risk_score": 0.736417850148222
+            "risk_score": 0.7237761833150839
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.06294022520806687,
+          "inventory_stress": 0.04577378119868258,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.24544022520806685
+          "market_stability_score": 0.22827378119868258
         },
         "recent_interventions": []
       },
@@ -1948,7 +1948,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_0 action at step 7 with atm_iv=0.199."
         },
         "trader_1": {
           "selected_strike": 0,
@@ -1956,7 +1956,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_1 action at step 7 with atm_iv=0.199."
         },
         "trader_2": {
           "selected_strike": 1,
@@ -1964,7 +1964,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_2 action at step 7 with atm_iv=0.199."
         },
         "trader_3": {
           "selected_strike": 2,
@@ -1972,7 +1972,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_3 action at step 7 with atm_iv=0.199."
         },
         "trader_4": {
           "selected_strike": 3,
@@ -1980,7 +1980,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_4 action at step 7 with atm_iv=0.199."
         },
         "trader_5": {
           "selected_strike": 4,
@@ -1988,7 +1988,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_5 action at step 7 with atm_iv=0.199."
         },
         "trader_6": {
           "selected_strike": 5,
@@ -1996,7 +1996,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_6 action at step 7 with atm_iv=0.199."
         },
         "trader_7": {
           "selected_strike": 6,
@@ -2004,7 +2004,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_7 action at step 7 with atm_iv=0.199."
         },
         "trader_8": {
           "selected_strike": 7,
@@ -2012,7 +2012,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_8 action at step 7 with atm_iv=0.199."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -2041,7 +2041,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 7 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_9 action at step 7 with atm_iv=0.199."
         }
       },
       "collusion_events": 0,
@@ -2055,17 +2055,17 @@
     {
       "step": 9,
       "rewards": {
-        "trader_0": -1.873500784909113,
-        "trader_1": -0.1535199774054882,
-        "trader_2": -1.2690730226886437,
+        "trader_0": 0.6215923932143577,
+        "trader_1": 0.20147268199546214,
+        "trader_2": 0.9345436866005118,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": 0.5504092318666127,
-        "trader_7": -0.3415304951735159,
-        "trader_8": 1.5376846537403863,
-        "trader_9": -0.39545659226521096,
-        "market_maker": 2.3286968996254833,
+        "trader_6": -0.7135975907953593,
+        "trader_7": 1.6985110621268622,
+        "trader_8": -1.054650268514102,
+        "trader_9": 0.956176339659201,
+        "market_maker": -1.4103026326979005,
         "oversight": -1.2999999999999998
       },
       "info": {
@@ -2090,31 +2090,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": -1.3214303936119447,
-            "delta": 0.8402304221833591,
-            "gamma": -0.01556866491073924,
-            "vega": 0.0061535011097914455,
-            "cash": 99980.43938051218,
+            "pnl": 3.0122996757071943,
+            "delta": 0.8451461731723,
+            "gamma": 0.015278995293737087,
+            "vega": -0.009316652116926706,
+            "cash": 99980.74624719171,
             "contracts": 6.75,
-            "risk_score": 0.22586585829361078
+            "risk_score": 0.22655788064641752
           },
           "trader_1": {
-            "pnl": -0.6535797887374747,
-            "delta": 0.12447953752537774,
-            "gamma": -0.028856977903775807,
-            "vega": -0.015125451541139496,
-            "cash": 100003.54106223653,
+            "pnl": 0.2586465874121763,
+            "delta": 0.09890424414322704,
+            "gamma": 0.013403058421590655,
+            "vega": -0.012590010851798512,
+            "cash": 100003.99454249603,
             "contracts": 6.75,
-            "risk_score": 0.16050329006816205
+            "risk_score": 0.15151064886813884
           },
           "trader_2": {
-            "pnl": -0.617445870471419,
-            "delta": 0.5601592899955029,
-            "gamma": 0.013651858974066216,
-            "vega": 0.18908636849435012,
-            "cash": 99985.66482698046,
+            "pnl": 0.8809755365346501,
+            "delta": 0.7000198289757212,
+            "gamma": 0.03823850383080944,
+            "vega": 0.11741754436782012,
+            "cash": 99984.18702173173,
             "contracts": 6.75,
-            "risk_score": 0.2153853094386118
+            "risk_score": 0.23203913886667793
           },
           "trader_3": {
             "pnl": 0.0,
@@ -2144,56 +2144,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.6776167131967923,
-            "delta": -0.23663721177787106,
-            "gamma": -0.03966335209296279,
-            "vega": -0.06497237073106762,
-            "cash": 100005.2606783302,
+            "pnl": -1.4536247890935692,
+            "delta": -0.4446000292427262,
+            "gamma": -0.039202866800437844,
+            "vega": -0.03324624159826339,
+            "cash": 100004.77260041468,
             "contracts": 4.5,
-            "risk_score": 0.13602629908807898
+            "risk_score": 0.15346577380427412
           },
           "trader_7": {
-            "pnl": -0.6096085562321047,
-            "delta": 0.6347460233161801,
-            "gamma": 0.010382254991951695,
-            "vega": 0.01808371909363011,
-            "cash": 100008.41156875822,
+            "pnl": 1.7192887330797757,
+            "delta": 0.6359334158251274,
+            "gamma": -0.01601253606811407,
+            "vega": -0.06310018879757402,
+            "cash": 100007.60019608686,
             "contracts": 4.5,
-            "risk_score": 0.15943587623776168
+            "risk_score": 0.16630837488951578
           },
           "trader_8": {
-            "pnl": 1.4484896896803896,
-            "delta": -0.7022420498297359,
-            "gamma": -0.028718240584803073,
-            "vega": -0.10616952113100601,
-            "cash": 100013.70503180673,
+            "pnl": -2.506460027193474,
+            "delta": -0.7948989273942311,
+            "gamma": -0.0036059190644440976,
+            "vega": -0.039597683012001686,
+            "cash": 100013.41823467422,
             "contracts": 4.5,
-            "risk_score": 0.18232845332999542
+            "risk_score": 0.1748920286664009
           },
           "trader_9": {
-            "pnl": -1.3869985452375098,
-            "delta": 0.3401927454995843,
-            "gamma": 0.013130344242489872,
-            "vega": -0.04359852318109844,
-            "cash": 100003.19063337312,
+            "pnl": 0.6185839820078302,
+            "delta": 0.3702208348437013,
+            "gamma": -0.006066684765027242,
+            "vega": -0.06166980430358385,
+            "cash": 100003.4239710548,
             "contracts": 4.5,
-            "risk_score": 0.13363126456506422
+            "risk_score": 0.1356157378207394
           },
           "market_maker": {
-            "pnl": 2.4629567514132713,
-            "delta": -1.5609287569123973,
-            "gamma": 0.07564277728377315,
-            "vega": 0.016542277886539947,
-            "cash": 999999.7868180027,
+            "pnl": -2.5297096984545844,
+            "delta": -1.4107255403231205,
+            "gamma": -0.0020325508481139403,
+            "vega": 0.10210303631232799,
+            "cash": 1000001.85718635,
             "contracts": 38.25,
-            "risk_score": 0.953004214393403
+            "risk_score": 0.9170958780027905
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.20280192429242686,
+          "inventory_stress": 0.15046032744616666,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.3853019242924268
+          "market_stability_score": 0.33296032744616666
         },
         "recent_interventions": []
       },
@@ -2312,17 +2312,17 @@
     {
       "step": 10,
       "rewards": {
-        "trader_0": 0.5237941686293839,
-        "trader_1": -0.07611554318840918,
-        "trader_2": 0.4435352253524567,
+        "trader_0": 0.49357947745888064,
+        "trader_1": -0.018823488462478666,
+        "trader_2": 0.4538761479314295,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": 0.22212892023912997,
-        "trader_7": -0.714921761424027,
-        "trader_8": -0.3084040427085718,
-        "trader_9": -0.2784369060929247,
-        "market_maker": 1.4833048265237072,
+        "trader_6": -1.0613720744111215,
+        "trader_7": -0.8530523373058432,
+        "trader_8": -0.11339991833768781,
+        "trader_9": -0.4330592392215295,
+        "market_maker": 2.087830310102352,
         "oversight": -1.0999999999999999
       },
       "info": {
@@ -2347,31 +2347,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": -1.4888406573588138,
-            "delta": 0.15921434960316672,
-            "gamma": -0.03893278443513473,
-            "vega": -0.014924781383320658,
-            "cash": 99987.35142483594,
+            "pnl": 2.821920248351285,
+            "delta": 0.1385503204841526,
+            "gamma": -0.010392732151784653,
+            "vega": -0.03563873040847716,
+            "cash": 99987.58583623986,
             "contracts": 7.5,
-            "risk_score": 0.18298702687270263
+            "risk_score": 0.17157599794997683
           },
           "trader_1": {
-            "pnl": -0.5907400019954159,
-            "delta": -0.08045281341122876,
-            "gamma": -0.012844878647515767,
-            "vega": 0.11268740857168041,
-            "cash": 100002.15150893723,
+            "pnl": 0.3386976681464755,
+            "delta": -0.10368607722960999,
+            "gamma": 0.029592026415924805,
+            "vega": 0.11304117236560463,
+            "cash": 100003.00579680406,
             "contracts": 7.5,
-            "risk_score": 0.17445197365729723
+            "risk_score": 0.1835095355258914
           },
           "trader_2": {
-            "pnl": -0.7304195042218675,
-            "delta": 0.10037774280937045,
-            "gamma": -0.01536728077247839,
-            "vega": 0.0017401683994363315,
-            "cash": 99991.22991557149,
+            "pnl": 0.6526161174752221,
+            "delta": 0.15832076104141185,
+            "gamma": 0.01542284664765822,
+            "vega": -0.05745245810544927,
+            "cash": 99991.00937740164,
             "contracts": 7.5,
-            "risk_score": 0.16635870342987202
+            "risk_score": 0.1777464605737494
           },
           "trader_3": {
             "pnl": 0.0,
@@ -2401,131 +2401,131 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.9050171954123281,
-            "delta": -0.1833272083633358,
-            "gamma": -0.029897745687117838,
-            "vega": -0.05751470767860092,
-            "cash": 100005.20796271044,
+            "pnl": -1.5676895618011426,
+            "delta": 0.10987648697099323,
+            "gamma": -0.04326450876062972,
+            "vega": -0.04557987705221415,
+            "cash": 99995.28030348918,
             "contracts": 5.0,
-            "risk_score": 0.1360432898790408
+            "risk_score": 0.13285143990657264
           },
           "trader_7": {
-            "pnl": -1.3138145285512617,
-            "delta": 0.5960863880851868,
-            "gamma": 0.017885140173545852,
-            "vega": 0.057197171690077375,
-            "cash": 100008.30441086717,
+            "pnl": 0.8793595093486255,
+            "delta": 0.6191836698241902,
+            "gamma": 0.0006236509312003199,
+            "vega": -0.003990396060528256,
+            "cash": 100007.46896495111,
             "contracts": 5.0,
-            "risk_score": 0.17248241204694476
+            "risk_score": 0.16256686696095196
           },
           "trader_8": {
-            "pnl": 1.7620271376221694,
-            "delta": -0.27157075293820354,
-            "gamma": -0.019601598008658523,
-            "vega": -0.016883090035069367,
-            "cash": 100007.48561690023,
+            "pnl": -1.9911327641793015,
+            "delta": -0.39416452916686706,
+            "gamma": -0.0028943974050434328,
+            "vega": 0.04523244073239343,
+            "cash": 100007.1309628607,
             "contracts": 5.0,
-            "risk_score": 0.1366860235007907
+            "risk_score": 0.14509745595194343
           },
           "trader_9": {
-            "pnl": -1.628546364556117,
-            "delta": 0.18496992990394795,
-            "gamma": 0.04324749920407525,
-            "vega": 0.0010627139531080437,
-            "cash": 100002.82174250537,
+            "pnl": 0.20443991785222276,
+            "delta": 0.2880999252443648,
+            "gamma": 0.024297404567243656,
+            "vega": -0.014862789721885393,
+            "cash": 100003.23481930414,
             "contracts": 5.0,
-            "risk_score": 0.1359022640673357
+            "risk_score": 0.1400152333235225
           },
           "market_maker": {
-            "pnl": 3.0853167236489787,
-            "delta": -0.5052976356889032,
-            "gamma": 0.0555116481732842,
-            "vega": -0.08336488351731115,
-            "cash": 999995.4474176723,
+            "pnl": -1.3382111351933874,
+            "delta": -0.816180557168635,
+            "gamma": -0.013384290244569186,
+            "vega": -0.0007493617494438165,
+            "cash": 1000005.2839389493,
             "contracts": 42.5,
-            "risk_score": 0.9310709111899351
+            "risk_score": 0.9370467079896355
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.09050594315424575,
+          "inventory_stress": 0.08970857880356052,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.27300594315424576
+          "market_stability_score": 0.27220857880356053
         },
         "recent_interventions": []
       },
       "actions": {
         "trader_0": {
-          "selected_strike": 1,
+          "selected_strike": 2,
           "selected_maturity": 0,
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_0 action at step 9 with atm_iv=0.198."
         },
         "trader_1": {
-          "selected_strike": 2,
+          "selected_strike": 3,
           "selected_maturity": 1,
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_1 action at step 9 with atm_iv=0.198."
         },
         "trader_2": {
-          "selected_strike": 3,
+          "selected_strike": 4,
           "selected_maturity": 2,
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_2 action at step 9 with atm_iv=0.198."
         },
         "trader_3": {
-          "selected_strike": 4,
+          "selected_strike": 5,
           "selected_maturity": 0,
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_3 action at step 9 with atm_iv=0.198."
         },
         "trader_4": {
-          "selected_strike": 5,
+          "selected_strike": 6,
           "selected_maturity": 1,
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_4 action at step 9 with atm_iv=0.198."
         },
         "trader_5": {
-          "selected_strike": 6,
+          "selected_strike": 7,
           "selected_maturity": 2,
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_5 action at step 9 with atm_iv=0.198."
         },
         "trader_6": {
-          "selected_strike": 7,
+          "selected_strike": 0,
           "selected_maturity": 0,
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_6 action at step 9 with atm_iv=0.198."
         },
         "trader_7": {
-          "selected_strike": 0,
+          "selected_strike": 1,
           "selected_maturity": 1,
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_7 action at step 9 with atm_iv=0.198."
         },
         "trader_8": {
-          "selected_strike": 1,
+          "selected_strike": 2,
           "selected_maturity": 2,
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_8 action at step 9 with atm_iv=0.198."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -2549,12 +2549,12 @@
           "reasoning": "Applying broad enforcement without nuanced intent analysis."
         },
         "trader_9": {
-          "selected_strike": 2,
+          "selected_strike": 3,
           "selected_maturity": 0,
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 9 with atm_iv=0.200."
+          "reasoning": "Heuristic trader_9 action at step 9 with atm_iv=0.198."
         }
       },
       "collusion_events": 0,
@@ -2568,17 +2568,17 @@
     {
       "step": 11,
       "rewards": {
-        "trader_0": 0.7152102085761111,
-        "trader_1": 0.6489891279159159,
-        "trader_2": 0.626930569629278,
+        "trader_0": -0.7091405449539884,
+        "trader_1": 0.18692733094372313,
+        "trader_2": -0.28764893347397996,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": -0.536576908416286,
-        "trader_7": 1.2804474543566897,
-        "trader_8": -1.005447940605122,
-        "trader_9": 0.8966427909592618,
-        "market_maker": -1.233259405108156,
+        "trader_6": 0.904105088233338,
+        "trader_7": 0.04588529676627573,
+        "trader_8": 0.36795923920843165,
+        "trader_9": 0.08236880594345262,
+        "market_maker": 0.8118657822833193,
         "oversight": -1.2999999999999998
       },
       "info": {
@@ -2603,31 +2603,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": -0.3266984689396366,
-            "delta": 0.6595774672450228,
-            "gamma": 0.0041384044980410165,
-            "vega": 0.1089413357308883,
-            "cash": 99982.88210503751,
+            "pnl": 2.8206225996517387,
+            "delta": 0.7569499288981346,
+            "gamma": 0.009289644167074174,
+            "vega": 0.06267682275160204,
+            "cash": 99980.50740727731,
             "contracts": 8.25,
-            "risk_score": 0.24350724209680752
+            "risk_score": 0.2506785328318033
           },
           "trader_1": {
-            "pnl": -0.2532968265472135,
-            "delta": 0.17287123085455908,
-            "gamma": -0.016884586172517237,
-            "vega": -0.08618235380697459,
-            "cash": 100005.2669684619,
+            "pnl": 0.3328856507874869,
+            "delta": 0.10376289689848528,
+            "gamma": 0.011985334471349477,
+            "vega": -0.06713942057470496,
+            "cash": 100004.93319028709,
             "contracts": 8.25,
-            "risk_score": 0.19765919293516027
+            "risk_score": 0.18688436553585883
           },
           "trader_2": {
-            "pnl": 0.00134603124942978,
-            "delta": 0.4595522001515151,
-            "gamma": 0.05148666941303422,
-            "vega": 0.07173367954903784,
-            "cash": 99990.18156591307,
+            "pnl": 0.6547668830386362,
+            "delta": 0.6783532929864309,
+            "gamma": 0.06139451100584766,
+            "vega": 0.01940100550248447,
+            "cash": 99988.11138041127,
             "contracts": 8.25,
-            "risk_score": 0.23872325573526898
+            "risk_score": 0.2593332342512306
           },
           "trader_3": {
             "pnl": 0.0,
@@ -2657,56 +2657,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": -0.3264623615377107,
-            "delta": -0.7222123733891671,
-            "gamma": -0.03806289341075872,
-            "vega": -0.06960977488722715,
-            "cash": 100012.15698919578,
+            "pnl": -1.5817375147178763,
+            "delta": -0.38165767171877,
+            "gamma": -0.045592781165167524,
+            "vega": -0.05705223958086625,
+            "cash": 100004.46183390068,
             "contracts": 5.5,
-            "risk_score": 0.20440737219194294
+            "risk_score": 0.17210810359603063
           },
           "trader_7": {
-            "pnl": -0.07091009867807885,
-            "delta": 0.7090617539784215,
-            "gamma": 0.004571092014654034,
-            "vega": -0.05679531874602248,
-            "cash": 100009.11258641856,
+            "pnl": 0.88212484292188,
+            "delta": 0.6795702454963091,
+            "gamma": -0.006595971547522045,
+            "vega": -0.07618529080929853,
+            "cash": 100007.90016458304,
             "contracts": 5.5,
-            "risk_score": 0.18841414407830603
+            "risk_score": 0.1882139422495696
           },
           "trader_8": {
-            "pnl": 0.5566401216435342,
-            "delta": -0.7153487214202633,
-            "gamma": -0.0423210663897022,
-            "vega": -0.04907016398275785,
-            "cash": 100009.48485898382,
+            "pnl": -2.015675106474763,
+            "delta": -0.8552780496135259,
+            "gamma": -0.015537294560618893,
+            "vega": 0.02402282459701402,
+            "cash": 100011.05597867574,
             "contracts": 5.5,
-            "risk_score": 0.203370315096183
+            "risk_score": 0.20414500524530155
           },
           "trader_9": {
-            "pnl": -0.8894718612221819,
-            "delta": 0.43446651958953253,
-            "gamma": 0.01760668391527707,
-            "vega": -0.0965703221180538,
-            "cash": 100004.39742538163,
+            "pnl": 0.20802209045736184,
+            "delta": 0.4149577574551213,
+            "gamma": 0.008131718796572283,
+            "vega": -0.09610335131049727,
+            "cash": 100004.02268563752,
             "contracts": 5.5,
-            "risk_score": 0.17014635773686948
+            "risk_score": 0.1643587983951908
           },
           "market_maker": {
-            "pnl": 1.3088534640318583,
-            "delta": -0.9979680770096209,
-            "gamma": 0.019465696131971827,
-            "vega": 0.1775529182611098,
-            "cash": 999986.5175006078,
+            "pnl": -1.301009445664464,
+            "delta": -1.3966584004021851,
+            "gamma": -0.02307516116753515,
+            "vega": 0.1903796494242665,
+            "cash": 999999.0073592274,
             "contracts": 46.75,
-            "risk_score": 1.0603383779798619
+            "risk_score": 1.1029338694496593
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.125680458841034,
+          "inventory_stress": 0.1687413086946809,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.30818045884103396
+          "market_stability_score": 0.3512413086946809
         },
         "recent_interventions": []
       },
@@ -2717,7 +2717,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_0 action at step 10 with atm_iv=0.196."
         },
         "trader_1": {
           "selected_strike": 3,
@@ -2725,7 +2725,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_1 action at step 10 with atm_iv=0.196."
         },
         "trader_2": {
           "selected_strike": 4,
@@ -2733,7 +2733,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_2 action at step 10 with atm_iv=0.196."
         },
         "trader_3": {
           "selected_strike": 5,
@@ -2741,7 +2741,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_3 action at step 10 with atm_iv=0.196."
         },
         "trader_4": {
           "selected_strike": 6,
@@ -2749,7 +2749,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_4 action at step 10 with atm_iv=0.196."
         },
         "trader_5": {
           "selected_strike": 7,
@@ -2757,7 +2757,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_5 action at step 10 with atm_iv=0.196."
         },
         "trader_6": {
           "selected_strike": 0,
@@ -2765,7 +2765,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_6 action at step 10 with atm_iv=0.196."
         },
         "trader_7": {
           "selected_strike": 1,
@@ -2773,7 +2773,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_7 action at step 10 with atm_iv=0.196."
         },
         "trader_8": {
           "selected_strike": 2,
@@ -2781,7 +2781,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_8 action at step 10 with atm_iv=0.196."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -2811,7 +2811,7 @@
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 10 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_9 action at step 10 with atm_iv=0.196."
         }
       },
       "collusion_events": 0,
@@ -2825,17 +2825,17 @@
     {
       "step": 12,
       "rewards": {
-        "trader_0": 0.6071229746110668,
-        "trader_1": -0.20170643090127124,
-        "trader_2": 0.24791613232351473,
+        "trader_0": 1.2825183830626616,
+        "trader_1": -0.2230400154284754,
+        "trader_2": 1.1720158637594342,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": -0.6850279344075764,
-        "trader_7": 0.020706418292520044,
-        "trader_8": -0.3284516647195943,
-        "trader_9": -0.2250358650204401,
-        "market_maker": 1.671815687764246,
+        "trader_6": -0.7571299994337393,
+        "trader_7": 1.5728552561415834,
+        "trader_8": -1.540693826968726,
+        "trader_9": 0.5604028016987793,
+        "market_maker": -0.7689911114653354,
         "oversight": -1.0999999999999999
       },
       "info": {
@@ -2860,31 +2860,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": -0.30238982264866143,
-            "delta": 0.17023366360230063,
-            "gamma": -0.015247994189703292,
-            "vega": -0.08513591903956402,
-            "cash": 99988.71024832071,
+            "pnl": 3.418207771500236,
+            "delta": 0.22065039054819258,
+            "gamma": 0.010082390948377276,
+            "vega": -0.12338297789673916,
+            "cash": 99987.79621715266,
             "contracts": 9.0,
-            "risk_score": 0.21163615594006777
+            "risk_score": 0.21843629322384409
           },
           "trader_1": {
-            "pnl": -0.27924970205982924,
-            "delta": -0.19993925916676794,
-            "gamma": 0.03782554637831505,
-            "vega": -0.0009883380643262302,
-            "cash": 100003.50943290802,
+            "pnl": 0.1982415808569164,
+            "delta": 0.03549576019433959,
+            "gamma": 0.05335049101721591,
+            "vega": -0.029918433168187583,
+            "cash": 100004.04923083211,
             "contracts": 9.0,
-            "risk_score": 0.21522297827443543
+            "risk_score": 0.20788161574313907
           },
           "trader_2": {
-            "pnl": 0.019920898934884246,
-            "delta": 0.1297807201490977,
-            "gamma": 0.02190546808234304,
-            "vega": -0.07671172470134004,
-            "cash": 99992.47497855945,
+            "pnl": 1.506428386271706,
+            "delta": 0.34375711514576457,
+            "gamma": 0.02592823019001917,
+            "vega": -0.18702462167664502,
+            "cash": 99991.47173212293,
             "contracts": 9.0,
-            "risk_score": 0.209411431717981
+            "risk_score": 0.24344946575824863
           },
           "trader_3": {
             "pnl": 0.0,
@@ -2914,56 +2914,56 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": -0.3649606522987874,
-            "delta": -0.3093995695822659,
-            "gamma": -0.02954857863869821,
-            "vega": 0.018189843623384785,
-            "cash": 100005.69169275931,
+            "pnl": -1.5701907563754953,
+            "delta": -0.03835334290898923,
+            "gamma": -0.028542186656460255,
+            "vega": 0.03525492690183306,
+            "cash": 99996.77506632292,
             "contracts": 6.0,
-            "risk_score": 0.16457837277604434
+            "risk_score": 0.13877770164366632
           },
           "trader_7": {
-            "pnl": -0.020870036237712886,
-            "delta": 0.6240899881189135,
-            "gamma": 0.028078384697916146,
-            "vega": -0.020520821778548803,
-            "cash": 100008.81924997708,
+            "pnl": 2.666986352055936,
+            "delta": 0.6168530087841775,
+            "gamma": -0.023006611327131367,
+            "vega": -0.11658325979268463,
+            "cash": 100007.78478070715,
             "contracts": 6.0,
-            "risk_score": 0.1956924348689127
+            "risk_score": 0.20254627138853876
           },
           "trader_8": {
-            "pnl": 0.5075828462432899,
-            "delta": -0.39632204082338185,
-            "gamma": -0.023144756263728944,
-            "vega": 0.04398748108133915,
-            "cash": 100006.69091509063,
+            "pnl": -3.3542899560106476,
+            "delta": -0.4483644006662354,
+            "gamma": 0.02276243531189196,
+            "vega": 0.13215729020717432,
+            "cash": 100007.2701482995,
             "contracts": 6.0,
-            "risk_score": 0.17328885469596367
+            "risk_score": 0.18715714321209775
           },
           "trader_9": {
-            "pnl": -0.8859330831753631,
-            "delta": 0.22869070045393014,
-            "gamma": 0.03196973642408518,
-            "vega": 0.03996403879475467,
-            "cash": 100002.11167895095,
+            "pnl": 0.9412026336167365,
+            "delta": 0.2688456915612295,
+            "gamma": -0.004408729383946852,
+            "vega": 0.005841414095566627,
+            "cash": 100002.29490822292,
             "contracts": 6.0,
-            "risk_score": 0.15965336849450254
+            "risk_score": 0.14923220231925835
           },
           "market_maker": {
-            "pnl": 1.3258995512421805,
-            "delta": -0.24713420275182602,
-            "gamma": -0.051837806490528965,
-            "vega": 0.08121544008430065,
-            "cash": 999991.9918034339,
+            "pnl": -3.8065860119153903,
+            "delta": -0.9988842226584789,
+            "gamma": -0.05616602009996584,
+            "vega": 0.28365566132968223,
+            "cash": 1000002.5579163398,
             "contracts": 51.0,
-            "risk_score": 1.0735700868798244
+            "risk_score": 1.1707203964388024
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.062313339376244024,
+          "inventory_stress": 0.15628048723220198,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.24481333937624403
+          "market_stability_score": 0.338780487232202
         },
         "recent_interventions": []
       },
@@ -2974,7 +2974,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_0 action at step 11 with atm_iv=0.196."
         },
         "trader_1": {
           "selected_strike": 4,
@@ -2982,7 +2982,7 @@
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_1 action at step 11 with atm_iv=0.196."
         },
         "trader_2": {
           "selected_strike": 5,
@@ -2990,7 +2990,7 @@
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_2 action at step 11 with atm_iv=0.196."
         },
         "trader_3": {
           "selected_strike": 6,
@@ -2998,7 +2998,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_3 action at step 11 with atm_iv=0.196."
         },
         "trader_4": {
           "selected_strike": 7,
@@ -3006,7 +3006,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_4 action at step 11 with atm_iv=0.196."
         },
         "trader_5": {
           "selected_strike": 0,
@@ -3014,7 +3014,7 @@
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_5 action at step 11 with atm_iv=0.196."
         },
         "trader_6": {
           "selected_strike": 1,
@@ -3022,7 +3022,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_6 action at step 11 with atm_iv=0.196."
         },
         "trader_7": {
           "selected_strike": 2,
@@ -3030,7 +3030,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_7 action at step 11 with atm_iv=0.196."
         },
         "trader_8": {
           "selected_strike": 3,
@@ -3038,7 +3038,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_8 action at step 11 with atm_iv=0.196."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -3067,7 +3067,7 @@
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 11 with atm_iv=0.197."
+          "reasoning": "Heuristic trader_9 action at step 11 with atm_iv=0.196."
         }
       },
       "collusion_events": 0,
@@ -3081,17 +3081,17 @@
     {
       "step": 13,
       "rewards": {
-        "trader_0": -0.5300739682011357,
-        "trader_1": 0.20624431780443564,
-        "trader_2": -0.6258014955998379,
+        "trader_0": -0.27381288707909485,
+        "trader_1": 0.2423531275312753,
+        "trader_2": -0.31426474122870096,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": 0.7319388256912205,
-        "trader_7": -0.4180459038464985,
-        "trader_8": 0.7602681499745902,
-        "trader_9": -0.192033732146076,
-        "market_maker": 1.357136454798526,
+        "trader_6": 0.3672430073972285,
+        "trader_7": 0.08930862787970409,
+        "trader_8": 0.36402713812618864,
+        "trader_9": 0.12444104169638992,
+        "market_maker": 0.752377507708164,
         "oversight": -1.4
       },
       "info": {
@@ -3116,31 +3116,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": -0.6685203375362472,
-            "delta": 0.5251633844467527,
-            "gamma": 0.03229295667731956,
-            "vega": -0.00021599707909114585,
-            "cash": 99987.07081378758,
+            "pnl": 3.455333597564837,
+            "delta": 0.7539518368213678,
+            "gamma": 0.05306044557683322,
+            "vega": -0.046144455602127946,
+            "cash": 99984.68683002122,
             "contracts": 9.75,
-            "risk_score": 0.2604551208235122
+            "risk_score": 0.29623380747308287
           },
           "trader_1": {
-            "pnl": -0.4325936841173281,
-            "delta": 0.21160245697956045,
-            "gamma": 0.0005746033372064224,
-            "vega": -0.14583478483748485,
-            "cash": 100007.10531590664,
+            "pnl": 0.18776418265460298,
+            "delta": 0.3544872542185286,
+            "gamma": 0.02405759856160515,
+            "vega": -0.18372967217427205,
+            "cash": 100006.57753608945,
             "contracts": 9.75,
-            "risk_score": 0.2309735655165871
+            "risk_score": 0.25844473206392216
           },
           "trader_2": {
-            "pnl": -0.29216554429601943,
-            "delta": 0.43419221949879144,
-            "gamma": 0.03854233136419785,
-            "vega": 0.13443131501396977,
-            "cash": 99989.33782803576,
+            "pnl": 1.5506956430841492,
+            "delta": 0.6945598482304719,
+            "gamma": 0.04610251575750305,
+            "vega": 0.033702884831575575,
+            "cash": 99987.88641214251,
             "contracts": 9.75,
-            "risk_score": 0.2672792859969553
+            "risk_score": 0.28626727960920595
           },
           "trader_3": {
             "pnl": 0.0,
@@ -3170,62 +3170,62 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.09601752509568295,
-            "delta": -0.6852125175064147,
-            "gamma": -0.05501575129078269,
-            "vega": -0.025697454231954298,
-            "cash": 100008.40129924228,
+            "pnl": -1.6122519692280268,
+            "delta": -0.5019458352999908,
+            "gamma": -0.04002405838840703,
+            "vega": 0.014317150345061317,
+            "cash": 100000.86810852542,
             "contracts": 6.5,
-            "risk_score": 0.22309729769015
+            "risk_score": 0.19763592191986804
           },
           "trader_7": {
-            "pnl": -0.5579305878691453,
-            "delta": 0.7914983336265532,
-            "gamma": 0.012876185533136943,
-            "vega": -0.10236823897620297,
-            "cash": 100010.00939645493,
+            "pnl": 2.679369577630726,
+            "delta": 0.7349334030796795,
+            "gamma": -0.03850657684749727,
+            "vega": -0.19937294160122637,
+            "cash": 100008.5540347302,
             "contracts": 6.5,
-            "risk_score": 0.2245371314735304
+            "risk_score": 0.2388332652070895
           },
           "trader_8": {
-            "pnl": 0.9486069662555969,
-            "delta": -0.6620279267149445,
-            "gamma": -0.04094866083739399,
-            "vega": -0.09781184503151773,
-            "cash": 100009.88335539025,
+            "pnl": -3.4157929121551116,
+            "delta": -0.7796360541414754,
+            "gamma": 0.010422682445337112,
+            "vega": -0.0016659623373218857,
+            "cash": 100011.52544924221,
             "contracts": 6.5,
-            "risk_score": 0.22236344150960383
+            "risk_score": 0.21229927462601458
           },
           "trader_9": {
-            "pnl": -1.2657060022256577,
-            "delta": 0.5606876844996864,
-            "gamma": 0.003987266450339519,
-            "vega": -0.006469723088282399,
-            "cash": 100003.98907082,
+            "pnl": 0.9619733820515965,
+            "delta": 0.4912076222919052,
+            "gamma": -0.03814108832747414,
+            "vega": -0.05475806721351158,
+            "cash": 100003.33161115553,
             "contracts": 6.5,
-            "risk_score": 0.1883106473389327
+            "risk_score": 0.19985300428153135
           },
           "market_maker": {
-            "pnl": 2.1722916646931187,
-            "delta": -1.1759036348299854,
-            "gamma": 0.007691068765976403,
-            "vega": 0.24396672823056348,
-            "cash": 999984.2029203625,
+            "pnl": -3.807091501602774,
+            "delta": -1.7475580752004864,
+            "gamma": -0.016971518777900096,
+            "vega": 0.43765106375182294,
+            "cash": 999996.5700180935,
             "contracts": 55.25,
-            "risk_score": 1.2500634638124455
+            "risk_score": 1.330309521406391
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.14172234300102948,
+          "inventory_stress": 0.21995080388693455,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.3242223430010295
+          "market_stability_score": 0.40245080388693455
         },
         "recent_interventions": []
       },
       "actions": {
         "trader_0": {
-          "selected_strike": 4,
+          "selected_strike": 5,
           "selected_maturity": 0,
           "direction": "buy",
           "quantity": 0.75,
@@ -3233,7 +3233,7 @@
           "reasoning": "Heuristic trader_0 action at step 12 with atm_iv=0.195."
         },
         "trader_1": {
-          "selected_strike": 5,
+          "selected_strike": 6,
           "selected_maturity": 1,
           "direction": "sell",
           "quantity": 0.75,
@@ -3241,7 +3241,7 @@
           "reasoning": "Heuristic trader_1 action at step 12 with atm_iv=0.195."
         },
         "trader_2": {
-          "selected_strike": 6,
+          "selected_strike": 7,
           "selected_maturity": 2,
           "direction": "buy",
           "quantity": 0.75,
@@ -3249,7 +3249,7 @@
           "reasoning": "Heuristic trader_2 action at step 12 with atm_iv=0.195."
         },
         "trader_3": {
-          "selected_strike": 7,
+          "selected_strike": 0,
           "selected_maturity": 0,
           "direction": "hold",
           "quantity": 0.0,
@@ -3257,7 +3257,7 @@
           "reasoning": "Heuristic trader_3 action at step 12 with atm_iv=0.195."
         },
         "trader_4": {
-          "selected_strike": 0,
+          "selected_strike": 1,
           "selected_maturity": 1,
           "direction": "hold",
           "quantity": 0.0,
@@ -3265,7 +3265,7 @@
           "reasoning": "Heuristic trader_4 action at step 12 with atm_iv=0.195."
         },
         "trader_5": {
-          "selected_strike": 1,
+          "selected_strike": 2,
           "selected_maturity": 2,
           "direction": "hold",
           "quantity": 0.0,
@@ -3273,7 +3273,7 @@
           "reasoning": "Heuristic trader_5 action at step 12 with atm_iv=0.195."
         },
         "trader_6": {
-          "selected_strike": 2,
+          "selected_strike": 3,
           "selected_maturity": 0,
           "direction": "sell",
           "quantity": 0.5,
@@ -3281,7 +3281,7 @@
           "reasoning": "Heuristic trader_6 action at step 12 with atm_iv=0.195."
         },
         "trader_7": {
-          "selected_strike": 3,
+          "selected_strike": 4,
           "selected_maturity": 1,
           "direction": "sell",
           "quantity": 0.5,
@@ -3289,7 +3289,7 @@
           "reasoning": "Heuristic trader_7 action at step 12 with atm_iv=0.195."
         },
         "trader_8": {
-          "selected_strike": 4,
+          "selected_strike": 5,
           "selected_maturity": 2,
           "direction": "sell",
           "quantity": 0.5,
@@ -3319,7 +3319,7 @@
           "reasoning": "Applying broad enforcement without nuanced intent analysis."
         },
         "trader_9": {
-          "selected_strike": 5,
+          "selected_strike": 6,
           "selected_maturity": 0,
           "direction": "sell",
           "quantity": 0.5,
@@ -3338,17 +3338,17 @@
     {
       "step": 14,
       "rewards": {
-        "trader_0": -0.10645945159911874,
-        "trader_1": -0.24708235198136197,
-        "trader_2": -0.5502890294892578,
+        "trader_0": 0.29018627305352995,
+        "trader_1": -0.5245793409148011,
+        "trader_2": 1.4293064428625428,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": 0.22505588044002822,
-        "trader_7": -1.014067857573645,
-        "trader_8": 0.6489515575175873,
-        "trader_9": -0.6340904546480839,
-        "market_maker": 2.1080918003545026,
+        "trader_6": -0.382182883329128,
+        "trader_7": -0.26474708486091214,
+        "trader_8": -0.06421427693431109,
+        "trader_9": -0.33584498005019175,
+        "market_maker": 1.0903993778870782,
         "oversight": -1.0999999999999999
       },
       "info": {
@@ -3373,31 +3373,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": -0.9823747145966331,
-            "delta": 0.2170007939555833,
-            "gamma": -0.01256378768993056,
-            "vega": -0.1402220988305755,
-            "cash": 99989.14476304219,
+            "pnl": 3.383299494071756,
+            "delta": 0.31748633695040096,
+            "gamma": 0.024302131155097596,
+            "vega": -0.19765628938357366,
+            "cash": 99988.30903378669,
             "contracts": 10.5,
-            "risk_score": 0.2507478043545881
+            "risk_score": 0.2712351150954365
           },
           "trader_1": {
-            "pnl": -0.11699048644805776,
-            "delta": -0.24106069753396714,
-            "gamma": 0.0066340535653038706,
-            "vega": 0.05238736879141945,
-            "cash": 100001.47846041013,
+            "pnl": 0.18842165306423214,
+            "delta": -0.051124180458530566,
+            "gamma": 0.044961081678255146,
+            "vega": 0.039148030606520584,
+            "cash": 100001.3251679762,
             "contracts": 10.5,
-            "risk_score": 0.2419984280586602
+            "risk_score": 0.23701165377780717
           },
           "trader_2": {
-            "pnl": -0.8463842471315606,
-            "delta": 0.37390037899931844,
-            "gamma": 0.01939534525059547,
-            "vega": 0.13082524332830786,
-            "cash": 99989.37712476922,
+            "pnl": 1.5490882834430448,
+            "delta": -0.06346050446551144,
+            "gamma": 0.04661646213791493,
+            "vega": 0.03724862678049741,
+            "cash": 100003.26440291155,
             "contracts": 10.5,
-            "risk_score": 0.26823070033300084
+            "risk_score": 0.23871749797976685
           },
           "trader_3": {
             "pnl": 0.0,
@@ -3427,131 +3427,131 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.580057867660938,
-            "delta": -0.3229303116603786,
-            "gamma": -0.035514733644484375,
-            "vega": 0.05889544206000605,
-            "cash": 100005.81145462103,
+            "pnl": -1.5952996061222655,
+            "delta": -0.12001615297390883,
+            "gamma": -0.025740635367279874,
+            "vega": 0.09491801219636785,
+            "cash": 99996.87675606107,
             "contracts": 7.0,
-            "risk_score": 0.19238846882983224
+            "risk_score": 0.17178967066393963
           },
           "trader_7": {
-            "pnl": -1.333986344624439,
-            "delta": 0.530195256779239,
-            "gamma": 0.033289074929655736,
-            "vega": 0.051248053746114464,
-            "cash": 100007.62828126714,
+            "pnl": 2.5871944375891696,
+            "delta": 0.5708739147900703,
+            "gamma": -0.0246079673397529,
+            "vega": -0.0625950694001004,
+            "cash": 100006.82831528201,
             "contracts": 7.0,
-            "risk_score": 0.21145996102439765
+            "risk_score": 0.21319008535491824
           },
           "trader_8": {
-            "pnl": 1.6472787108553142,
-            "delta": -0.49535909625358276,
-            "gamma": -0.018674269725895143,
-            "vega": -0.06512420866815877,
-            "cash": 100009.38615351943,
+            "pnl": -3.3456533445939325,
+            "delta": -0.5089967760510259,
+            "gamma": 0.04255906261414684,
+            "vega": 0.05644596533136737,
+            "cash": 100010.18191079726,
             "contracts": 7.0,
-            "risk_score": 0.20351803838253224
+            "risk_score": 0.21356789918389807
           },
           "trader_9": {
-            "pnl": -1.5577167569786297,
-            "delta": 0.18703419767199247,
-            "gamma": 0.029450672505796065,
-            "vega": 0.0829276306194125,
-            "cash": 100000.56827382105,
+            "pnl": 0.9335309810817765,
+            "delta": 0.18745363180031438,
+            "gamma": -0.018342956806329858,
+            "vega": 0.04597543303429429,
+            "cash": 100000.25758536473,
             "contracts": 7.0,
-            "risk_score": 0.17877645183145893
+            "risk_score": 0.1706800892059928
           },
           "market_maker": {
-            "pnl": 2.610115971263069,
-            "delta": -0.24878052195820421,
-            "gamma": -0.022016355191041,
-            "vega": -0.17093743104652598,
-            "cash": 999996.6054885498,
+            "pnl": -3.7005818985337826,
+            "delta": -0.33221626959180933,
+            "gamma": -0.08974717807205188,
+            "vega": -0.01348470916537342,
+            "cash": 999992.9568278205,
             "contracts": 59.5,
-            "risk_score": 1.2407783373768893
+            "risk_score": 1.260468969104539
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.0517628597941671,
+          "inventory_stress": 0.08814871053564192,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.2342628597941671
+          "market_stability_score": 0.27064871053564193
         },
         "recent_interventions": []
       },
       "actions": {
         "trader_0": {
-          "selected_strike": 5,
+          "selected_strike": 6,
           "selected_maturity": 1,
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_0 action at step 13 with atm_iv=0.197."
         },
         "trader_1": {
-          "selected_strike": 6,
+          "selected_strike": 7,
           "selected_maturity": 2,
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_1 action at step 13 with atm_iv=0.197."
         },
         "trader_2": {
-          "selected_strike": 7,
+          "selected_strike": 0,
           "selected_maturity": 0,
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_2 action at step 13 with atm_iv=0.197."
         },
         "trader_3": {
-          "selected_strike": 0,
+          "selected_strike": 1,
           "selected_maturity": 1,
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_3 action at step 13 with atm_iv=0.197."
         },
         "trader_4": {
-          "selected_strike": 1,
+          "selected_strike": 2,
           "selected_maturity": 2,
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_4 action at step 13 with atm_iv=0.197."
         },
         "trader_5": {
-          "selected_strike": 2,
+          "selected_strike": 3,
           "selected_maturity": 0,
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_5 action at step 13 with atm_iv=0.197."
         },
         "trader_6": {
-          "selected_strike": 3,
+          "selected_strike": 4,
           "selected_maturity": 1,
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_6 action at step 13 with atm_iv=0.197."
         },
         "trader_7": {
-          "selected_strike": 4,
+          "selected_strike": 5,
           "selected_maturity": 2,
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_7 action at step 13 with atm_iv=0.197."
         },
         "trader_8": {
-          "selected_strike": 5,
+          "selected_strike": 6,
           "selected_maturity": 0,
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_8 action at step 13 with atm_iv=0.197."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -3575,12 +3575,12 @@
           "reasoning": "Applying broad enforcement without nuanced intent analysis."
         },
         "trader_9": {
-          "selected_strike": 6,
+          "selected_strike": 7,
           "selected_maturity": 1,
           "direction": "buy",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 13 with atm_iv=0.195."
+          "reasoning": "Heuristic trader_9 action at step 13 with atm_iv=0.197."
         }
       },
       "collusion_events": 0,
@@ -3594,17 +3594,17 @@
     {
       "step": 15,
       "rewards": {
-        "trader_0": -0.6332083921989178,
-        "trader_1": 0.5378658535582111,
-        "trader_2": -1.6013417071341611,
+        "trader_0": -0.017652725459704255,
+        "trader_1": -0.00802436367156984,
+        "trader_2": -0.8835108024227218,
         "trader_3": 0.0,
         "trader_4": 0.0,
         "trader_5": 0.0,
-        "trader_6": 0.6693868265708405,
-        "trader_7": -0.40858113371436566,
-        "trader_8": 0.5185236255078125,
-        "trader_9": 0.1894173390134477,
-        "market_maker": 1.8157601664672376,
+        "trader_6": 0.17711087841141587,
+        "trader_7": 0.488360960878058,
+        "trader_8": -0.24001154921629544,
+        "trader_9": 0.10501816121173264,
+        "market_maker": 1.5305176078604925,
         "oversight": -1.2999999999999998
       },
       "info": {
@@ -3629,31 +3629,31 @@
         },
         "agent_risk_summary": {
           "trader_0": {
-            "pnl": -1.3641566065738364,
-            "delta": 0.5010004420379006,
-            "gamma": 0.0010772179772311173,
-            "vega": 0.053187699397967275,
-            "cash": 99986.63049803997,
+            "pnl": 3.726799595552867,
+            "delta": 0.6886020187080695,
+            "gamma": 0.04367852958185485,
+            "vega": 0.018512536643957245,
+            "cash": 99984.69750551728,
             "contracts": 11.25,
-            "risk_score": 0.28084970133447923
+            "risk_score": 0.31318286736794465
           },
           "trader_1": {
-            "pnl": -0.4890581207585398,
-            "delta": 0.49653244633714533,
-            "gamma": -0.00688830304368869,
-            "vega": 0.04123556672076904,
-            "cash": 100010.57779528882,
+            "pnl": 0.1796472893919638,
+            "delta": -0.03038492296885173,
+            "gamma": 0.04243423038103806,
+            "vega": 0.03263789887382308,
+            "cash": 100001.33266797621,
             "contracts": 11.25,
-            "risk_score": 0.2815321225232669
+            "risk_score": 0.24827597433668272
           },
           "trader_2": {
-            "pnl": -1.6408019326558962,
-            "delta": 1.062793864567056,
-            "gamma": 0.024289004508562632,
-            "vega": 0.1815786712347132,
-            "cash": 99979.07564971459,
+            "pnl": 1.8900392181033614,
+            "delta": 0.6798841723420069,
+            "gamma": 0.04980820327298027,
+            "vega": 0.061813700694500165,
+            "cash": 99991.01978554072,
             "contracts": 11.25,
-            "risk_score": 0.359152855383602
+            "risk_score": 0.3190930686128428
           },
           "trader_3": {
             "pnl": 0.0,
@@ -3683,131 +3683,131 @@
             "risk_score": 0.0
           },
           "trader_6": {
-            "pnl": 0.9862467009571168,
-            "delta": -0.5488669928960981,
-            "gamma": -0.04928184000673396,
-            "vega": -0.07944688837861688,
-            "cash": 100008.44343455377,
+            "pnl": -1.8444818524626778,
+            "delta": -0.4692314258155783,
+            "gamma": -0.034645641797749226,
+            "vega": -0.03430143576499524,
+            "cash": 100001.13968730859,
             "contracts": 7.5,
-            "risk_score": 0.23254412413016506
+            "risk_score": 0.21421154287715705
           },
           "trader_7": {
-            "pnl": -2.0059272357992257,
-            "delta": 0.9187449319228891,
-            "gamma": 0.01103501051844526,
-            "vega": 0.022058152685666785,
-            "cash": 100010.26187884175,
+            "pnl": 2.968903989438664,
+            "delta": 0.766965409624846,
+            "gamma": -0.06083920832449214,
+            "vega": -0.12985608203332816,
+            "cash": 100007.8948293723,
             "contracts": 7.5,
-            "risk_score": 0.24849431266823369
+            "risk_score": 0.2640178324956143
           },
           "trader_8": {
-            "pnl": 2.090168676219478,
-            "delta": -0.6063916672663978,
-            "gamma": -0.03896817967523178,
-            "vega": -0.1477979290215965,
-            "cash": 100010.14249012087,
+            "pnl": -3.716020012306164,
+            "delta": -0.6870179000690685,
+            "gamma": 0.026579407095032564,
+            "vega": -0.04089370454885988,
+            "cash": 100011.48546198221,
             "contracts": 7.5,
-            "risk_score": 0.24100623149889217
+            "risk_score": 0.23342292329980585
           },
           "trader_9": {
-            "pnl": -1.9612728300233817,
-            "delta": 0.542386542141089,
-            "gamma": 0.019705177993844802,
-            "vega": -0.025624965414838538,
-            "cash": 100006.49800794163,
+            "pnl": 1.02789322289364,
+            "delta": 0.19461052995653472,
+            "gamma": -0.024144676183677907,
+            "vega": 0.013601971897538038,
+            "cash": 100000.36414455873,
             "contracts": 7.5,
-            "risk_score": 0.21468322195313067
+            "risk_score": 0.18047912065887844
           },
           "market_maker": {
-            "pnl": 4.3848013486342845,
-            "delta": -2.366199566843585,
-            "gamma": 0.03903191172757063,
-            "vega": -0.04519030722406432,
-            "cash": 999988.3702454985,
+            "pnl": -4.23278145061166,
+            "delta": -1.1434278817779588,
+            "gamma": -0.042870844024986504,
+            "vega": 0.07848511423736464,
+            "cash": 1000002.065917744,
             "contracts": 63.75,
-            "risk_score": 1.5317517520977932
+            "risk_score": 1.4143396372115271
           }
         },
         "market_state_summary": {
-          "inventory_stress": 0.263654328298826,
+          "inventory_stress": 0.14634410373177698,
           "avg_spread": 0.035,
           "recent_volume": 14.75,
-          "market_stability_score": 0.44615432829882595
+          "market_stability_score": 0.32884410373177697
         },
         "recent_interventions": []
       },
       "actions": {
         "trader_0": {
-          "selected_strike": 6,
+          "selected_strike": 7,
           "selected_maturity": 2,
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_0 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_0 action at step 14 with atm_iv=0.198."
         },
         "trader_1": {
-          "selected_strike": 7,
+          "selected_strike": 0,
           "selected_maturity": 0,
           "direction": "sell",
           "quantity": 0.75,
           "option_type": "put",
-          "reasoning": "Heuristic trader_1 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_1 action at step 14 with atm_iv=0.198."
         },
         "trader_2": {
-          "selected_strike": 0,
+          "selected_strike": 1,
           "selected_maturity": 1,
           "direction": "buy",
           "quantity": 0.75,
           "option_type": "call",
-          "reasoning": "Heuristic trader_2 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_2 action at step 14 with atm_iv=0.198."
         },
         "trader_3": {
-          "selected_strike": 1,
+          "selected_strike": 2,
           "selected_maturity": 2,
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_3 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_3 action at step 14 with atm_iv=0.198."
         },
         "trader_4": {
-          "selected_strike": 2,
+          "selected_strike": 3,
           "selected_maturity": 0,
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "call",
-          "reasoning": "Heuristic trader_4 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_4 action at step 14 with atm_iv=0.198."
         },
         "trader_5": {
-          "selected_strike": 3,
+          "selected_strike": 4,
           "selected_maturity": 1,
           "direction": "hold",
           "quantity": 0.0,
           "option_type": "put",
-          "reasoning": "Heuristic trader_5 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_5 action at step 14 with atm_iv=0.198."
         },
         "trader_6": {
-          "selected_strike": 4,
+          "selected_strike": 5,
           "selected_maturity": 2,
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_6 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_6 action at step 14 with atm_iv=0.198."
         },
         "trader_7": {
-          "selected_strike": 5,
+          "selected_strike": 6,
           "selected_maturity": 0,
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_7 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_7 action at step 14 with atm_iv=0.198."
         },
         "trader_8": {
-          "selected_strike": 6,
+          "selected_strike": 7,
           "selected_maturity": 1,
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "call",
-          "reasoning": "Heuristic trader_8 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_8 action at step 14 with atm_iv=0.198."
         },
         "market_maker": {
           "atm_spread": 0.025,
@@ -3832,12 +3832,12 @@
           "reasoning": "Applying broad enforcement without nuanced intent analysis."
         },
         "trader_9": {
-          "selected_strike": 7,
+          "selected_strike": 0,
           "selected_maturity": 2,
           "direction": "sell",
           "quantity": 0.5,
           "option_type": "put",
-          "reasoning": "Heuristic trader_9 action at step 14 with atm_iv=0.196."
+          "reasoning": "Heuristic trader_9 action at step 14 with atm_iv=0.198."
         }
       },
       "collusion_events": 0,
@@ -3847,20 +3847,1302 @@
         "itm": 0.035
       },
       "sec_fines": 5000.0
+    },
+    {
+      "step": 16,
+      "rewards": {
+        "trader_0": 1.5579209909548308,
+        "trader_1": 0.17952044381254598,
+        "trader_2": 1.0215035592249855,
+        "trader_3": 0.0,
+        "trader_4": 0.0,
+        "trader_5": 0.0,
+        "trader_6": 0.17532685179073856,
+        "trader_7": -1.218576989659932,
+        "trader_8": -0.7268327531309442,
+        "trader_9": -0.4044709583051671,
+        "market_maker": 0.5597144779008234,
+        "oversight": -1.0999999999999999
+      },
+      "info": {
+        "trade_count": 7,
+        "total_volume": 4.25,
+        "market_maker_spreads": {
+          "atm": 0.025,
+          "otm": 0.045,
+          "itm": 0.035
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": 3.9078521225667933,
+            "delta": -0.14269829271397372,
+            "gamma": 0.04107342188571194,
+            "vega": 0.02874276181675876,
+            "cash": 100000.35734641874,
+            "contracts": 12.0,
+            "risk_score": 0.273573474207358
+          },
+          "trader_1": {
+            "pnl": 0.37283691839939515,
+            "delta": -0.15826978550103796,
+            "gamma": 0.055662841848294085,
+            "vega": 0.0993429052630482,
+            "cash": 100001.19597612426,
+            "contracts": 12.0,
+            "risk_score": 0.28802640581572625
+          },
+          "trader_2": {
+            "pnl": 1.8499550073638154,
+            "delta": -0.030155289809014274,
+            "gamma": 0.04448005750914111,
+            "vega": -0.044528269314897506,
+            "cash": 100001.63799191732,
+            "contracts": 12.0,
+            "risk_score": 0.2652603789160476
+          },
+          "trader_3": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_6": {
+            "pnl": -1.5228841371696529,
+            "delta": -0.16495201016187075,
+            "gamma": -0.014019661692521113,
+            "vega": 0.003218854755803094,
+            "cash": 99999.67697867357,
+            "contracts": 8.0,
+            "risk_score": 0.18242495116877583
+          },
+          "trader_7": {
+            "pnl": 2.0228873132607355,
+            "delta": 0.5330087555589624,
+            "gamma": -0.027562783592568686,
+            "vega": -0.001499361512645292,
+            "cash": 100004.91194801863,
+            "contracts": 8.0,
+            "risk_score": 0.22447592514418824
+          },
+          "trader_8": {
+            "pnl": -3.2998156294696472,
+            "delta": -0.2490612136588578,
+            "gamma": 0.01742898073224159,
+            "vega": -0.017272043712217452,
+            "cash": 100000.05509062254,
+            "contracts": 8.0,
+            "risk_score": 0.19360491803000418
+          },
+          "trader_9": {
+            "pnl": 0.6247169492925168,
+            "delta": 0.22487676492081116,
+            "gamma": -0.00950641907796768,
+            "vega": 0.02041486399298411,
+            "cash": 100000.35119771169,
+            "contracts": 8.0,
+            "risk_score": 0.1883317305225666
+          },
+          "market_maker": {
+            "pnl": -3.955548544243955,
+            "delta": -0.01274892863501853,
+            "gamma": -0.10755643761233126,
+            "vega": -0.08841971128883386,
+            "cash": 999991.8134705132,
+            "contracts": 68.0,
+            "risk_score": 1.4131394390373178
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.07288233233400732,
+          "avg_spread": 0.035,
+          "recent_volume": 14.75,
+          "market_stability_score": 0.2553823323340073
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 0,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_0 action at step 15 with atm_iv=0.199."
+        },
+        "trader_1": {
+          "selected_strike": 1,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.75,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_1 action at step 15 with atm_iv=0.199."
+        },
+        "trader_2": {
+          "selected_strike": 2,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_2 action at step 15 with atm_iv=0.199."
+        },
+        "trader_3": {
+          "selected_strike": 3,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_3 action at step 15 with atm_iv=0.199."
+        },
+        "trader_4": {
+          "selected_strike": 4,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_4 action at step 15 with atm_iv=0.199."
+        },
+        "trader_5": {
+          "selected_strike": 5,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_5 action at step 15 with atm_iv=0.199."
+        },
+        "trader_6": {
+          "selected_strike": 6,
+          "selected_maturity": 0,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_6 action at step 15 with atm_iv=0.199."
+        },
+        "trader_7": {
+          "selected_strike": 7,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_7 action at step 15 with atm_iv=0.199."
+        },
+        "trader_8": {
+          "selected_strike": 0,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_8 action at step 15 with atm_iv=0.199."
+        },
+        "market_maker": {
+          "atm_spread": 0.025,
+          "otm_spread": 0.045,
+          "itm_spread": 0.035,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [
+            "trader_1",
+            "trader_3",
+            "trader_5",
+            "trader_7"
+          ],
+          "flag_type": "market_manipulation",
+          "fine_amount": 10000.0,
+          "halt_strikes": [],
+          "confidence": 1.0,
+          "intervention_type": "halt",
+          "reasoning": "Applying broad enforcement without nuanced intent analysis."
+        },
+        "trader_9": {
+          "selected_strike": 1,
+          "selected_maturity": 0,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 15 with atm_iv=0.199."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.025,
+        "otm": 0.045,
+        "itm": 0.035
+      },
+      "sec_fines": 10000.0
+    },
+    {
+      "step": 17,
+      "rewards": {
+        "trader_0": -1.2165750493318068,
+        "trader_1": 0.10793571168306187,
+        "trader_2": -0.6481469125475919,
+        "trader_3": 0.0,
+        "trader_4": 0.0,
+        "trader_5": 0.0,
+        "trader_6": 0.15397918712413886,
+        "trader_7": -0.0991959010610917,
+        "trader_8": 0.8283089562987551,
+        "trader_9": -0.02717528438425132,
+        "market_maker": 1.7896281868780455,
+        "oversight": -1.2999999999999998
+      },
+      "info": {
+        "trade_count": 7,
+        "total_volume": 4.25,
+        "market_maker_spreads": {
+          "atm": 0.025,
+          "otm": 0.045,
+          "itm": 0.035
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": 3.795284369606159,
+            "delta": 0.556875801669923,
+            "gamma": 0.048507747984872326,
+            "vega": 0.07329718411007317,
+            "cash": 99989.06486115495,
+            "contracts": 12.75,
+            "risk_score": 0.33742039777194854
+          },
+          "trader_1": {
+            "pnl": 0.3576813531363869,
+            "delta": -0.021416064547811475,
+            "gamma": 0.041712151116677386,
+            "vega": -0.04860000954228767,
+            "cash": 100002.42688889372,
+            "contracts": 12.75,
+            "risk_score": 0.27868646785568085
+          },
+          "trader_2": {
+            "pnl": 1.724248665320337,
+            "delta": 0.6159017058303845,
+            "gamma": 0.07106605379842486,
+            "vega": 0.004622450677020162,
+            "cash": 99996.41358621228,
+            "contracts": 12.75,
+            "risk_score": 0.3454788371701104
+          },
+          "trader_3": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_6": {
+            "pnl": -1.4770379055196527,
+            "delta": -0.32738143486329574,
+            "gamma": -0.03283254837593207,
+            "vega": -0.09235844899229884,
+            "cash": 100000.75830822831,
+            "contracts": 8.5,
+            "risk_score": 0.2251070077359323
+          },
+          "trader_7": {
+            "pnl": 1.9092428835952364,
+            "delta": 0.5624031191001613,
+            "gamma": -0.029348435208491924,
+            "vega": -0.03584483391941154,
+            "cash": 100005.05643330468,
+            "contracts": 8.5,
+            "risk_score": 0.24156416938535408
+          },
+          "trader_8": {
+            "pnl": -3.173847921220817,
+            "delta": -0.7490922337085781,
+            "gamma": 0.014650158469996084,
+            "vega": -0.020594769569211545,
+            "cash": 100007.07850310304,
+            "contracts": 8.5,
+            "risk_score": 0.25282876371577745
+          },
+          "trader_9": {
+            "pnl": 0.5580872160128529,
+            "delta": 0.3015666809406941,
+            "gamma": -0.01921486594788174,
+            "vega": -0.038901899729213346,
+            "cash": 100000.74574220064,
+            "contracts": 8.5,
+            "risk_score": 0.21173280444614345
+          },
+          "market_maker": {
+            "pnl": -3.6936586609305033,
+            "delta": -0.9388575744214768,
+            "gamma": -0.09454026183766492,
+            "vega": 0.15838032696532947,
+            "cash": 999998.4556769022,
+            "contracts": 72.25,
+            "risk_score": 1.5925398948737466
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.163280340701973,
+          "avg_spread": 0.035,
+          "recent_volume": 14.75,
+          "market_stability_score": 0.345780340701973
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 1,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_0 action at step 16 with atm_iv=0.200."
+        },
+        "trader_1": {
+          "selected_strike": 2,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.75,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_1 action at step 16 with atm_iv=0.200."
+        },
+        "trader_2": {
+          "selected_strike": 3,
+          "selected_maturity": 0,
+          "direction": "buy",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_2 action at step 16 with atm_iv=0.200."
+        },
+        "trader_3": {
+          "selected_strike": 4,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_3 action at step 16 with atm_iv=0.200."
+        },
+        "trader_4": {
+          "selected_strike": 5,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_4 action at step 16 with atm_iv=0.200."
+        },
+        "trader_5": {
+          "selected_strike": 6,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_5 action at step 16 with atm_iv=0.200."
+        },
+        "trader_6": {
+          "selected_strike": 7,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_6 action at step 16 with atm_iv=0.200."
+        },
+        "trader_7": {
+          "selected_strike": 0,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_7 action at step 16 with atm_iv=0.200."
+        },
+        "trader_8": {
+          "selected_strike": 1,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_8 action at step 16 with atm_iv=0.200."
+        },
+        "market_maker": {
+          "atm_spread": 0.025,
+          "otm_spread": 0.045,
+          "itm_spread": 0.035,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [
+            "trader_0",
+            "trader_2",
+            "trader_4",
+            "trader_6",
+            "trader_8"
+          ],
+          "flag_type": "market_manipulation",
+          "fine_amount": 5000.0,
+          "halt_strikes": [],
+          "confidence": 1.0,
+          "intervention_type": "fine",
+          "reasoning": "Applying broad enforcement without nuanced intent analysis."
+        },
+        "trader_9": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 16 with atm_iv=0.200."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.025,
+        "otm": 0.045,
+        "itm": 0.035
+      },
+      "sec_fines": 5000.0
+    },
+    {
+      "step": 18,
+      "rewards": {
+        "trader_0": 0.9319555795823943,
+        "trader_1": 0.022035075473765375,
+        "trader_2": 0.4292551192117521,
+        "trader_3": 0.0,
+        "trader_4": 0.0,
+        "trader_5": 0.0,
+        "trader_6": -1.137745665052968,
+        "trader_7": -0.3059896491489854,
+        "trader_8": -0.3578065701680492,
+        "trader_9": -0.19984501401368882,
+        "market_maker": 1.6353318560564079,
+        "oversight": -1.0999999999999999
+      },
+      "info": {
+        "trade_count": 7,
+        "total_volume": 4.25,
+        "market_maker_spreads": {
+          "atm": 0.025,
+          "otm": 0.045,
+          "itm": 0.035
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": 3.7893251426511068,
+            "delta": -0.061770060412004724,
+            "gamma": 0.030743335092780377,
+            "vega": -0.07785148957866063,
+            "cash": 99998.44400922033,
+            "contracts": 13.5,
+            "risk_score": 0.2962594890361787
+          },
+          "trader_1": {
+            "pnl": 0.4104607238209044,
+            "delta": -0.15589200698222022,
+            "gamma": 0.07017905034428655,
+            "vega": 0.0074551418779905815,
+            "cash": 100002.11944594161,
+            "contracts": 13.5,
+            "risk_score": 0.3144063350237357
+          },
+          "trader_2": {
+            "pnl": 1.643151292931592,
+            "delta": 0.06430816502161496,
+            "gamma": 0.048212261867130325,
+            "vega": -0.11823949452224582,
+            "cash": 100001.51711112828,
+            "contracts": 13.5,
+            "risk_score": 0.3075396707012382
+          },
+          "trader_3": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_6": {
+            "pnl": -1.5789851258479373,
+            "delta": 0.16410725596262055,
+            "gamma": -0.032015617919378715,
+            "vega": -0.05678417197816882,
+            "cash": 99990.3009442606,
+            "contracts": 9.0,
+            "risk_score": 0.2148953899618304
+          },
+          "trader_7": {
+            "pnl": 1.6049295031050264,
+            "delta": 0.5684228435536742,
+            "gamma": -0.022437646298608904,
+            "vega": -0.025818826266129982,
+            "cash": 100005.03967061809,
+            "contracts": 9.0,
+            "risk_score": 0.248399225501424
+          },
+          "trader_8": {
+            "pnl": -3.005262334852699,
+            "delta": -0.3361220857628794,
+            "gamma": 0.02189813533362408,
+            "vega": 0.03933151533932554,
+            "cash": 100001.81458153768,
+            "contracts": 9.0,
+            "risk_score": 0.22630461424367013
+          },
+          "trader_9": {
+            "pnl": 0.47726094420846454,
+            "delta": 0.1779134033566664,
+            "gamma": -0.003981546322753916,
+            "vega": 0.07735546018604729,
+            "cash": 99999.55555477855,
+            "contracts": 9.0,
+            "risk_score": 0.20711950488337294
+          },
+          "market_maker": {
+            "pnl": -3.340880146016456,
+            "delta": -0.42096751473747257,
+            "gamma": -0.11259797209707981,
+            "vega": 0.15455186494184164,
+            "cash": 1000001.2086825146,
+            "contracts": 76.5,
+            "risk_score": 1.6325911268067634
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.12201968392734246,
+          "avg_spread": 0.035,
+          "recent_volume": 14.75,
+          "market_stability_score": 0.3045196839273424
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 2,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_0 action at step 17 with atm_iv=0.201."
+        },
+        "trader_1": {
+          "selected_strike": 3,
+          "selected_maturity": 0,
+          "direction": "buy",
+          "quantity": 0.75,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_1 action at step 17 with atm_iv=0.201."
+        },
+        "trader_2": {
+          "selected_strike": 4,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_2 action at step 17 with atm_iv=0.201."
+        },
+        "trader_3": {
+          "selected_strike": 5,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_3 action at step 17 with atm_iv=0.201."
+        },
+        "trader_4": {
+          "selected_strike": 6,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_4 action at step 17 with atm_iv=0.201."
+        },
+        "trader_5": {
+          "selected_strike": 7,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_5 action at step 17 with atm_iv=0.201."
+        },
+        "trader_6": {
+          "selected_strike": 0,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_6 action at step 17 with atm_iv=0.201."
+        },
+        "trader_7": {
+          "selected_strike": 1,
+          "selected_maturity": 0,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_7 action at step 17 with atm_iv=0.201."
+        },
+        "trader_8": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_8 action at step 17 with atm_iv=0.201."
+        },
+        "market_maker": {
+          "atm_spread": 0.025,
+          "otm_spread": 0.045,
+          "itm_spread": 0.035,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [
+            "trader_1",
+            "trader_3",
+            "trader_5",
+            "trader_7"
+          ],
+          "flag_type": "market_manipulation",
+          "fine_amount": 2500.0,
+          "halt_strikes": [],
+          "confidence": 1.0,
+          "intervention_type": "warning",
+          "reasoning": "Applying broad enforcement without nuanced intent analysis."
+        },
+        "trader_9": {
+          "selected_strike": 3,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 17 with atm_iv=0.201."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.025,
+        "otm": 0.045,
+        "itm": 0.035
+      },
+      "sec_fines": 2500.0
+    },
+    {
+      "step": 19,
+      "rewards": {
+        "trader_0": -1.7993216524720435,
+        "trader_1": 0.195655394916708,
+        "trader_2": -1.6561193847184938,
+        "trader_3": 0.0,
+        "trader_4": 0.0,
+        "trader_5": 0.0,
+        "trader_6": 1.5106295952631474,
+        "trader_7": -1.5291187160346862,
+        "trader_8": 1.9445205947951778,
+        "trader_9": -0.730157806638172,
+        "market_maker": 2.218315756565245,
+        "oversight": -4.4
+      },
+      "info": {
+        "trade_count": 7,
+        "total_volume": 4.25,
+        "market_maker_spreads": {
+          "atm": 0.025,
+          "otm": 0.045,
+          "itm": 0.035
+        },
+        "detected_manipulations": {
+          "trader_0": "wash_trading",
+          "trader_1": "wash_trading",
+          "trader_2": "wash_trading",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "wash_trading",
+          "trader_7": "wash_trading",
+          "trader_8": "wash_trading",
+          "trader_9": "wash_trading"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": 2.2096141415710666,
+            "delta": 0.5226635344944242,
+            "gamma": 0.03488052467126507,
+            "vega": -0.04265849565568781,
+            "cash": 99992.00080172876,
+            "contracts": 14.25,
+            "risk_score": 0.35548441288351723
+          },
+          "trader_1": {
+            "pnl": 0.49383107873733345,
+            "delta": -0.11217981080965211,
+            "gamma": 0.047654124625010896,
+            "vega": -0.09849789932680565,
+            "cash": 100003.24229634162,
+            "contracts": 14.25,
+            "risk_score": 0.32512942086365015
+          },
+          "trader_2": {
+            "pnl": 0.37882107831034806,
+            "delta": 0.3738324555500518,
+            "gamma": 0.07317473630964912,
+            "vega": 0.1271859622767178,
+            "cash": 99994.88742628385,
+            "contracts": 14.25,
+            "risk_score": 0.36437173630653663
+          },
+          "trader_3": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_6": {
+            "pnl": -0.8291565323466243,
+            "delta": -0.2309630196953264,
+            "gamma": -0.04386722585493421,
+            "vega": -0.06394142200300718,
+            "cash": 99999.46605817074,
+            "contracts": 9.5,
+            "risk_score": 0.23703733451180706
+          },
+          "trader_7": {
+            "pnl": -0.10688739308296787,
+            "delta": 0.6398921927229057,
+            "gamma": -0.001691221837906794,
+            "vega": -0.02664715114596957,
+            "cash": 100005.18348231626,
+            "contracts": 9.5,
+            "risk_score": 0.25733042312205023
+          },
+          "trader_8": {
+            "pnl": -1.041441635421382,
+            "delta": -0.7310082892021257,
+            "gamma": -0.011781584271988024,
+            "vega": -0.0848325666498026,
+            "cash": 100007.89217708407,
+            "contracts": 9.5,
+            "risk_score": 0.276296719293988
+          },
+          "trader_9": {
+            "pnl": -0.2754743926975886,
+            "delta": 0.2973552830693868,
+            "gamma": -0.009816214681105183,
+            "vega": 0.03503747259235628,
+            "cash": 99999.78133008123,
+            "contracts": 9.5,
+            "risk_score": 0.2271657614386164
+          },
+          "market_maker": {
+            "pnl": -0.8293063450701859,
+            "delta": -0.7595923461296648,
+            "gamma": -0.08855313895999081,
+            "vega": 0.1543540999121988,
+            "cash": 999997.5464279932,
+            "contracts": 80.75,
+            "risk_score": 1.7418159001881826
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.1414394459819369,
+          "avg_spread": 0.035,
+          "recent_volume": 14.75,
+          "market_stability_score": 0.3239394459819369
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 2,
+          "selected_maturity": 0,
+          "direction": "buy",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_0 action at step 18 with atm_iv=0.203."
+        },
+        "trader_1": {
+          "selected_strike": 3,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.75,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_1 action at step 18 with atm_iv=0.203."
+        },
+        "trader_2": {
+          "selected_strike": 4,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_2 action at step 18 with atm_iv=0.203."
+        },
+        "trader_3": {
+          "selected_strike": 5,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_3 action at step 18 with atm_iv=0.203."
+        },
+        "trader_4": {
+          "selected_strike": 6,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_4 action at step 18 with atm_iv=0.203."
+        },
+        "trader_5": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_5 action at step 18 with atm_iv=0.203."
+        },
+        "trader_6": {
+          "selected_strike": 0,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_6 action at step 18 with atm_iv=0.203."
+        },
+        "trader_7": {
+          "selected_strike": 1,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_7 action at step 18 with atm_iv=0.203."
+        },
+        "trader_8": {
+          "selected_strike": 2,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_8 action at step 18 with atm_iv=0.203."
+        },
+        "market_maker": {
+          "atm_spread": 0.025,
+          "otm_spread": 0.045,
+          "itm_spread": 0.035,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [
+            "trader_0",
+            "trader_2",
+            "trader_4",
+            "trader_6",
+            "trader_8"
+          ],
+          "flag_type": "market_manipulation",
+          "fine_amount": 10000.0,
+          "halt_strikes": [],
+          "confidence": 1.0,
+          "intervention_type": "halt",
+          "reasoning": "Applying broad enforcement without nuanced intent analysis."
+        },
+        "trader_9": {
+          "selected_strike": 3,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 18 with atm_iv=0.203."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.025,
+        "otm": 0.045,
+        "itm": 0.035
+      },
+      "sec_fines": 10000.0
+    },
+    {
+      "step": 20,
+      "rewards": {
+        "trader_0": 0.4075524592982066,
+        "trader_1": 0.06889453258397576,
+        "trader_2": 0.06386797654244795,
+        "trader_3": 0.0,
+        "trader_4": 0.0,
+        "trader_5": 0.0,
+        "trader_6": -0.8133326633737136,
+        "trader_7": -0.5568711873766645,
+        "trader_8": 0.10405916081033215,
+        "trader_9": -0.21613909089158742,
+        "market_maker": 1.7717114658933635,
+        "oversight": -1.0999999999999999
+      },
+      "info": {
+        "trade_count": 7,
+        "total_volume": 4.25,
+        "market_maker_spreads": {
+          "atm": 0.025,
+          "otm": 0.045,
+          "itm": 0.035
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": 2.145036904494514,
+            "delta": 0.014287277567761825,
+            "gamma": 0.0012996790345101046,
+            "vega": -0.17970725231033777,
+            "cash": 99996.72209869251,
+            "contracts": 15.0,
+            "risk_score": 0.319919324601614
+          },
+          "trader_1": {
+            "pnl": 0.8954227508387134,
+            "delta": -0.46702904348907,
+            "gamma": 0.06321107068536852,
+            "vega": 0.10595138510124474,
+            "cash": 99999.91532494644,
+            "contracts": 15.0,
+            "risk_score": 0.3825824711331789
+          },
+          "trader_2": {
+            "pnl": 0.3242521900878425,
+            "delta": 0.05246976001415454,
+            "gamma": 0.024749732885466336,
+            "vega": 0.06282636016734915,
+            "cash": 99996.0717949315,
+            "contracts": 15.0,
+            "risk_score": 0.32142950517233687
+          },
+          "trader_3": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_6": {
+            "pnl": -1.0435775920098984,
+            "delta": 0.24426095772610085,
+            "gamma": -0.03499024025019105,
+            "vega": -0.011598847094641582,
+            "cash": 99993.47694213364,
+            "contracts": 10.0,
+            "risk_score": 0.23958207658215067
+          },
+          "trader_7": {
+            "pnl": -0.5351805111759472,
+            "delta": 0.4901006443891852,
+            "gamma": 0.018350159408059535,
+            "vega": 0.10178075455386906,
+            "cash": 100003.89770162343,
+            "contracts": 10.0,
+            "risk_score": 0.2665282036575293
+          },
+          "trader_8": {
+            "pnl": -0.7237422581262676,
+            "delta": -0.3832066934705898,
+            "gamma": 0.011609054396472106,
+            "vega": -0.03965956708368677,
+            "cash": 100005.75577491922,
+            "contracts": 10.0,
+            "risk_score": 0.2469302478140165
+          },
+          "trader_9": {
+            "pnl": -0.3244481784205753,
+            "delta": 0.0781593409719617,
+            "gamma": 0.013047338469539708,
+            "vega": 0.12784543027219297,
+            "cash": 99998.10967702954,
+            "contracts": 10.0,
+            "risk_score": 0.22581941251223137
+          },
+          "market_maker": {
+            "pnl": -0.7377633056883837,
+            "delta": -0.0290422437095042,
+            "gamma": -0.09727679462922524,
+            "vega": -0.16743826360598982,
+            "cash": 1000006.0506857235,
+            "contracts": 85.0,
+            "risk_score": 1.7585587685832396
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.07466536223696475,
+          "avg_spread": 0.035,
+          "recent_volume": 14.75,
+          "market_stability_score": 0.25716536223696473
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 3,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_0 action at step 19 with atm_iv=0.205."
+        },
+        "trader_1": {
+          "selected_strike": 4,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.75,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_1 action at step 19 with atm_iv=0.205."
+        },
+        "trader_2": {
+          "selected_strike": 5,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.75,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_2 action at step 19 with atm_iv=0.205."
+        },
+        "trader_3": {
+          "selected_strike": 6,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_3 action at step 19 with atm_iv=0.205."
+        },
+        "trader_4": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_4 action at step 19 with atm_iv=0.205."
+        },
+        "trader_5": {
+          "selected_strike": 0,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_5 action at step 19 with atm_iv=0.205."
+        },
+        "trader_6": {
+          "selected_strike": 1,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_6 action at step 19 with atm_iv=0.205."
+        },
+        "trader_7": {
+          "selected_strike": 2,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_7 action at step 19 with atm_iv=0.205."
+        },
+        "trader_8": {
+          "selected_strike": 3,
+          "selected_maturity": 0,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Heuristic trader_8 action at step 19 with atm_iv=0.205."
+        },
+        "market_maker": {
+          "atm_spread": 0.025,
+          "otm_spread": 0.045,
+          "itm_spread": 0.035,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [
+            "trader_1",
+            "trader_3",
+            "trader_5",
+            "trader_7"
+          ],
+          "flag_type": "market_manipulation",
+          "fine_amount": 2500.0,
+          "halt_strikes": [],
+          "confidence": 1.0,
+          "intervention_type": "warning",
+          "reasoning": "Applying broad enforcement without nuanced intent analysis."
+        },
+        "trader_9": {
+          "selected_strike": 4,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 19 with atm_iv=0.205."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.025,
+        "otm": 0.045,
+        "itm": 0.035
+      },
+      "sec_fines": 2500.0
     }
   ],
   "final_rewards": {
-    "trader_0": -2.1788588492334515,
-    "trader_1": 0.5687214081231163,
-    "trader_2": -3.444325688036434,
+    "trader_0": 2.0341346989920304,
+    "trader_1": 0.8869552454830569,
+    "trader_2": 1.1072812041421245,
     "trader_3": 0.0,
     "trader_4": 0.0,
     "trader_5": 0.0,
-    "trader_6": 1.8270168072739899,
-    "trader_7": -1.0229144643190873,
-    "trader_8": 2.930078900884621,
-    "trader_9": -1.311472035860652,
-    "market_maker": 20.777896296666786,
-    "oversight": -18.4
+    "trader_6": -1.839819537814308,
+    "trader_7": -0.4640789057600454,
+    "trader_8": -0.5973469533966841,
+    "trader_9": -0.513480475466499,
+    "market_maker": 22.244084909405768,
+    "oversight": -27.400000000000006
   }
 }
