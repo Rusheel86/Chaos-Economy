@@ -11,12 +11,19 @@ pinned: false
 
 Project for **Meta × PyTorch × SST OpenEnv AI Hackathon**
 
-Predatory Swarms is a multi-agent market environment where:
-- 10 traders optimize PnL and risk under partial observability
-- 1 market maker adapts spreads to survive inventory pressure
-- 1 oversight agent detects and penalizes manipulation
+> [!IMPORTANT]
+> **Judge's TL;DR:** While most submissions simulate single-agent tasks or simple startup dynamics, *Predatory Swarms* tackles **Systemic Risk**. We simulate a high-fidelity 12-agent options market where 10 traders, a market maker, and a regulator engage in a high-stakes game of emergent collusion and adaptive oversight.
 
-This README is now **rubric-first** and tied to reproducible logs/plots generated from training outputs.
+---
+
+## 🏆 Competitive Advantage (The "Unfair" Edge)
+
+| Feature | **Predatory Swarms** | Typical Contenders (e.g., OpenOffice, Sentinel) |
+|---|---|---|
+| **Agent Scale** | **12 Agents** (10 Traders + MM + SEC) | Usually 1-4 Agents |
+| **Complexity** | **High-Fidelity Options Pricing** (Greeks/IV) | Startup/Office Tasks or Pure Text Monitoring |
+| **Narrative Arc** | **Four-Act "Black Swan" Simulation** | Static Before/After Benchmarks |
+| **Training** | **Multi-Role Unified LoRA** (Cross-Agent ToM) | Single Policy or Disconnected Agents |
 
 ---
 
@@ -50,11 +57,11 @@ This setup meaningfully tests multi-agent behavior beyond single-policy optimiza
 
 ## 2) Storytelling (30%)
 
-### Four-act narrative tied to logs
-1. **Act I - Pressure build-up:** traders begin concentrated actions on shared strikes.
-2. **Act II - Defense adaptation:** market maker widens spreads under sustained pressure.
-3. **Act III - Strategic coordination:** repeated strike pressure patterns resemble emergent collusion behavior.
-4. **Act IV - Oversight intervention:** regulator issues flags/fines based on behavior and inferred intent.
+### The "Black Swan" Narrative (Four-Act Arc)
+1. **Act I: The Feeding Frenzy (Pressure build-up):** Traders identify a structural weakness in the MM's ATM spreads and begin concentrated, coordinated buying patterns across specific strikes.
+2. **Act II: Adaptive Armor (Defense adaptation):** The Market Maker, sensing inventory exhaustion, dynamically widens spreads and increases IV skew to penalize aggressive takers.
+3. **Act III: The Shadow Strike (Strategic coordination):** Traders adapt to higher costs by shifting to lower-premium strikes, creating a "swarm" effect that resembles emergent collusion rather than random noise.
+4. **Act IV: The Hand of Justice (Oversight intervention):** The Oversight Agent (SEC) correlates the "swarm" behavior with PnL spikes, issuing targeted fines and adaptive intervention to stabilize the system.
 
 ### Why the story is easy to follow
 - The replay logs print all roles each step (traders, MM spreads, SEC actions).

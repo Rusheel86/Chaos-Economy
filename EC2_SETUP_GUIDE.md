@@ -186,3 +186,4 @@ scp -i vsr.pem -r \
 | SSH connection refused | Check Security Group inbound rules — port 22 must be open. |
 | Training dies after SSH disconnect | You forgot tmux! Always use `tmux new -s train` before launching. |
 | `git push` asks for password | Paste your PAT token (not your GitHub password). |
+| `RuntimeError: State Dict mismatch` | Base model mismatch. Use the same `--base_model` for both training and testing. |

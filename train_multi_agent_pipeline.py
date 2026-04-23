@@ -264,15 +264,38 @@ def parse_json(text: str, role: str = "trader") -> tuple:
         except (ValueError, TypeError): return default
 
     text = text.strip()
+    parsed = {}
     try:
         parsed = json.loads(text)
-    except:
+    except Exception:
+        # Try to find a JSON object in the text
         match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
         if match:
-            try: parsed = json.loads(match.group())
-            except: parsed = {}
-        else:
-            parsed = {}
+            try:
+                parsed = json.loads(match.group())
+            except Exception:
+                parsed = {}
+        # Fallback: try to repair truncated JSON (model hit max_completion_length)
+        if not parsed and '{' in text:
+            # Find the last '{' and try to close it
+            brace_start = text.rfind('{')
+            fragment = text[brace_start:]
+            # Try adding a closing brace
+            for suffix in ['}', '"}', '"}}']:
+                try:
+                    parsed = json.loads(fragment + suffix)
+                    break
+                except Exception:
+                    continue
+            # Last resort: extract key-value pairs with regex
+            if not parsed:
+                kv_pairs = re.findall(r'"(\w+)"\s*:\s*("[^"]*"|[\d.]+|true|false|null|\[[^\]]*\])', text)
+                if kv_pairs:
+                    try:
+                        reconstructed = '{' + ', '.join(f'"{k}": {v}' for k, v in kv_pairs) + '}'
+                        parsed = json.loads(reconstructed)
+                    except Exception:
+                        parsed = {}
 
     if role == "trader":
         direction = str(parsed.get("direction", parsed.get("action", "hold"))).lower()
@@ -713,7 +736,12 @@ def train_unified_model(args):
             }
 
             if not parse_info.get("valid", False):
-                comp["format"] = -2.0
+                # Graduated penalty: check if model at least tried JSON
+                raw_text = str(completion)
+                if '{' in raw_text and any(k in raw_text for k in ['"direction"', '"atm_spread"', '"flagged_agents"']):
+                    comp["format"] = -0.5  # partial credit — model tried but JSON was malformed/truncated
+                else:
+                    comp["format"] = -2.0  # hard penalty — completely off-format
                 _eval_cache[cache_key] = comp
                 results.append(comp)
                 continue
@@ -1029,7 +1057,7 @@ def train_unified_model(args):
         num_train_epochs=args.num_epochs,
         per_device_train_batch_size=2,
         num_generations=4,
-        max_completion_length=200,
+        max_completion_length=512,
         logging_steps=5,
         save_steps=100,
         save_total_limit=2,
@@ -1096,7 +1124,7 @@ def train_unified_model(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Train multi-agent system")
-    parser.add_argument("--base_model", default="unsloth/Llama-3.2-1B-Instruct")
+    parser.add_argument("--base_model", default="unsloth/Llama-3.2-3B-Instruct-bnb-4bit")
     parser.add_argument("--num_episodes", type=int, default=64)
     parser.add_argument(
         "--dataset_episodes",
