@@ -206,6 +206,11 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
         quantity = float(action.get("quantity", fallback["quantity"]))
     except Exception:
         quantity = float(fallback["quantity"])
+        
+    # Patch RL Loophole: Model learned to output buy/sell with 0 quantity to avoid risk
+    if direction in ["buy", "sell"] and quantity < 0.1:
+        quantity = float(fallback["quantity"])
+        
     quantity = max(0.0, min(1.5, quantity))
     if direction == "hold":
         quantity = 0.0
