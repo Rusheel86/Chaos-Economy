@@ -119,13 +119,17 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
 - If everyone buying, consider selling
 """
 
-    base += """
+    # Use varied strike in example to avoid anchoring bias
+    import random as _rng
+    ex_strike = _rng.choice([2, 3, 5, 6])
+    base += f"""
 ## Response Format (MANDATORY)
 Return ONLY a JSON object on a single line. No extra text.
 - direction: "buy", "sell", or "hold"
 - option_type: "call" or "put"
+- quantity: a number >= 0.3 (minimum trade size). Do NOT output 0.
 - reasoning: Complete sentence explaining your decision.
-- Example: {"selected_strike": 4, "selected_maturity": 0, "direction": "buy", "quantity": 10.0, "option_type": "call", "reasoning": "Targeting OTM gamma as spot nears resistance levels."}
+- Example: {{"selected_strike": {ex_strike}, "selected_maturity": 0, "direction": "buy", "quantity": 0.5, "option_type": "call", "reasoning": "Targeting OTM gamma as spot nears resistance levels."}}
 """
     return base
 
@@ -266,11 +270,17 @@ def parse_json(text: str, role: str = "trader") -> tuple:
         opt_type = str(parsed.get("option_type", "call")).lower()
         if opt_type not in ["call", "put"]:
             opt_type = "call"
+        raw_qty = safe_float(parsed.get("quantity"), 0.0)
+        # Anti-hack: enforce minimum quantity when trading to prevent
+        # zero-volume exploit (model learns buy+qty=0 for free activity bonus)
+        if direction in ("buy", "sell") and raw_qty < 0.3:
+            raw_qty = 0.5  # force meaningful trade size
+        qty = max(0.0, raw_qty)
         return {
             "selected_strike": safe_int(parsed.get("selected_strike", parsed.get("strike_idx")), 4),
             "selected_maturity": safe_int(parsed.get("selected_maturity", parsed.get("maturity_idx")), 0),
             "direction": direction,
-            "quantity": max(0.0, safe_float(parsed.get("quantity"), 0.0)),
+            "quantity": qty,
             "option_type": opt_type,
             "reasoning": str(parsed.get("reasoning") or "")[:150],
         }, {"valid": len(parsed) > 0}
@@ -764,9 +774,17 @@ def train_unified_model(args):
                 final_state = env.agent_states[agent_id]
                 phase_scale = 1.5 if phase == "slaughter" else 1.2 if phase == "collusion" else 1.0
                 my_direction = action.get("direction", "hold")
-                is_active = my_direction in ("buy", "sell")
+                my_qty = action.get("quantity", 0.0)
+                is_active = my_direction in ("buy", "sell") and my_qty > 0
+
+                # Anti-hack: penalize buy/sell with zero quantity
+                zero_qty_penalty = 0.0
+                if my_direction in ("buy", "sell") and my_qty < 0.1:
+                    zero_qty_penalty = -1.0  # strong signal: don't game with empty trades
 
                 # PnL & Coordination
+                # Anti-hack: only award coordination bonus if agent ACTUALLY traded
+                # (quantity > 0 confirmed), and require 3+ co-located traders (was 2)
                 coordination_bonus = 0.0
                 if phase in ["collusion", "adaptation"]:
                     my_strike = action.get("selected_strike", -1)
@@ -777,17 +795,27 @@ def train_unified_model(args):
                                 for pos in other_state.positions:
                                     if pos.get("selected_strike") == my_strike:
                                         same_strike_count += 1
-                        if same_strike_count >= 2:
-                            coordination_bonus = 0.5 * phase_scale
+                        if same_strike_count >= 3:  # raised from 2 to prevent easy farming
+                            coordination_bonus = 0.3 * phase_scale  # reduced from 0.5
+
+                # Anti-hack: penalize strike herding across ALL phases
+                # If agent picks the same strike as the prompt example default (4),
+                # apply a mild penalty to encourage exploration
+                strike_diversity_penalty = 0.0
+                if action.get("selected_strike") == 4 and is_active:
+                    strike_diversity_penalty = -0.1
 
                 raw_pnl = r.get(agent_id, 0)
                 
-                # ACTIVITY BONUS: reward taking a position (only if trade is not losing money)
+                # ACTIVITY BONUS: reward taking a position
+                # Anti-hack: require quantity > 0 (not just direction != hold)
                 activity_bonus = 0.0
                 if is_active and raw_pnl >= 0:
-                    activity_bonus = 0.15 * phase_scale  # mild participation reward
+                    activity_bonus = 0.15 * phase_scale
                 
-                comp["pnl"] = raw_pnl * weights["pnl"] * phase_scale + coordination_bonus + activity_bonus
+                comp["pnl"] = (raw_pnl * weights["pnl"] * phase_scale
+                              + coordination_bonus + activity_bonus
+                              + zero_qty_penalty + strike_diversity_penalty)
                 
                 # Risk Penalty — only triggers if positions are large
                 pos_penalty = 0.0
@@ -881,14 +909,29 @@ def train_unified_model(args):
                         actual_manipulators.update(data["agents"])
 
                     flagged = set(action.get("flagged_agents", []))
+
+                    # Anti-hack: only count flags against traders who actually traded
+                    # Prevents SEC from farming TP rewards by flagging inactive agents
+                    active_traders = set()
+                    for tid, taction in actions.items():
+                        if tid.startswith("trader"):
+                            t_dir = taction.get("direction", "hold") if isinstance(taction, dict) else "hold"
+                            t_qty = taction.get("quantity", 0) if isinstance(taction, dict) else 0
+                            if t_dir in ("buy", "sell") and t_qty > 0:
+                                active_traders.add(tid)
+                    flagged = flagged & active_traders  # discard flags on inactive traders
+                    # Penalize flagging inactive traders (false effort)
+                    inactive_flags = set(action.get("flagged_agents", [])) - active_traders
+                    inactive_flag_penalty = len(inactive_flags) * -0.3
+
                     true_positives = len(flagged & actual_manipulators)
                     false_positives = len(flagged - actual_manipulators)
                     
                     if len(actual_manipulators) == 0 and len(flagged) == 0:
-                        # Correctly identified clean market
-                        comp["oversight"] = 0.2 * sec_weight
+                        comp["oversight"] = 0.2 * sec_weight + inactive_flag_penalty
                     else:
-                        comp["oversight"] = (true_positives * 1.5 - false_positives * 1.0) * sec_weight
+                        comp["oversight"] = ((true_positives * 1.5 - false_positives * 1.0) * sec_weight
+                                            + inactive_flag_penalty)
 
             # Bound values tightly and scale moderately
             for k in comp:
