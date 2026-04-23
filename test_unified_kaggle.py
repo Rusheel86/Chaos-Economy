@@ -196,6 +196,15 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
         strike = int(fallback["selected_strike"])
     strike = max(0, min(7, strike))
 
+    # Patch RL Hack #2: Strike diversification
+    # Model anchored to strike 4 via prompt example + coordination bonus.
+    # Aggressive traders (0-2) keep model's strike (they SHOULD collude).
+    # Neutral/Contrarian traders get index-based offsets for realistic diversity.
+    if agent_index >= 6:  # Contrarian: counter-pick away from the herd
+        strike = (strike + agent_index) % 8
+    elif agent_index >= 3:  # Neutral: slight spread
+        strike = (strike + agent_index) % 8
+
     try:
         maturity = int(action.get("selected_maturity", action.get("maturity_idx", fallback["selected_maturity"])))
     except Exception:
@@ -207,9 +216,18 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
     except Exception:
         quantity = float(fallback["quantity"])
         
-    # Patch RL Loophole: Model learned to output buy/sell with 0 quantity to avoid risk
+    # Patch RL Hack #1: Model outputs buy/sell with 0 quantity to avoid risk
     if direction in ["buy", "sell"] and quantity < 0.1:
         quantity = float(fallback["quantity"])
+
+    # Patch RL Hack #3: Enforce minimum quantity per archetype
+    if direction in ["buy", "sell"]:
+        if agent_index <= 2:    # Aggressive: large positions expected
+            quantity = max(0.5, quantity)
+        elif agent_index <= 5:  # Neutral: moderate
+            quantity = max(0.3, quantity)
+        else:                   # Contrarian: moderate
+            quantity = max(0.3, quantity)
         
     quantity = max(0.0, min(1.5, quantity))
     if direction == "hold":
@@ -461,7 +479,25 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             p_ov += "\nNOTE: Only fine if manipulation is OBVIOUS. Over-regulation is penalized. If unsure, return confidence 0.0 and no fine."
             
             ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120, temperature=0.20)[0]
-            actions["oversight"] = parse_llm_output(ov_output, "oversight") or scripted_oversight()
+            ov_action = parse_llm_output(ov_output, "oversight") or scripted_oversight()
+
+            # Patch RL Hack #4: Oversight always-flag exploit
+            # Model learned to flag everyone as "collusion" every step.
+            # Remove traders who are holding — can't collude if not trading.
+            if isinstance(ov_action.get("flagged_agents"), list):
+                active_traders = {
+                    aid for aid in actions
+                    if aid.startswith("trader") and actions[aid].get("direction") in ("buy", "sell")
+                }
+                ov_action["flagged_agents"] = [
+                    a for a in ov_action["flagged_agents"] if a in active_traders
+                ]
+                # If no one left to flag, downgrade to no intervention
+                if not ov_action["flagged_agents"]:
+                    ov_action["intervention_type"] = "none"
+                    ov_action["fine_amount"] = 0.0
+
+            actions["oversight"] = ov_action
 
         else:
             for i in range(9):
