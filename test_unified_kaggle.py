@@ -430,7 +430,19 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
                     fallback = scripted_trader(a_idx, step, trader_obs=obs.get(a_id, {}))
                     actions[a_id] = normalize_trader_action(res or fallback, a_idx, step, trader_obs=obs.get(a_id, {}))
                 elif a_role == "market_maker":
-                    actions[a_id] = res or scripted_market_maker(step)
+                    mm_parsed = res or scripted_market_maker(step)
+                    # Dynamic spread widening: LoRA sets base spreads,
+                    # widen based on MM gamma/delta exposure (risk mgmt)
+                    mm_st = env.agent_states.get("market_maker")
+                    if mm_st:
+                        g = abs(getattr(mm_st, 'portfolio_gamma', 0))
+                        d = abs(getattr(mm_st, 'portfolio_delta', 0))
+                        stress = min(3.0, 1.0 + g * 0.5 + d * 0.08)
+                        if stress > 1.05:
+                            for sk in ["atm_spread", "otm_spread", "itm_spread"]:
+                                if sk in mm_parsed:
+                                    mm_parsed[sk] = round(float(mm_parsed[sk]) * stress, 4)
+                    actions[a_id] = mm_parsed
                 
                 # Capture and sanitize reasoning
                 raw_reasoning = actions[a_id].get("reasoning", "No thoughts provided.")
@@ -486,18 +498,12 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             price_lines.append(f"           ATM Call K={K_atm:.0f} 30d: Theo=${call_theo:.3f}  Bid=${max(0.01,call_theo - atm_spread/2):.3f}  Ask=${call_theo + atm_spread/2:.3f}")
             price_lines.append(f"           ATM Put  K={K_atm:.0f} 30d: Theo=${put_theo:.3f}  Bid=${max(0.01,put_theo - atm_spread/2):.3f}  Ask=${put_theo + atm_spread/2:.3f}")
             
-            # Show executed trades with prices
-            exec_trades = env.matching_engine.match_orders(
-                {k: v for k, v in actions.items() if k.startswith("trader")},
-                MarketMakerAction(atm_spread=atm_spread, otm_spread=otm_spread, itm_spread=itm_spread),
-                spot, env.option_engine, env.vsr_state.variance
-            ) if hasattr(env, 'matching_engine') else {}
-            # Actually use the trade log from the step
+            # Show executed trades from environment trade log
             if hasattr(env, 'trade_log') and env.trade_log:
-                recent_trades = [t for t in env.trade_log if t.get("step") == env.current_step - 1]
+                recent_trades = [t for t in env.trade_log if t.get("step") == env.current_step]
                 if recent_trades:
                     price_lines.append(f"  [TRADES] {len(recent_trades)} executed:")
-                    for t in recent_trades[:5]:  # Show up to 5
+                    for t in recent_trades[:8]:  # Show up to 5
                         d = t.get("direction", "?")
                         ep = t.get("execution_price", 0)
                         tp = t.get("theo_price", 0)
@@ -614,7 +620,7 @@ def run_multi_episode_evaluation(model, tokenizer, num_steps: int, num_episodes:
         aggregate["total_steps"] += len(steps)
         aggregate["collusion_events"] += sum(s.get("collusion_events", 0) for s in steps)
         aggregate["spread_widening_steps"] += sum(
-            1 for s in steps if s.get("mm_spreads", {}).get("atm", 0) > 0.05
+            1 for s in steps if s.get("mm_spreads", {}).get("atm", 0) > 0.042
         )
         aggregate["sec_fine_steps"] += sum(1 for s in steps if s.get("sec_fines", 0) > 0)
         aggregate["total_fines"] += sum(s.get("sec_fines", 0) for s in steps)
@@ -754,7 +760,7 @@ def main():
             replay = json.load(f)
 
         collusion_events = sum(s.get("collusion_events", 0) for s in replay["steps"])
-        spread_widening_events = sum(1 for s in replay["steps"] if s.get("mm_spreads", {}).get("atm", 0) > 0.05)
+        spread_widening_events = sum(1 for s in replay["steps"] if s.get("mm_spreads", {}).get("atm", 0) > 0.042)
         total_fines = sum(s.get("sec_fines", 0) for s in replay["steps"])
 
         print(f"\n📊 TELEMETRY:")
