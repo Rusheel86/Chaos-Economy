@@ -841,6 +841,22 @@ def train_unified_model(args):
                 # MONOTONY PENALTY: penalize repeating the SAME action for too long
                 # (applies to ALL directions — hold, buy, or sell streaks)
                 div_score += monotony_penalty
+
+                # Anti-hack #5: WASH-TRADING PENALTY
+                # Penalize alternating buy↔sell pattern (buy,sell,buy,sell...)
+                # This is detected by ManipulationDetector and leads to fines,
+                # so teach the model to avoid it during training.
+                wash_trade_penalty = 0.0
+                if is_active and len(history) >= 3:
+                    # Check for alternating pattern in last 4 actions
+                    recent = history[-4:] if len(history) >= 4 else history
+                    alternating = True
+                    for i in range(1, len(recent)):
+                        if recent[i] == recent[i-1] or recent[i] == "hold":
+                            alternating = False
+                            break
+                    if alternating and len(recent) >= 3:
+                        wash_trade_penalty = -0.8  # strong: wash trading = manipulation detection + fines
                 
                 # Anti-herding: penalize following the crowd — ALL archetypes
                 if is_active:
@@ -864,7 +880,7 @@ def train_unified_model(args):
                         elif my_direction == "buy" and sell_count / total_traders > 0.66:
                             div_score += 0.3
                 
-                comp["diversity"] = div_score
+                comp["diversity"] = div_score + wash_trade_penalty
 
             elif role == "market_maker":
                 mm_reward = r.get("market_maker", 0)
@@ -932,6 +948,18 @@ def train_unified_model(args):
                     else:
                         comp["oversight"] = ((true_positives * 1.5 - false_positives * 1.0) * sec_weight
                                             + inactive_flag_penalty)
+
+                    # Anti-hack #6: Penalize SEC over-intervention
+                    # Model learned to always issue max fines + halts for easy reward.
+                    # Teach measured enforcement during training.
+                    fine_amt = action.get("fine_amount", 0)
+                    if fine_amt > 5000:
+                        comp["oversight"] -= 0.5  # excessive fines are counterproductive
+                    if action.get("intervention_type") == "halt":
+                        comp["oversight"] -= 0.3  # halts are too aggressive; prefer warnings/fines
+                    # Bonus for proportional response
+                    if action.get("intervention_type") in ("warning", "none") and len(flagged) <= 2:
+                        comp["oversight"] += 0.2  # reward restraint
 
             # Bound values tightly and scale moderately
             for k in comp:
