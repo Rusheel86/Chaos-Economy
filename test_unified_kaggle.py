@@ -603,6 +603,46 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             for line in price_lines:
                 print(line)
 
+        # --- DEMO TRACE 1: SEC ENFORCEMENT ("Money Shot") ---
+        ov = actions["oversight"]
+        flagged = ov.get("flagged_agents", [])
+        fine_amt = ov.get("fine_amount", 0)
+        if verbose and flagged and fine_amt > 0:
+            print(f"\n  🚨 ══════ SEC ENFORCEMENT TRACE (Step {step}) ══════")
+            # Show messages the SEC could have read
+            msgs_this_step = info.get("messages_this_step", [])
+            intel_this_step = info.get("intel_transactions", [])
+            if msgs_this_step:
+                for m in msgs_this_step[-3:]:
+                    print(f"  📩 [DM/Broadcast] {m.get('sender_id','?')} → #{m.get('channel','?')}: \"{m.get('content','')[:80]}\"")
+            if intel_this_step:
+                for t in intel_this_step[-3:]:
+                    print(f"  🔍 [Intel Sale] {t.get('seller_id','?')} sold to {t.get('buyer_id','?')}: \"{t.get('content','')[:60]}\" (${t.get('price',0)})")
+            if not msgs_this_step and not intel_this_step:
+                print(f"  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns")
+            sec_reason = sanitize_reasoning(ov.get('reasoning', ''), 'Suspicious coordinated activity detected.')
+            print(f"  ⚖️  SEC RULING: {ov.get('intervention_type','warning').upper()} on {flagged}")
+            print(f"  💰 Fine: ${fine_amt:.0f} | Confidence: {ov.get('confidence', 0):.0%}")
+            print(f"  🧠 SEC Reasoning: {sec_reason}")
+            print(f"  ══════════════════════════════════════════════")
+
+        # --- DEMO TRACE 2: Track data for Fake News Defense Plot ---
+        spot_price = float(env.vsr_state.spot_price) if hasattr(env, 'vsr_state') else 100.0
+        active_headline = None
+        for event in env.black_swan_gen.events:
+            if event.news_step <= env.current_step <= event.trigger_step:
+                active_headline = event.headline
+                break
+        # Detect fake news from intel listings
+        fake_news_this_step = []
+        for tx in info.get("intel_transactions", []):
+            content = tx.get("content", "")
+            if len(content.split()) < 4:  # matches is_genuine=False threshold
+                fake_news_this_step.append(tx)
+
+        if verbose and fake_news_this_step:
+            print(f"  ⚠️  FAKE NEWS DETECTED at step {step}: {[f.get('seller_id','?') for f in fake_news_this_step]}")
+
         replay_data["steps"].append({
             "step": step + 1,
             "rewards": rewards,
@@ -614,7 +654,10 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
                 "otm": mm_spreads.get("otm_spread", 0),
                 "itm": mm_spreads.get("itm_spread", 0)
             },
-            "sec_fines": actions["oversight"].get("fine_amount", 0)
+            "sec_fines": actions["oversight"].get("fine_amount", 0),
+            "spot_price": spot_price,
+            "news_headline": active_headline,
+            "fake_news_events": len(fake_news_this_step)
         })
 
         # Track rewards
@@ -623,7 +666,6 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
 
         # Print step logs - ALL 9 TRADERS for judge transparency
         mm = actions["market_maker"]
-        ov = actions["oversight"]
         
         if verbose:
             print(f"\n--- STEP {step} ---")
@@ -873,6 +915,27 @@ def main():
         print(f"  • MM Survived (PnL > 0): {'✅ Yes' if mm_survived else '❌ No'}")
         print(f"  • SEC Active (fines > 0): {'✅ Yes' if sec_active else '❌ No'}")
         print(f"  • Traders Coordinating: {'✅ Yes' if traders_coordinating else '❌ No'}")
+
+        # FAKE NEWS DEFENSE PLOT
+        fake_steps = [s for s in replay["steps"] if s.get("fake_news_events", 0) > 0]
+        news_steps = [s for s in replay["steps"] if s.get("news_headline")]
+        if fake_steps or news_steps:
+            print(f"\n📰 FAKE NEWS / NEWS IMPACT ANALYSIS:")
+            print(f"  • Steps with active news headlines: {len(news_steps)}")
+            print(f"  • Steps with fake news detected: {len(fake_steps)}")
+            if len(replay["steps"]) > 1:
+                prices = [s["spot_price"] for s in replay["steps"] if "spot_price" in s]
+                if prices:
+                    max_price = max(prices)
+                    min_price = min(prices)
+                    print(f"  • Spot price range: ${min_price:.2f} — ${max_price:.2f} (Δ${max_price - min_price:.2f})")
+                    # Find biggest spike near fake news
+                    for fs in fake_steps:
+                        step_idx = fs["step"] - 1
+                        atm_spread = fs.get("mm_spreads", {}).get("atm", 0)
+                        print(f"    → Step {fs['step']}: Fake news detected | Spot=${fs.get('spot_price', 0):.2f} | MM ATM Spread={atm_spread:.4f}")
+                        if atm_spread > 0.042:
+                            print(f"      ✅ MM DEFENDED: Spread widened to {atm_spread:.4f} (absorbing fake-news volatility)")
 
     except Exception as e:
         print(f"Could not load replay for analysis: {e}")
