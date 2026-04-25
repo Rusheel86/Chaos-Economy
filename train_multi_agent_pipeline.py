@@ -855,6 +855,13 @@ def train_unified_model(args):
                 results.append(comp)
                 continue
 
+            # Compute active_event ONCE for both trader and oversight branches
+            active_event = None
+            for event in env.black_swan_gen.events:
+                if event.news_step <= env.current_step <= event.trigger_step:
+                    active_event = event
+                    break
+
             if role == "trader":
                 weights = TRADER_CONFIGS[archetype]["reward_weight"]
                 final_state = env.agent_states[agent_id]
@@ -996,11 +1003,7 @@ def train_unified_model(args):
                 
                 # News Alpha & Fake News signals
                 news_alpha_reward = 0.0
-                active_event = None
-                for event in env.black_swan_gen.events:
-                    if event.news_step <= env.current_step <= event.trigger_step:
-                        active_event = event
-                        break
+                # active_event already computed above before role branching
                 
                 if active_event and is_active:
                     # [H3 FIX] Correct direction+option_type logic
