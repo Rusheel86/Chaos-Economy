@@ -9,9 +9,9 @@ else
 fi
 
 # Set episodes and steps
-NUM_EPISODES=8
+NUM_EPISODES=16
 EPISODE_LENGTH=50
-MAX_STEPS=$((NUM_EPISODES * EPISODE_LENGTH))
+MAX_STEPS=250
 
 echo "🚀 Starting Training (8 episodes, $MAX_STEPS steps)..."
 # Train the multi-agent system and tee output to a log file
