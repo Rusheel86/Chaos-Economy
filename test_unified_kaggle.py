@@ -500,9 +500,8 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             p_ov = format_oversight_prompt(obs["oversight"], heat_map, coordinated_pressure, agent_thoughts)
             
             # PROMPT INJECTION for leniency:
-            p_ov += "\nNOTE: Only fine if manipulation is OBVIOUS. Over-regulation is penalized. If unsure, return confidence 0.0 and no fine."
             
-            ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120, temperature=0.20)[0]
+            ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120, temperature=0.40)[0]
             ov_action = parse_llm_output(ov_output, "oversight") or scripted_oversight()
 
             # Patch RL Hack #4: Oversight always-flag exploit
@@ -529,7 +528,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             if ov_action.get("intervention_type") == "halt":
                 ov_action["intervention_type"] = "warning"
             # Confidence gate: only enforce if model is actually confident
-            if ov_action.get("confidence", 0) < 0.5:
+            if ov_action.get("confidence", 0) < 0.2:
                 ov_action["intervention_type"] = "none"
                 ov_action["fine_amount"] = 0.0
                 ov_action["flagged_agents"] = []
