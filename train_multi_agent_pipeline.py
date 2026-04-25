@@ -1181,7 +1181,7 @@ def train_unified_model(args):
         max_steps=args.max_steps,
         per_device_train_batch_size=2,
         num_generations=4,
-        max_completion_length=256,
+        max_completion_length=512,
         logging_steps=5,
         save_steps=100,
         save_total_limit=2,
