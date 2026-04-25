@@ -9,10 +9,13 @@ from multi_agent.manipulation_detector import ManipulationDetector
 from multi_agent.order_matching import OrderMatchingEngine
 from multi_agent.config import NUM_TRADERS, EPISODE_LENGTH, INITIAL_CASH
 
-from vsr_env.engine.market_sim import advance_market
+from vsr_env.engine.market_sim import advance_market, apply_black_swan
 from vsr_env.engine.option_chain import OptionChainEngine
 from vsr_env.models import VSRState
 from vsr_env.engine.portfolio import add_position, update_positions_on_market_move
+from multi_agent.black_swan import BlackSwanGenerator
+from multi_agent.news_marketplace import NewsMarketplace
+from multi_agent.messaging import MessageChannel
 
 class MultiAgentVSREnvironment:
     AGENT_IDS = [f"trader_{i}" for i in range(NUM_TRADERS)] + ["market_maker", "oversight"]
@@ -32,6 +35,9 @@ class MultiAgentVSREnvironment:
         # Phase tracking for narrative arc
         self.training_phase = "oversight"  # Options: slaughter, adaptation, collusion, oversight
         self.total_fines_redistributed = 0.0
+        self.black_swan_gen = None
+        self.marketplace = None
+        self.messaging = None
 
     def reset(self, seed: int = 42) -> Dict[str, MultiAgentObservation]:
         """Reset the environment."""
@@ -64,6 +70,11 @@ class MultiAgentVSREnvironment:
         self.agent_states["oversight"] = AgentState(agent_id="oversight", role=AgentRole.OVERSIGHT, cash_balance=0.0)
 
         self.mm_last_spreads = {"atm": 0.02, "otm": 0.04, "itm": 0.03}
+        
+        # Initialize sub-systems
+        self.black_swan_gen = BlackSwanGenerator(self.rng, EPISODE_LENGTH)
+        self.marketplace = NewsMarketplace(self.rng)
+        self.messaging = MessageChannel()
 
         return self._get_observations()
 
@@ -117,6 +128,33 @@ class MultiAgentVSREnvironment:
         obs["oversight"].market_state_summary = market_summary
         obs["oversight"].recent_interventions = self.intervention_log[-20:]
 
+        # Handle News, Messaging, and Intel
+        active_headline = None
+        for event in self.black_swan_gen.events:
+            if event.news_step <= self.current_step < event.trigger_step:
+                active_headline = event.headline
+                break
+                
+        private_intel_dict = defaultdict(list)
+        for t in self.marketplace.transaction_log:
+            if t["step"] == self.current_step:
+                private_intel_dict[t["buyer_id"]].append(t)
+                
+        available_listings = {}
+        for agent_id in obs:
+            if agent_id.startswith("trader"):
+                available_listings[agent_id] = self.marketplace.get_available_listings(agent_id, current_step=self.current_step)
+
+        for agent_id, ob in obs.items():
+            if agent_id.startswith("trader") or agent_id == "oversight":
+                ob.news_headline = active_headline
+            if agent_id.startswith("trader"):
+                ob.private_intel = private_intel_dict[agent_id]
+                ob.inbox = self.messaging.get_inbox(agent_id, self.current_step)
+                
+                # Add listings to market_stats for convenience
+                # We do this later in the market_stats block.
+
         # Add enhanced market stats to ALL trader observations
         strike_volume = defaultdict(float)
         for t in self.trade_log[-25:]:
@@ -128,6 +166,7 @@ class MultiAgentVSREnvironment:
                     "strike_volume": dict(sorted(strike_volume.items())),
                     "total_fines_issued": self.total_fines_redistributed,
                     "training_phase": self.training_phase,
+                    "available_intel_listings": available_listings.get(agent_id, [])
                 }
 
         return obs
@@ -230,6 +269,37 @@ class MultiAgentVSREnvironment:
         else:
             oversight_action = OversightAction()
             
+        # Handle messaging and intel actions first
+        for agent_id, action in trader_actions.items():
+            if action.get("sell_intel"):
+                intel = action["sell_intel"]
+                self.marketplace.post_listing(
+                    seller_id=agent_id, 
+                    price=intel.get("price", 50.0), 
+                    content=intel.get("content", ""), 
+                    target=intel.get("target", "all"),
+                    current_step=self.current_step
+                )
+            if action.get("buy_intel"):
+                self.marketplace.buy_intel(
+                    buyer_id=agent_id,
+                    listing_id=action["buy_intel"],
+                    agent_states=self.agent_states,
+                    step=self.current_step
+                )
+            if action.get("send_message"):
+                msg = action["send_message"]
+                target = msg.get("to", "all")
+                text = msg.get("message", "")
+                if target == "all":
+                    self.messaging.broadcast(agent_id, text, self.current_step)
+                elif target.startswith("group"):
+                    self.messaging.send_group(agent_id, target, text, self.current_step)
+                elif target.startswith("trader"):
+                    self.messaging.send_dm(agent_id, target, text, self.current_step)
+            # Create group? Trader action doesn't have it explicitly right now,
+            # but maybe we can add it later if needed.
+            
         # 2. Trader orders + Matching
         executed_trades = self.matching_engine.match_orders(
             trader_actions, mm_action, self.vsr_state.spot_price, self.option_engine, self.vsr_state.variance
@@ -289,6 +359,10 @@ class MultiAgentVSREnvironment:
         # 3. Market advance
         advance_market(self.vsr_state, self.rng)
         
+        for event in self.black_swan_gen.events:
+            if event.trigger_step == self.current_step:
+                apply_black_swan(self.vsr_state, event.spot_impact, event.variance_impact)
+        
         # 5. Greeks/PnL Update 
         # Update Greeks/PnL for ALL agents after market advance
         for agent_id, state in self.agent_states.items():
@@ -308,8 +382,22 @@ class MultiAgentVSREnvironment:
         pre_stability_score = self._build_market_state_summary()["market_stability_score"]
 
         # 4. Oversight labels and enforcement
+        active_event = None
+        for event in self.black_swan_gen.events:
+            if event.news_step <= self.current_step <= event.trigger_step:
+                active_event = event
+                break
+                
+        env_info = {
+            "current_step": self.current_step,
+            "active_event": active_event,
+            "intel_transactions": [t for t in self.marketplace.transaction_log if t["step"] == self.current_step],
+            "messages_recent": [m for m in self.messaging.message_log if m["step"] >= self.current_step - 2],
+            "channel_members": self.messaging.channels
+        }
+
         ground_truth = {
-            aid: self.manipulation_detector.detect_manipulation(self.agent_states[aid], step_trades)
+            aid: self.manipulation_detector.detect_manipulation(self.agent_states[aid], step_trades, env_info)
             for aid in trader_actions
         }
 
@@ -375,6 +463,8 @@ class MultiAgentVSREnvironment:
             "agent_risk_summary": risk_summary,
             "market_state_summary": market_summary,
             "recent_interventions": observations["oversight"].recent_interventions or [],
+            "messages_this_step": [m for m in self.messaging.message_log if m["step"] == self.current_step],
+            "intel_transactions": [t for t in self.marketplace.transaction_log if t["step"] == self.current_step]
         }
 
         return observations, rewards, done, info

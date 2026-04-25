@@ -94,6 +94,19 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
 - Cash: ${obs.own_cash:.0f}
 """
 
+    if obs.news_headline:
+        base += f"\n## BREAKING NEWS\n{obs.news_headline}\n"
+
+    intel = obs.market_stats.get("available_intel_listings", []) if obs.market_stats else []
+    if intel or obs.inbox or obs.private_intel:
+        base += "\n## Intel Marketplace & Comms\n"
+        if intel:
+            base += f"Available intel for purchase: {json.dumps(intel)}\n"
+        if obs.private_intel:
+            base += f"Your purchased intel: {json.dumps(obs.private_intel)}\n"
+        if obs.inbox:
+            base += f"Your inbox: {json.dumps(obs.inbox)}\n"
+
     if trader_type == "aggressive":
         base += """
 ## Strategy: AGGRESSIVE MOMENTUM
@@ -133,6 +146,12 @@ Return ONLY a JSON object on a single line. No extra text.
 - quantity: a number >= 0.3 (minimum trade size). Do NOT output 0.
 - selected_maturity: 0 (short), 1 (medium), or 2 (long) — vary based on conviction
 - reasoning: Complete sentence explaining your decision. Must be UNIQUE each step.
+
+Optional fields:
+- sell_intel: {{"content": "...", "price": 50.0, "target": "all" | "trader_X"}}
+- buy_intel: "listing_id"
+- send_message: {{"to": "trader_X" | "group_Y" | "all", "message": "..."}}
+
 - Example: {{"selected_strike": {ex_strike}, "selected_maturity": {ex_maturity}, "direction": "{ex_dir}", "quantity": 0.5, "option_type": "{ex_type}", "reasoning": "Targeting OTM gamma as spot nears resistance levels."}}
 """
     return base
@@ -158,8 +177,9 @@ def get_training_phase(episode: int, total_episodes: int = 250) -> str:
         return "oversight"
 
 
-def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: dict, agent_thoughts: dict = None, phase: str = "oversight") -> str:
+def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: dict, agent_thoughts: dict = None, phase: str = "oversight", env_info: dict = None) -> str:
     """Format prompt for oversight agent with Theory of Mind."""
+    if env_info is None: env_info = {}
     # Phase-specific SEC behavior
     sec_instruction = ""
     if phase == "slaughter":
@@ -171,6 +191,10 @@ def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: d
     else:
         sec_instruction = "NOTE: Full enforcement mode. Issue appropriate fines for confirmed manipulation."
 
+    # [D4 FIX] Strip is_genuine from intel transactions to prevent trivial detection
+    safe_intel_txns = json.dumps([{k: v for k, v in t.items() if k != "is_genuine"}
+                                  for t in env_info.get("intel_transactions", [])])
+
     return f"""You are the SEC surveillance AI monitoring a multi-agent options market.
 
 ## Mission
@@ -179,9 +203,12 @@ Detect MARKET MANIPULATION. You now have access to traders' "PRIVATE THOUGHTS" (
 2. **Wash Trading**: High volume with no net change in position.
 3. **Spoofing**: Placing large orders to move price and then canceling or immediate reversal.
 4. **Gamma Pressure**: Concentrated delta/gamma exposure that destabilizes the market.
+5. **News Front-Running**: Large trades right after news, before shock.
+6. **Fake News**: Agent sold fake intel, profited while buyers lost.
+7. **Message Collusion**: Coordinated trades following group messages.
 
 ## Valid Categories (MANDATORY)
-- flag_type: "wash_trading", "spoofing_like_pressure", "gamma_pressure", "systemic_risk", "collusion", "none"
+- flag_type: "wash_trading", "spoofing_like_pressure", "gamma_pressure", "systemic_risk", "collusion", "news_front_running", "fake_news", "message_collusion", "none"
 - intervention_type: "fine", "halt", "none"
 
 ## Strategic Guidance
@@ -196,6 +223,9 @@ Detect MARKET MANIPULATION. You now have access to traders' "PRIVATE THOUGHTS" (
 - Coordinated Pressure: {json.dumps(coordinated_pressure)}
 - All Agent PnLs: {json.dumps(obs.all_agent_pnls)}
 - Recent Trades: {json.dumps(obs.trade_log[-12:] if obs.trade_log else [])}
+- Message Log (Subpoenaed): {json.dumps(env_info.get("messages_recent", []))}
+- Intel Transactions: {safe_intel_txns}
+- Active News: {json.dumps(env_info.get("active_event").headline) if env_info.get("active_event") else "None"}
 
 ## Response Format
 Return ONLY a JSON object on a single line. No extra text.
@@ -655,8 +685,23 @@ def train_unified_model(args):
 
         # 3. Add Oversight (with phase-specific instructions)
         heatmap = get_position_heatmap(env.agent_states)
+        
+        active_event = None
+        for event in env.black_swan_gen.events:
+            if event.news_step <= env.current_step <= event.trigger_step:
+                active_event = event
+                break
+                
+        env_info = {
+            "current_step": env.current_step,
+            "active_event": active_event,
+            "intel_transactions": [t for t in env.marketplace.transaction_log if t["step"] == env.current_step],
+            "messages_recent": [m for m in env.messaging.message_log if m["step"] >= env.current_step - 2],
+            "channel_members": env.messaging.channels
+        }
+        
         prompts.append({
-            "prompt": clip_prompt(format_oversight_prompt(obs["oversight"], heatmap, pressure, agent_thoughts=None, phase=phase)),
+            "prompt": clip_prompt(format_oversight_prompt(obs["oversight"], heatmap, pressure, agent_thoughts=None, phase=phase, env_info=env_info)),
             "seed": seed, "agent_role": "oversight", "agent_id": "oversight", "archetype": "none", "ff_steps": ff_steps,
             "phase": phase, "sec_weight": phase_config["sec_weight"]
         })
@@ -732,7 +777,8 @@ def train_unified_model(args):
                 "pnl": 0.0,
                 "risk": 0.0,
                 "diversity": 0.0,
-                "oversight": 0.0
+                "oversight": 0.0,
+                "news_alpha": 0.0
             }
 
             if not parse_info.get("valid", False):
@@ -947,6 +993,53 @@ def train_unified_model(args):
                         elif my_direction == "buy" and sell_count / total_traders > 0.66:
                             div_score += 0.3
                 
+                
+                # News Alpha & Fake News signals
+                news_alpha_reward = 0.0
+                active_event = None
+                for event in env.black_swan_gen.events:
+                    if event.news_step <= step <= event.trigger_step:
+                        active_event = event
+                        break
+                
+                if active_event and is_active:
+                    # [H3 FIX] Correct direction+option_type logic
+                    if active_event.spot_impact < 1.0:  # BEARISH event
+                        # Correct bearish: buy put or sell call
+                        if (my_direction == "buy" and opt_type == "put") or (my_direction == "sell" and opt_type == "call"):
+                            news_alpha_reward += 0.5
+                        # Wrong bearish: buy call or sell put
+                        elif (my_direction == "buy" and opt_type == "call") or (my_direction == "sell" and opt_type == "put"):
+                            news_alpha_reward -= 0.5
+                    elif active_event.spot_impact > 1.0:  # BULLISH event
+                        # Correct bullish: buy call or sell put
+                        if (my_direction == "buy" and opt_type == "call") or (my_direction == "sell" and opt_type == "put"):
+                            news_alpha_reward += 0.5
+                        # Wrong bullish: buy put or sell call
+                        elif (my_direction == "buy" and opt_type == "put") or (my_direction == "sell" and opt_type == "call"):
+                            news_alpha_reward -= 0.5
+                elif active_event and not is_active:
+                    # [M3 FIX] Mild penalty for ignoring breaking news
+                    news_alpha_reward -= 0.1
+
+                if action.get("buy_intel"):
+                    intel_tx = [t for t in env.marketplace.transaction_log if t["step"] == step and t["buyer_id"] == agent_id]
+                    for t in intel_tx:
+                        if not t.get("is_genuine", True):
+                            news_alpha_reward -= 0.3
+                        else:
+                            news_alpha_reward += 0.1
+
+                # [H1 FIX] Only reward sell_intel if someone actually bought it
+                if action.get("sell_intel"):
+                    sold = [t for t in env.marketplace.transaction_log
+                            if t["step"] == step and t["seller_id"] == agent_id]
+                    if sold:
+                        news_alpha_reward += 0.1
+                    else:
+                        news_alpha_reward -= 0.05  # spam penalty
+
+                comp["news_alpha"] = news_alpha_reward
                 comp["diversity"] = div_score + wash_trade_penalty
 
             elif role == "market_maker":
@@ -986,10 +1079,37 @@ def train_unified_model(args):
                     else:
                         comp["oversight"] = 0.2
                 else:
-                    coordinated = detect_coordinated_pressure(env.agent_states)
+                    # [H4 FIX] Use full ManipulationDetector for ground truth,
+                    # not just detect_coordinated_pressure() which misses
+                    # news_front_running, fake_news, message_collusion
+                    from multi_agent.manipulation_detector import ManipulationDetector
+                    _detector = ManipulationDetector()
+                    
+                    # Build env_info for detector (same as environment.py does)
+                    _detect_env_info = {
+                        "current_step": step,
+                        "active_event": active_event,
+                        "intel_transactions": [t for t in env.marketplace.transaction_log if t["step"] == step],
+                        "messages_recent": [m for m in env.messaging.message_log if m["step"] >= step - 2],
+                        "channel_members": env.messaging.channels
+                    }
+                    
+                    # Get step trades for detection
+                    _step_trades = []
+                    for tid, tact in actions.items():
+                        if tid.startswith("trader") and isinstance(tact, dict):
+                            t_dir = tact.get("direction", "hold")
+                            t_qty = tact.get("quantity", 0)
+                            if t_dir in ("buy", "sell") and t_qty > 0:
+                                _step_trades.append({"agent_id": tid, "quantity": t_qty, "direction": t_dir,
+                                                     "selected_strike": tact.get("selected_strike", -1)})
+                    
                     actual_manipulators = set()
-                    for data in coordinated.values():
-                        actual_manipulators.update(data["agents"])
+                    for tid in [k for k in actions if k.startswith("trader")]:
+                        if tid in env.agent_states:
+                            label = _detector.detect_manipulation(env.agent_states[tid], _step_trades, _detect_env_info)
+                            if label != "none":
+                                actual_manipulators.add(tid)
 
                     flagged = set(action.get("flagged_agents", []))
 
@@ -1052,6 +1172,9 @@ def train_unified_model(args):
     def oversight_reward_fn(prompts, completions, **kwargs):
         return [r["oversight"] for r in _evaluate_all(prompts, completions, kwargs)]
 
+    def news_alpha_reward_fn(prompts, completions, **kwargs):
+        return [r["news_alpha"] for r in _evaluate_all(prompts, completions, kwargs)]
+
     training_args = GRPOConfig(
         output_dir=f"{args.output_dir}/unified_v1",
         num_train_epochs=args.num_epochs,
@@ -1106,7 +1229,8 @@ def train_unified_model(args):
             pnl_reward_fn,
             risk_reward_fn,
             diversity_reward_fn,
-            oversight_reward_fn
+            oversight_reward_fn,
+            news_alpha_reward_fn
         ],
         processing_class=tokenizer, train_dataset=dataset,
         callbacks=[best_cb]

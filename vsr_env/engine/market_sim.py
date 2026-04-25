@@ -35,8 +35,14 @@ def advance_market(
     dS = mu * state.spot_price * dt + sigma * state.spot_price * dW
     state.spot_price += dS
 
-    # Clamp spot price to realistic range
-    state.spot_price = np.clip(state.spot_price, 50.0, 150.0)
+    # [B5 FIX] Widen clamps during black swan to preserve shock impact
+    if state.regime == "black_swan":
+        state.spot_price = np.clip(state.spot_price, 10.0, 300.0)
+        # [B6 FIX] Decay black_swan regime after one step
+        state.regime = "high_vol"
+    else:
+        # Clamp spot price to realistic range
+        state.spot_price = np.clip(state.spot_price, 50.0, 150.0)
 
     # Mean-reverting variance dynamics (Ornstein-Uhlenbeck)
     # dV = θ*(var_mean - variance)*dt + var_vol*dW
@@ -49,7 +55,11 @@ def advance_market(
     state.variance += dV
 
     # Clamp variance to realistic range (10% to 40% vol)
-    state.variance = np.clip(state.variance, 0.01, 0.16)
+    # Widen during high_vol (post-black-swan recovery)
+    if state.regime == "high_vol":
+        state.variance = np.clip(state.variance, 0.001, 0.40)
+    else:
+        state.variance = np.clip(state.variance, 0.01, 0.16)
 
 
 def trigger_regime_shift(state: VSRState, rng: np.random.RandomState) -> None:
@@ -145,3 +155,19 @@ def inject_oscillation(
 
     # Clamp spot price to realistic range
     state.spot_price = np.clip(state.spot_price, 50.0, 150.0)
+
+def apply_black_swan(state: VSRState, spot_impact: float, variance_impact: float) -> None:
+    """Apply Black Swan event to market state.
+    
+    Args:
+        state: Current VSRState (modified in place)
+        spot_impact: Multiplier for spot price
+        variance_impact: Multiplier for variance
+    """
+    state.spot_price *= spot_impact
+    state.variance *= variance_impact
+    
+    # Wider clamps to allow massive shocks
+    state.spot_price = np.clip(state.spot_price, 10.0, 300.0)
+    state.variance = np.clip(state.variance, 0.001, 1.0)
+    state.regime = "black_swan"

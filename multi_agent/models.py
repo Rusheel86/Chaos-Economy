@@ -59,3 +59,8 @@ class MultiAgentObservation(BaseModel):
     recent_interventions: Optional[List[Dict[str, Any]]] = None
     # Trader-only enhanced market stats
     market_stats: Optional[Dict[str, Any]] = None
+    # News & Messaging fields
+    news_headline: Optional[str] = None        # Public breaking news (visible to ALL)
+    market_alert: Optional[str] = None         # "ELEVATED RISK" / "OPPORTUNITY" signal
+    private_intel: Optional[List[Dict[str, Any]]] = None # Private intel from marketplace
+    inbox: Optional[List[Dict[str, Any]]] = None         # Messages received this step

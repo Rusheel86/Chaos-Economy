@@ -138,6 +138,20 @@ class VSRAction(BaseModel):
         description="List of legs for multi-leg strategies",
     )
 
+    # News & Messaging fields
+    sell_intel: Optional[Dict] = Field(
+        None,
+        description="Sell intel: {'content': '...', 'price': 50.0, 'target': 'all'|'trader_3'}",
+    )
+    buy_intel: Optional[str] = Field(
+        None,
+        description="Listing ID to purchase intel",
+    )
+    send_message: Optional[Dict] = Field(
+        None,
+        description="Send message: {'to': 'trader_3'|'group_0'|'all', 'message': '...'}",
+    )
+
     # Reasoning (always required)
     reasoning: str = Field(
         "",

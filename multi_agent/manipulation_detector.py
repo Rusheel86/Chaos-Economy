@@ -93,8 +93,59 @@ class ManipulationDetector:
                 colluding_agents.extend(list(agents))
         return list(set(colluding_agents))
 
-    def detect_manipulation(self, agent_state: AgentState, step_trades: List[Dict]) -> str:
+    def check_news_front_running(self, agent_id: str, step_trades: List[Dict], env_info: Dict[str, Any]) -> bool:
+        """Detect if agent traded suspiciously right after news but before shock."""
+        active_event = env_info.get("active_event")
+        current_step = env_info.get("current_step")
+        if not active_event or current_step is None:
+            return False
+        if not (active_event.news_step <= current_step < active_event.trigger_step):
+            return False
+            
+        agent_trades = [t for t in step_trades if t.get("agent_id") == agent_id]
+        size_pressure = sum(float(t.get("quantity", 0.0)) for t in agent_trades)
+        
+        if size_pressure >= 5.0:
+            return True
+        return False
+
+    def check_fake_news_peddling(self, agent_id: str, env_info: Dict[str, Any]) -> bool:
+        """Detect if agent sold fake intel."""
+        intel_tx = env_info.get("intel_transactions", [])
+        for t in intel_tx:
+            if t["seller_id"] == agent_id and not t["is_genuine"]:
+                return True
+        return False
+
+    def check_message_collusion(self, agent_id: str, step_trades: List[Dict], env_info: Dict[str, Any]) -> bool:
+        """Detect coordinated trading following group messages.
+        
+        [M2 FIX] Only flag if agent SENT messages (active coordination),
+        not just received (passive victim of spam).
+        """
+        messages = env_info.get("messages_recent", [])
+        agent_trades = [t for t in step_trades if t.get("agent_id") == agent_id]
+        if not agent_trades: return False
+        
+        # Check if agent actively participated in messaging (sent OR received)
+        sent_messages = any(m["sender"] == agent_id for m in messages)
+        received_inbox = False
+        for m in messages:
+            if m["type"] == "dm" and m["recipient"] == agent_id:
+                received_inbox = True
+            elif m["type"] == "group" and agent_id in env_info.get("channel_members", {}).get(m["recipient"], []):
+                received_inbox = True
+                
+        # Only flag if agent both sent AND received (bidirectional coordination)
+        # OR if agent sent messages and then traded large
+        if (sent_messages and received_inbox) or sent_messages:
+            if sum(float(t.get("quantity", 0.0)) for t in agent_trades) >= 3.0:
+                return True
+        return False
+
+    def detect_manipulation(self, agent_state: AgentState, step_trades: List[Dict], env_info: Dict[str, Any] = None) -> str:
         """Return the type of harmful behavior detected, or 'none'."""
+        if env_info is None: env_info = {}
         agent_step_trades = [t for t in step_trades if t.get("agent_id") == agent_state.agent_id] or step_trades
         
         # Check specific agent behaviors
@@ -114,5 +165,14 @@ class ManipulationDetector:
         colluding = self.check_collusion(step_trades)
         if agent_state.agent_id in colluding:
             return "collusion"
+            
+        if self.check_news_front_running(agent_state.agent_id, step_trades, env_info):
+            return "news_front_running"
+            
+        if self.check_fake_news_peddling(agent_state.agent_id, env_info):
+            return "fake_news"
+            
+        if self.check_message_collusion(agent_state.agent_id, step_trades, env_info):
+            return "message_collusion"
             
         return "none"
