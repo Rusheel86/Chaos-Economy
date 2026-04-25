@@ -20,8 +20,9 @@ from multi_agent.messaging import MessageChannel
 class MultiAgentVSREnvironment:
     AGENT_IDS = [f"trader_{i}" for i in range(NUM_TRADERS)] + ["market_maker", "oversight"]
 
-    def __init__(self):
+    def __init__(self, episode_length: int = None):
         self.rng = None
+        self._episode_length = episode_length
         self.option_engine = OptionChainEngine()
         self.manipulation_detector = ManipulationDetector()
         self.matching_engine = OrderMatchingEngine()
@@ -72,7 +73,8 @@ class MultiAgentVSREnvironment:
         self.mm_last_spreads = {"atm": 0.02, "otm": 0.04, "itm": 0.03}
         
         # Initialize sub-systems
-        self.black_swan_gen = BlackSwanGenerator(self.rng, EPISODE_LENGTH)
+        env_len = self._episode_length if self._episode_length is not None else EPISODE_LENGTH
+        self.black_swan_gen = BlackSwanGenerator(self.rng, env_len)
         self.marketplace = NewsMarketplace(self.rng)
         self.messaging = MessageChannel()
 
