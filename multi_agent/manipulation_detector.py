@@ -89,7 +89,7 @@ class ManipulationDetector:
         
         colluding_agents = []
         for key, agents in strike_hits.items():
-            if len(agents) >= 3:
+            if len(agents) >= 2:
                 colluding_agents.extend(list(agents))
         return list(set(colluding_agents))
 

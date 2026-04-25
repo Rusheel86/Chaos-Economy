@@ -324,12 +324,15 @@ class MultiAgentVSREnvironment:
                 self.trade_log.append(step_trade)
 
                 # Cash flow: buyers pay premium, sellers receive premium
+                # Add market maker fee: $0.02 per contract executed
+                mm_fee = quantity * 0.02
+                
                 if trade["direction"] == "buy":
-                    self.agent_states[agent_id].cash_balance -= premium
-                    self.agent_states["market_maker"].cash_balance += premium
+                    self.agent_states[agent_id].cash_balance -= (premium + mm_fee)
+                    self.agent_states["market_maker"].cash_balance += (premium + mm_fee)
                 else:  # sell
-                    self.agent_states[agent_id].cash_balance += premium
-                    self.agent_states["market_maker"].cash_balance -= premium
+                    self.agent_states[agent_id].cash_balance += (premium - mm_fee)
+                    self.agent_states["market_maker"].cash_balance -= (premium - mm_fee)
 
                 # Trader position
                 add_position(
@@ -402,10 +405,11 @@ class MultiAgentVSREnvironment:
         }
 
         for flagged in oversight_action.flagged_agents:
+            gt_label = ground_truth.get(flagged, "none")
             if (
                 flagged in trader_actions
-                and oversight_action.flag_type == ground_truth.get(flagged, "none")
-                and oversight_action.flag_type != "none"
+                and gt_label != "none"  # agent IS actually manipulating
+                and oversight_action.flag_type != "none"  # SEC IS flagging something
             ):
                 # Cap actual applied fine to match PnL scale
                 applied_fine = min(oversight_action.fine_amount, 50.0)
@@ -435,8 +439,8 @@ class MultiAgentVSREnvironment:
 
         # 5. Rewards
         for aid in trader_actions:
-            rewards[aid] = calculate_trader_reward(self.agent_states[aid], prev_states[aid])
-            
+            direction = trader_actions[aid].get("direction", "hold") if aid in trader_actions else "hold"
+            rewards[aid] = calculate_trader_reward(self.agent_states[aid], prev_states[aid], aid, direction)
         rewards["market_maker"] = calculate_mm_reward(
             self.agent_states["market_maker"],
             prev_states["market_maker"],

@@ -199,14 +199,13 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
         strike = int(fallback["selected_strike"])
     strike = max(0, min(7, strike))
 
-    # Patch RL Hack #2: Strike diversification
-    # Model anchored to strike 4 via prompt example + coordination bonus.
-    # Aggressive traders (0-2) keep model's strike (they SHOULD collude).
-    # Neutral/Contrarian traders get index-based offsets for realistic diversity.
-    if agent_index >= 6:  # Contrarian: counter-pick away from the herd
-        strike = (strike + agent_index) % 8
-    elif agent_index >= 3:  # Neutral: slight spread
-        strike = (strike + agent_index) % 8
+    # Patch RL Hack #2: Strike diversification (softened)
+    # Light offset to prevent ALL agents piling on the prompt-example strike,
+    # but small enough that coordination across archetypes is still possible.
+    if agent_index >= 6:  # Contrarian: small counter-offset
+        strike = (strike + 2) % 8
+    elif agent_index >= 3:  # Neutral: minimal offset
+        strike = (strike + 1) % 8
 
     try:
         maturity = int(action.get("selected_maturity", action.get("maturity_idx", fallback["selected_maturity"])))
@@ -223,14 +222,14 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
     if direction in ["buy", "sell"] and quantity < 0.1:
         quantity = float(fallback["quantity"])
 
-    # Patch RL Hack #3: Enforce minimum quantity per archetype
+    # Patch RL Hack #3: Enforce minimum quantity per archetype (softened)
     if direction in ["buy", "sell"]:
-        if agent_index <= 2:    # Aggressive: meaningful but not reckless
-            quantity = max(0.4, min(quantity, 0.8))
-        elif agent_index <= 5:  # Neutral: moderate
-            quantity = max(0.3, min(quantity, 0.6))
+        if agent_index <= 2:    # Aggressive: allow model to express conviction
+            quantity = max(0.2, min(quantity, 1.0))
+        elif agent_index <= 5:  # Neutral: lower floor, wider range
+            quantity = max(0.15, min(quantity, 0.8))
         else:                   # Contrarian: moderate
-            quantity = max(0.3, min(quantity, 0.7))
+            quantity = max(0.15, min(quantity, 0.8))
         
     quantity = max(0.0, min(1.0, quantity))
     if direction == "hold":
@@ -250,7 +249,7 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
                     streak += 1
                 else:
                     break
-            if streak < 3:  # Must hold for at least 3 steps before flipping
+            if streak < 2:  # Must hold for at least 2 steps before flipping
                 direction = last_dir  # Force continuation
     history.append(direction)
     if len(history) > 8:
@@ -275,7 +274,7 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
 
 
 def count_collusion_events(actions: dict) -> int:
-    """Count how many traders are targeting the same strikes."""
+    """Count how many traders are targeting the same or adjacent strikes."""
     strike_counts = defaultdict(list)
     for agent_id, action in actions.items():
         if not agent_id.startswith("trader"):
@@ -285,10 +284,20 @@ def count_collusion_events(actions: dict) -> int:
             strike = action.get("strike_idx", action.get("selected_strike", -1))
             strike_counts[(strike, direction)].append(agent_id)
 
-    # Count events where 3+ traders target same strike with same direction
+    # Count events where 3+ traders target same or adjacent strikes with same direction
     collusion_count = 0
+    checked = set()
     for (strike, direction), agents in strike_counts.items():
-        if len(agents) >= 3 and strike >= 0:
+        if strike < 0 or (strike, direction) in checked:
+            continue
+        checked.add((strike, direction))
+        # Cluster: include agents on adjacent strikes (±1) with same direction
+        cluster = list(agents)
+        for adj in [strike - 1, strike + 1]:
+            if (adj, direction) in strike_counts:
+                cluster.extend(strike_counts[(adj, direction)])
+                checked.add((adj, direction))
+        if len(set(cluster)) >= 3:
             collusion_count += 1
     return collusion_count
 
@@ -500,9 +509,8 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             p_ov = format_oversight_prompt(obs["oversight"], heat_map, coordinated_pressure, agent_thoughts)
             
             # PROMPT INJECTION for leniency:
-            p_ov += "\nNOTE: Only fine if manipulation is OBVIOUS. Over-regulation is penalized. If unsure, return confidence 0.0 and no fine."
             
-            ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120, temperature=0.20)[0]
+            ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120, temperature=0.40)[0]
             ov_action = parse_llm_output(ov_output, "oversight") or scripted_oversight()
 
             # Patch RL Hack #4: Oversight always-flag exploit
@@ -529,7 +537,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             if ov_action.get("intervention_type") == "halt":
                 ov_action["intervention_type"] = "warning"
             # Confidence gate: only enforce if model is actually confident
-            if ov_action.get("confidence", 0) < 0.5:
+            if ov_action.get("confidence", 0) < 0.2:
                 ov_action["intervention_type"] = "none"
                 ov_action["fine_amount"] = 0.0
                 ov_action["flagged_agents"] = []
