@@ -24,23 +24,21 @@ class BlackSwanGenerator:
         # Divide episode into 100-step windows
         for window_start in range(0, episode_length, 100):
             window_end = min(window_start + 100, episode_length)
-            # [B1 FIX] Skip windows too small to safely place events
-            if window_end - window_start < 30:
-                continue
-            n_events = rng.choice([0, 1, 2], p=[0.3, 0.5, 0.2])
+            
+            # [B1 FIX] Support short episodes for fast training
+            n_events = rng.choice([0, 1, 2], p=[0.2, 0.6, 0.2])
             
             if n_events >= 1:
-                # First event: within first 60% of window, clamped to boundary
-                first_end = min(window_start + 60, window_end - 5)
-                if window_start + 15 < first_end:
-                    step1 = rng.randint(window_start + 15, first_end)
+                # First event: roughly middle of available window
+                if window_end - window_start > 10:
+                    step1 = rng.randint(window_start + 5, window_end - 5)
                     events.append(self._generate_event(rng, step1))
                 else:
-                    continue  # can't fit even one event
-            if n_events >= 2:
-                # Second event: within last 40%, min 25 steps from first
-                second_start = max(window_start + 65, step1 + 25)
-                second_end = window_end - 5
+                    continue
+            if n_events >= 2 and window_end - window_start > 25:
+                # Second event: later in window if long enough
+                second_start = max(window_start + 15, step1 + 10)
+                second_end = window_end - 2
                 if second_start < second_end:
                     step2 = rng.randint(second_start, second_end)
                     events.append(self._generate_event(rng, step2))

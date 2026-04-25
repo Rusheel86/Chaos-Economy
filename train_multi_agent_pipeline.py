@@ -167,11 +167,12 @@ def get_training_phase(episode: int, total_episodes: int = 250) -> str:
       Act III (Collusion): 52% – 80%
       Act IV (Oversight):  80% – 100%
     """
-    if episode < int(total_episodes * 0.24):
+    ratio = episode / max(1, total_episodes)
+    if ratio < 0.24:
         return "slaughter"
-    elif episode < int(total_episodes * 0.52):
+    elif ratio < 0.52:
         return "adaptation"
-    elif episode < int(total_episodes * 0.80):
+    elif ratio < 0.80:
         return "collusion"
     else:
         return "oversight"
