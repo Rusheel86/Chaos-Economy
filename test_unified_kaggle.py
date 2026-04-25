@@ -604,25 +604,37 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             for line in price_lines:
                 print(line)
 
-        # --- DEMO TRACE 1: SEC ENFORCEMENT ("Money Shot") ---
+        # --- DEMO TRACE 1: COMMS & SEC ENFORCEMENT ("Money Shot") ---
         ov = actions["oversight"]
         flagged = ov.get("flagged_agents", [])
         fine_amt = ov.get("fine_amount", 0)
-        if verbose and flagged and fine_amt > 0:
-            print(f"\n  🚨 ══════ SEC ENFORCEMENT TRACE (Step {step}) ══════")
-            # Show messages the SEC could have read
-            msgs_this_step = info.get("messages_this_step", [])
-            intel_this_step = info.get("intel_transactions", [])
+        msgs_this_step = info.get("messages_this_step", [])
+        intel_this_step = info.get("intel_transactions", [])
+        
+        # --- DEMO TRACE 2: Track data for Fake News Defense Plot ---
+        spot_price = float(env.vsr_state.spot_price) if hasattr(env, 'vsr_state') else 100.0
+        active_headline = None
+        for event in env.black_swan_gen.events:
+            if event.news_step <= env.current_step <= event.trigger_step:
+                active_headline = event.headline
+                if verbose and env.current_step == event.news_step:
+                    print(f"\n  🗞️  [BREAKING NEWS] {event.headline}")
+                break
+                
+        if verbose:
             if msgs_this_step:
-                for m in msgs_this_step[-3:]:
+                for m in msgs_this_step:
                     sender = m.get("sender", "?")
                     recipient = m.get("recipient", "?")
                     msg_type = m.get("type", "message")
                     content = m.get("message", "")
                     print(f"  📩 [{msg_type.upper()}] {sender} → {recipient}: \"{content[:80]}\"")
             if intel_this_step:
-                for t in intel_this_step[-3:]:
+                for t in intel_this_step:
                     print(f"  🔍 [Intel Sale] {t.get('seller_id','?')} sold to {t.get('buyer_id','?')}: \"{t.get('content','')[:60]}\" (${t.get('price',0)})")
+
+        if verbose and flagged and fine_amt > 0:
+            print(f"\n  🚨 ══════ SEC ENFORCEMENT TRACE (Step {step}) ══════")
             if not msgs_this_step and not intel_this_step:
                 print(f"  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns")
             sec_reason = sanitize_reasoning(ov.get('reasoning', ''), 'Suspicious coordinated activity detected.')
@@ -631,13 +643,6 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             print(f"  🧠 SEC Reasoning: {sec_reason}")
             print(f"  ══════════════════════════════════════════════")
 
-        # --- DEMO TRACE 2: Track data for Fake News Defense Plot ---
-        spot_price = float(env.vsr_state.spot_price) if hasattr(env, 'vsr_state') else 100.0
-        active_headline = None
-        for event in env.black_swan_gen.events:
-            if event.news_step <= env.current_step <= event.trigger_step:
-                active_headline = event.headline
-                break
         # Detect fake news from intel listings
         fake_news_this_step = []
         for tx in info.get("intel_transactions", []):
@@ -833,11 +838,11 @@ def main():
     print(f"{'Agent Type':<25} {'Trained LoRA':>15} {'Scripted Baseline':>20}")
     print("-"*65)
     
-    print(f"{'Aggressive (T0)':    <25} {rewards_lora['trader_0']:>15.3f} {rewards_baseline['trader_0']:>20.3f}")
-    print(f"{'Neutral (T1)':       <25} {rewards_lora['trader_1']:>15.3f} {rewards_baseline['trader_1']:>20.3f}")
-    print(f"{'Contrarian (T2)':    <25} {rewards_lora['trader_2']:>15.3f} {rewards_baseline['trader_2']:>20.3f}")
-    print(f"{'Market Maker':       <25} {rewards_lora['market_maker']:>15.3f} {rewards_baseline['market_maker']:>20.3f}")
-    print(f"{'Oversight SEC':      <25} {rewards_lora['oversight']:>15.3f} {rewards_baseline['oversight']:>20.3f}")
+    print(f"{'Aggressive (T0)':<25} {rewards_lora['trader_0']:>15.3f} {rewards_baseline['trader_0']:>20.3f}")
+    print(f"{'Neutral (T1)':<25} {rewards_lora['trader_1']:>15.3f} {rewards_baseline['trader_1']:>20.3f}")
+    print(f"{'Contrarian (T2)':<25} {rewards_lora['trader_2']:>15.3f} {rewards_baseline['trader_2']:>20.3f}")
+    print(f"{'Market Maker':<25} {rewards_lora['market_maker']:>15.3f} {rewards_baseline['market_maker']:>20.3f}")
+    print(f"{'Oversight SEC':<25} {rewards_lora['oversight']:>15.3f} {rewards_baseline['oversight']:>20.3f}")
     print(f"{'Scripted Bench (T3)':<25} {rewards_lora['trader_3']:>15.3f} {rewards_baseline['trader_3']:>20.3f}")
 
     print("\n" + "="*70)
