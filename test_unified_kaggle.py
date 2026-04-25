@@ -378,7 +378,7 @@ def query_llm_batch(prompts: list, model, tokenizer, device: str, max_tokens: in
 
 def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, seed: int = 42, verbose: bool = True):
     """Run episode and return cumulative rewards."""
-    env = MultiAgentVSREnvironment()
+    env = MultiAgentVSREnvironment(episode_length=num_steps)
     obs = env.reset(seed=seed)
     _prev_directions.clear()  # Reset wash-trading history for new episode
 
