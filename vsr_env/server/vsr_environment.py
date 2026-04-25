@@ -31,67 +31,8 @@ from vsr_env.engine.portfolio import (
     update_positions_on_market_move,
 )
 from vsr_env.reward.reward_computer import RewardComputer
-from vsr_env.tasks.delta_hedging import DeltaHedgingTask, DeltaHedgingGrader
-from vsr_env.tasks.earnings_vol_crush import (
-    EarningsVolCrushTask,
-    EarningsVolCrushGrader,
-)
-from vsr_env.tasks.gamma_scalping import GammaScalpingTask, GammaScalpingGrader
-from vsr_env.tasks.vol_regime_detection import (
-    VolRegimeDetectionTask,
-    VolRegimeDetectionGrader,
-)
-from vsr_env.tasks.vega_gamma_stress import (
-    VegaGammaStressTask,
-    VegaGammaStressGrader,
-)
-from vsr_env.tasks.vertical_spread import (
-    VerticalSpreadTask,
-    VerticalSpreadGrader,
-)
-from vsr_env.tasks.straddle_trading import (
-    StraddleTradingTask,
-    StraddleTradingGrader,
-)
-
 # Task configurations
-TASK_CONFIG = {
-    "vega_gamma_stress": {
-        "max_steps": 20,
-        "task_class": VegaGammaStressTask,
-        "grader_class": VegaGammaStressGrader,
-    },
-    "vol_regime_detection": {
-        "max_steps": 3,
-        "task_class": VolRegimeDetectionTask,
-        "grader_class": VolRegimeDetectionGrader,
-    },
-    "vertical_spread": {
-        "max_steps": 8,
-        "task_class": VerticalSpreadTask,
-        "grader_class": VerticalSpreadGrader,
-    },
-    "delta_hedging": {
-        "max_steps": 8,
-        "task_class": DeltaHedgingTask,
-        "grader_class": DeltaHedgingGrader,
-    },
-    "straddle_trading": {
-        "max_steps": 13,
-        "task_class": StraddleTradingTask,
-        "grader_class": StraddleTradingGrader,
-    },
-    "earnings_vol_crush": {
-        "max_steps": 13,
-        "task_class": EarningsVolCrushTask,
-        "grader_class": EarningsVolCrushGrader,
-    },
-    "gamma_scalping": {
-        "max_steps": 17,
-        "task_class": GammaScalpingTask,
-        "grader_class": GammaScalpingGrader,
-    },
-}
+TASK_CONFIG = {}
 
 
 def validate_action(action: VSRAction) -> Optional[str]:
