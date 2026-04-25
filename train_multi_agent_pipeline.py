@@ -1243,7 +1243,7 @@ def train_unified_model(args):
         num_train_epochs=args.num_epochs,
         max_steps=args.max_steps,
         per_device_train_batch_size=2,
-        num_generations=2,
+        num_generations=4,
         max_completion_length=512,
         logging_steps=5,
         save_steps=100,
