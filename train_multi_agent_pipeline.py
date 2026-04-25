@@ -599,6 +599,14 @@ def train_unified_model(args):
             tags=["vsr-env", "multi-agent", "grpo", "chaos-economy"],
         )
         print(f"[W&B] Initialized experiment tracking (Project: {wandb_project})")
+        if wandb.run:
+            # Keep custom story metrics off the trainer's internal step axis so
+            # they don't get rejected as out-of-order writes.
+            wandb.define_metric("story/global_step")
+            wandb.define_metric("story/*", step_metric="story/global_step")
+            wandb.define_metric("snapshot/global_step")
+            wandb.define_metric("snapshot/*", step_metric="snapshot/global_step")
+            print(f"[W&B] Run URL: {wandb.run.url}")
     else:
         if not HAS_WANDB:
             print("[W&B] wandb not installed — skipping experiment tracking")
@@ -1325,7 +1333,8 @@ def train_unified_model(args):
                         reward_components[clean] = logs[key]
 
             if reward_components:
-                wandb.log(reward_components, step=step)
+                reward_components["story/global_step"] = step
+                wandb.log(reward_components)
             REWARD_STATS.clear()
 
             # ── Determine and log current training phase ──
@@ -1347,7 +1356,10 @@ def train_unified_model(args):
                     "collusion": "Act III: The Shadow Strike",
                     "oversight": "Act IV: The Watcher Awakens",
                 }
-                wandb.log({"story/phase": phase_names.get(phase, phase)}, step=step)
+                wandb.log({
+                    "story/global_step": step,
+                    "story/phase": phase_names.get(phase, phase),
+                })
                 print(f"[W&B] Phase transition → {phase_names.get(phase, phase)}")
 
             # ── Periodic episode snapshot with agent conversations ──
@@ -1462,34 +1474,38 @@ def train_unified_model(args):
                 if action_rows:
                     cols = list(action_rows[0].keys())
                     wandb.log({
+                        "snapshot/global_step": global_step,
                         f"{prefix}/agent_actions": wandb.Table(
                             columns=cols, data=[list(r.values()) for r in action_rows]
                         )
-                    }, step=global_step)
+                    })
 
                 if news_rows:
                     cols = list(news_rows[0].keys())
                     wandb.log({
+                        "snapshot/global_step": global_step,
                         f"{prefix}/news_events": wandb.Table(
                             columns=cols, data=[list(r.values()) for r in news_rows]
                         )
-                    }, step=global_step)
+                    })
 
                 if sec_rows:
                     cols = list(sec_rows[0].keys())
                     wandb.log({
+                        "snapshot/global_step": global_step,
                         f"{prefix}/sec_enforcement": wandb.Table(
                             columns=cols, data=[list(r.values()) for r in sec_rows]
                         )
-                    }, step=global_step)
+                    })
 
                 if market_rows:
                     cols = list(market_rows[0].keys())
                     wandb.log({
+                        "snapshot/global_step": global_step,
                         f"{prefix}/market_state": wandb.Table(
                             columns=cols, data=[list(r.values()) for r in market_rows]
                         )
-                    }, step=global_step)
+                    })
 
                 print(f"[W&B] Logged episode snapshot at step {global_step} "
                       f"({len(action_rows)} actions, {len(news_rows)} news, {len(sec_rows)} SEC)")
