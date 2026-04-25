@@ -26,7 +26,7 @@ class StraddleTradingTask:
         difficulty: Task difficulty level ("hard")
     """
 
-    max_steps: int = 8
+    max_steps: int = 13
     difficulty: str = "hard"
 
     def initialize(
@@ -89,7 +89,7 @@ class StraddleTradingTask:
             "You may buy a straddle (long volatility) if you expect realized vol to exceed implied, "
             "or sell a straddle (short volatility) if you expect realized vol to be lower. "
             "Use the strategy_type='straddle' action for atomic execution. "
-            "Consider theta decay costs and spot price uncertainty. You have 8 steps total."
+            "Consider theta decay costs and spot price uncertainty. You have 13 steps total."
         )
 
 
@@ -165,6 +165,7 @@ class StraddleTradingGrader:
             # Check if agent built straddle manually with single legs
             has_manual_straddle = self._check_manual_straddle(episode_history)
             if has_manual_straddle:
+                direction_correctness = self._evaluate_manual_straddle(episode_history, expected_outcome)
                 direction_correctness *= 0.8  # Penalty for non-atomic execution
 
         # Entry timing score (earlier is better for this task)
@@ -194,21 +195,53 @@ class StraddleTradingGrader:
 
     def _check_manual_straddle(self, episode_history: List[Any]) -> bool:
         """Check if agent built a straddle manually with single-leg actions."""
-        call_position = False
-        put_position = False
+        call_buy = False
+        call_sell = False
+        put_buy = False
+        put_sell = False
 
         for step in episode_history:
             action = step.get("action")
-            if action is None or not hasattr(action, "option_type"):
+            if action is None:
                 continue
 
-            if hasattr(action, "quantity") and action.quantity > 0:
-                if action.option_type == "call":
-                    call_position = True
-                elif action.option_type == "put":
-                    put_position = True
+            qty = getattr(action, "quantity", 0)
+            if qty <= 0:
+                continue
 
-        return call_position and put_position
+            opt_type = getattr(action, "option_type", "call")
+            direction = action.direction.value if hasattr(action.direction, "value") else action.direction
+
+            if opt_type == "call":
+                if direction == "buy": call_buy = True
+                else: call_sell = True
+            else:
+                if direction == "buy": put_buy = True
+                else: put_sell = True
+
+        return (call_buy and put_buy) or (call_sell and put_sell)
+
+    def _evaluate_manual_straddle(self, episode_history: List[Any], expected_outcome: str) -> float:
+        """Evaluate direction of manual straddle."""
+        buys = 0
+        sells = 0
+
+        for step in episode_history:
+            action = step.get("action")
+            if action is None: continue
+            qty = getattr(action, "quantity", 0)
+            if qty <= 0: continue
+            
+            direction = action.direction.value if hasattr(action.direction, "value") else action.direction
+            if direction == "buy": buys += 1
+            else: sells += 1
+
+        is_long = buys >= sells
+        if (is_long and expected_outcome == "long_vol") or (not is_long and expected_outcome == "short_vol"):
+            return 1.0
+        elif expected_outcome == "neutral":
+            return 0.5
+        return 0.0
 
     def _compute_avg_delta(self, episode_history: List[Any]) -> float:
         """Compute average absolute delta across episode."""

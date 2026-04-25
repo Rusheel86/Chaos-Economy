@@ -1,0 +1,22 @@
+{
+  "Aggressive Traders (0-2)": {
+    "trained": -0.93,
+    "baseline": -4.13
+  },
+  "Neutral Traders (3-5)": {
+    "trained": -1.08,
+    "baseline": -4.58
+  },
+  "Contrarian Traders (6-8)": {
+    "trained": -8.52,
+    "baseline": -3.79
+  },
+  "Market Maker": {
+    "trained": 21.01,
+    "baseline": 14.84
+  },
+  "Oversight SEC": {
+    "trained": -95.6,
+    "baseline": 7.5
+  }
+}

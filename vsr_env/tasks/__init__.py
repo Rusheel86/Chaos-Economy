@@ -6,11 +6,13 @@ This module provides the three graded tasks:
 - GammaScalpingTask (expert): Profit from gamma scalping through spot oscillations
 """
 
-from vsr_env.tasks.delta_hedging import DeltaHedgingTask
-from vsr_env.tasks.earnings_vol_crush import EarningsVolCrushTask
-from vsr_env.tasks.gamma_scalping import GammaScalpingTask
-from vsr_env.tasks.vol_regime_detection import VolRegimeDetectionTask
-from vsr_env.tasks.vega_gamma_stress import VegaGammaStressTask
+from vsr_env.tasks.delta_hedging import DeltaHedgingTask, DeltaHedgingGrader
+from vsr_env.tasks.earnings_vol_crush import EarningsVolCrushTask, EarningsVolCrushGrader
+from vsr_env.tasks.gamma_scalping import GammaScalpingTask, GammaScalpingGrader
+from vsr_env.tasks.vol_regime_detection import VolRegimeDetectionTask, VolRegimeDetectionGrader
+from vsr_env.tasks.vega_gamma_stress import VegaGammaStressTask, VegaGammaStressGrader
+from vsr_env.tasks.vertical_spread import VerticalSpreadTask, VerticalSpreadGrader
+from vsr_env.tasks.straddle_trading import StraddleTradingTask, StraddleTradingGrader
 
 __all__ = [
     "DeltaHedgingTask",
@@ -18,4 +20,6 @@ __all__ = [
     "GammaScalpingTask",
     "VolRegimeDetectionTask",
     "VegaGammaStressTask",
+    "VerticalSpreadTask",
+    "StraddleTradingTask",
 ]

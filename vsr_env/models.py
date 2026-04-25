@@ -4,7 +4,7 @@ All models inherit from pydantic.BaseModel for OpenEnv compliance.
 """
 
 from enum import Enum
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Literal, Optional, Tuple
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -369,6 +369,18 @@ class VSRState(BaseModel):
     strategies: Dict[str, Dict] = Field(
         default_factory=dict,
         description="Map of strategy_id -> strategy metadata (type, entry_prices)",
+    )
+    straddle_realized_mult: float = Field(
+        1.0,
+        description="Realized multiplier for straddle task",
+    )
+    expected_direction: str = Field(
+        "",
+        description="Expected direction for spread tasks",
+    )
+    optimal_strikes: Tuple[int, int] = Field(
+        (0, 0),
+        description="Optimal strikes for spread task",
     )
     # Task-specific fields (set during task initialization)
     initial_delta: float = Field(

@@ -1,0 +1,2530 @@
+{
+  "steps": [
+    {
+      "step": 1,
+      "rewards": {
+        "trader_0": 0.0,
+        "trader_1": 0.0,
+        "trader_2": -0.11111874368508333,
+        "trader_3": 0.09830440926185378,
+        "trader_4": 0.0,
+        "trader_5": 0.0,
+        "trader_6": 0.03025078717427876,
+        "trader_7": 0.0,
+        "trader_8": 0.0,
+        "trader_9": -0.008461393461991937,
+        "market_maker": 1.2048535208181699,
+        "oversight": 0.5
+      },
+      "info": {
+        "trade_count": 4,
+        "total_volume": 1.8,
+        "market_maker_spreads": {
+          "atm": 0.04,
+          "otm": 0.06,
+          "itm": 0.05
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_1": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_2": {
+            "pnl": 0.018961493283850283,
+            "delta": 0.15278866469821487,
+            "gamma": 0.011780222755405403,
+            "vega": 0.11610372197255184,
+            "cash": 99998.69919763031,
+            "contracts": 0.45,
+            "risk_score": 0.04060132776923884
+          },
+          "trader_3": {
+            "pnl": 0.031384937204947116,
+            "delta": 0.1050717262534201,
+            "gamma": -0.013929907904279707,
+            "vega": -0.0686453129114062,
+            "cash": 100000.66919472057,
+            "contracts": 0.45,
+            "risk_score": 0.031943667078194515
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_6": {
+            "pnl": 0.011643583967358229,
+            "delta": 0.057958916217029935,
+            "gamma": -0.015955819263092027,
+            "vega": -0.02620960630415191,
+            "cash": 100000.18607203207,
+            "contracts": 0.4,
+            "risk_score": 0.022799179957354997
+          },
+          "trader_7": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_8": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_9": {
+            "pnl": -0.009889884270749424,
+            "delta": 0.011151694454107686,
+            "gamma": -0.004648444304354845,
+            "vega": -0.0076357028827555165,
+            "cash": 100000.01428490809,
+            "contracts": 0.5,
+            "risk_score": 0.013738117455428259
+          },
+          "market_maker": {
+            "pnl": -0.052100130185406206,
+            "delta": -0.32697100162277254,
+            "gamma": 0.022753948716321176,
+            "vega": -0.013613099874238213,
+            "cash": 1000000.431250709,
+            "contracts": 1.8,
+            "risk_score": 0.07915998963622956
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.047438517382009014,
+          "avg_spread": 0.05000000000000001,
+          "recent_volume": 1.8,
+          "market_stability_score": 0.11543851738200903
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 4,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Awaiting market trend direction to inform trading decision."
+        },
+        "trader_1": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No actionable data, holding current position."
+        },
+        "trader_2": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.45,
+          "option_type": "call",
+          "reasoning": "Riding recent IV surge, attempting to capture upswing."
+        },
+        "trader_3": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.45,
+          "option_type": "put",
+          "reasoning": "Seeking value in put options as spot nears support, aiming to capitalize on potential pullback."
+        },
+        "trader_4": {
+          "selected_strike": 0,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_5": {
+          "selected_strike": 1,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_6": {
+          "selected_strike": 2,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.4,
+          "option_type": "put",
+          "reasoning": "Taking profits on OTM put as market corrects."
+        },
+        "trader_7": {
+          "selected_strike": 2,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Spot at 100.00 with no clear trend; holding cash."
+        },
+        "trader_8": {
+          "selected_strike": 4,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Spot stable, no compelling reason to trade. Holding for now."
+        },
+        "market_maker": {
+          "atm_spread": 0.04,
+          "otm_spread": 0.06,
+          "itm_spread": 0.05,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [],
+          "flag_type": "none",
+          "fine_amount": 0.0,
+          "halt_strikes": [],
+          "confidence": 0.0,
+          "intervention_type": "none",
+          "reasoning": ""
+        },
+        "trader_9": {
+          "selected_strike": 1,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 0 with atm_iv=0.200."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.04,
+        "otm": 0.06,
+        "itm": 0.05
+      },
+      "sec_fines": 0.0
+    },
+    {
+      "step": 2,
+      "rewards": {
+        "trader_0": 0.21373615813771507,
+        "trader_1": 0.0,
+        "trader_2": -0.3845770160161973,
+        "trader_3": 0.01350365254600741,
+        "trader_4": 0.0,
+        "trader_5": 0.0,
+        "trader_6": 0.8518279997124116,
+        "trader_7": 0.0,
+        "trader_8": 0.0,
+        "trader_9": -0.041910863296393444,
+        "market_maker": 0.7211419585054701,
+        "oversight": -5.0
+      },
+      "info": {
+        "trade_count": 5,
+        "total_volume": 2.7,
+        "market_maker_spreads": {
+          "atm": 0.04,
+          "otm": 0.06,
+          "itm": 0.05
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "wash_trading",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "wash_trading",
+          "trader_5": "wash_trading",
+          "trader_6": "none",
+          "trader_7": "wash_trading",
+          "trader_8": "wash_trading",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": 0.087627977769978,
+            "delta": -0.18390624758484747,
+            "gamma": -0.01922051983440236,
+            "vega": -0.09342071142445459,
+            "cash": 100001.26108180368,
+            "contracts": 0.5,
+            "risk_score": 0.045420903834691155
+          },
+          "trader_1": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_2": {
+            "pnl": -0.1878470076688391,
+            "delta": 0.3425588848042243,
+            "gamma": 0.02730203282154382,
+            "vega": 0.26540128482448405,
+            "cash": 99996.92151247968,
+            "contracts": 1.05,
+            "risk_score": 0.09271683009148837
+          },
+          "trader_3": {
+            "pnl": -0.09644994530240994,
+            "delta": 0.2749007591819198,
+            "gamma": -0.02888883011115346,
+            "vega": -0.2102737301829818,
+            "cash": 100002.0825800711,
+            "contracts": 1.05,
+            "risk_score": 0.08107298098095156
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_6": {
+            "pnl": 0.17971144702429626,
+            "delta": -0.35456415827607934,
+            "gamma": -0.026228184905587097,
+            "vega": -0.11354245162215945,
+            "cash": 100007.02367339862,
+            "contracts": 0.9,
+            "risk_score": 0.07530193495205872
+          },
+          "trader_7": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_8": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_9": {
+            "pnl": 0.020567006139787805,
+            "delta": -0.1105391471140052,
+            "gamma": 0.010687103686052277,
+            "vega": 0.06957603835456451,
+            "cash": 99999.29060737102,
+            "contracts": 1.0,
+            "risk_score": 0.04228636002127788
+          },
+          "market_maker": {
+            "pnl": -0.0036094779628130236,
+            "delta": 0.031549908988787845,
+            "gamma": 0.03634839834354683,
+            "vega": 0.08225957005054726,
+            "cash": 999993.4205448759,
+            "contracts": 4.5,
+            "risk_score": 0.11592030724135224
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.03154479550905066,
+          "avg_spread": 0.05000000000000001,
+          "recent_volume": 4.5,
+          "market_stability_score": 0.12654479550905068
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 6,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Backing away from overbought calls as price reaches upper resistance."
+        },
+        "trader_1": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_2": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.6,
+          "option_type": "call",
+          "reasoning": "Following trend in IV; ready to position for upside."
+        },
+        "trader_3": {
+          "selected_strike": 2,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.6,
+          "option_type": "put",
+          "reasoning": "Seeking to capitalize on implied volatility spike while spot approaches resistance."
+        },
+        "trader_4": {
+          "selected_strike": 3,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "No conviction in either direction, so holding the middle ground with a neutral put position."
+        },
+        "trader_5": {
+          "selected_strike": 0,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Current market conditions justify maintaining neutral stance on call options."
+        },
+        "trader_6": {
+          "selected_strike": 1,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Counter-trend play as IV surges; spot still below target."
+        },
+        "trader_7": {
+          "selected_strike": 6,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No current market movement to react to."
+        },
+        "trader_8": {
+          "selected_strike": 6,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Neutral as spot is within expected range."
+        },
+        "market_maker": {
+          "atm_spread": 0.04,
+          "otm_spread": 0.06,
+          "itm_spread": 0.05,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [
+            "trader_3"
+          ],
+          "flag_type": "wash_trading",
+          "fine_amount": 25.0,
+          "halt_strikes": [],
+          "confidence": 0.8,
+          "intervention_type": "fine",
+          "reasoning": "Trader 3 has executed a large quantity of calls with a spread of 0.06, but the price has not moved significantly. This suggests a wash trading activit"
+        },
+        "trader_9": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 1 with atm_iv=0.199."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.04,
+        "otm": 0.06,
+        "itm": 0.05
+      },
+      "sec_fines": 25.0
+    },
+    {
+      "step": 3,
+      "rewards": {
+        "trader_0": -0.20086838482555436,
+        "trader_1": 0.022445997705492077,
+        "trader_2": 0.3629945472497932,
+        "trader_3": 0.3393732229719616,
+        "trader_4": 0.0,
+        "trader_5": 0.0,
+        "trader_6": -0.40214333247179995,
+        "trader_7": 0.0,
+        "trader_8": 0.014963998469843004,
+        "trader_9": 0.22179468157540713,
+        "market_maker": 1.0024871240741882,
+        "oversight": 0.5
+      },
+      "info": {
+        "trade_count": 5,
+        "total_volume": 2.3,
+        "market_maker_spreads": {
+          "atm": 0.04,
+          "otm": 0.06,
+          "itm": 0.05
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": -0.11324040705557636,
+            "delta": -0.20443196133731273,
+            "gamma": -0.019670677095790727,
+            "vega": -0.09733808568018278,
+            "cash": 100001.26108180368,
+            "contracts": 0.5,
+            "risk_score": 0.048045275540065845
+          },
+          "trader_1": {
+            "pnl": 0.1894254555713105,
+            "delta": 0.21219803637147303,
+            "gamma": 0.015973865631930362,
+            "vega": 0.1580896777424389,
+            "cash": 99998.33020542134,
+            "contracts": 0.6,
+            "risk_score": 0.055418317664163344
+          },
+          "trader_2": {
+            "pnl": 0.17514753958095405,
+            "delta": 0.3713465636500778,
+            "gamma": 0.027954264855878135,
+            "vega": 0.2766569360492681,
+            "cash": 99996.92151247968,
+            "contracts": 1.05,
+            "risk_score": 0.09698205591228586
+          },
+          "trader_3": {
+            "pnl": -0.04600683273826692,
+            "delta": 0.018635313927994224,
+            "gamma": -0.03363044370767813,
+            "vega": -0.26710768804617124,
+            "cash": 100004.97188117518,
+            "contracts": 1.35,
+            "risk_score": 0.06902647768048781
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_6": {
+            "pnl": -0.49412241712058824,
+            "delta": -0.6578211608679632,
+            "gamma": -0.036282639583319995,
+            "vega": -0.2427064608080057,
+            "cash": 100009.74057871535,
+            "contracts": 1.4,
+            "risk_score": 0.13256581800092487
+          },
+          "trader_7": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_8": {
+            "pnl": 0.12628363704754034,
+            "delta": 0.14146535758098203,
+            "gamma": 0.010649243754620244,
+            "vega": 0.10539311849495928,
+            "cash": 99998.88680361422,
+            "contracts": 0.4,
+            "risk_score": 0.03694554510944223
+          },
+          "trader_9": {
+            "pnl": 0.07544184172499858,
+            "delta": 0.05623515782441796,
+            "gamma": -0.0015108821958546102,
+            "vega": -0.057960470069488984,
+            "cash": 100000.95980583092,
+            "contracts": 1.5,
+            "risk_score": 0.04202391566773254
+          },
+          "market_maker": {
+            "pnl": 0.08707118298962813,
+            "delta": 0.06237269285033101,
+            "gamma": 0.03651726834021472,
+            "vega": 0.12497297231718242,
+            "cash": 999988.9281309596,
+            "contracts": 6.8,
+            "risk_score": 0.16934147385283724
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.03814546807453653,
+          "avg_spread": 0.05000000000000001,
+          "recent_volume": 6.8,
+          "market_stability_score": 0.15614546807453655
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_1": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.6,
+          "option_type": "call",
+          "reasoning": "Looking to ride the rally in the short term"
+        },
+        "trader_2": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_3": {
+          "selected_strike": 2,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.3,
+          "option_type": "call",
+          "reasoning": "Bullish on spot's breakout potential."
+        },
+        "trader_4": {
+          "selected_strike": 3,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Market stable, no compelling directional bias at this point."
+        },
+        "trader_5": {
+          "selected_strike": 1,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_6": {
+          "selected_strike": 5,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Uncertainty about market's next move, selling overbought call to cut losses."
+        },
+        "trader_7": {
+          "selected_strike": 4,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Market neutral, waiting for further price action."
+        },
+        "trader_8": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.4,
+          "option_type": "call",
+          "reasoning": "Contrarian play, expecting spot to drop after recent rally."
+        },
+        "market_maker": {
+          "atm_spread": 0.04,
+          "otm_spread": 0.06,
+          "itm_spread": 0.05,
+          "skew_adjustment": 0.0,
+          "reasoning": "Widening spreads to protect inventory from gamma squeeze."
+        },
+        "oversight": {
+          "flagged_agents": [],
+          "flag_type": "none",
+          "fine_amount": 0.0,
+          "halt_strikes": [],
+          "confidence": 0.0,
+          "intervention_type": "none",
+          "reasoning": ""
+        },
+        "trader_9": {
+          "selected_strike": 3,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 2 with atm_iv=0.198."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.04,
+        "otm": 0.06,
+        "itm": 0.05
+      },
+      "sec_fines": 0.0
+    },
+    {
+      "step": 4,
+      "rewards": {
+        "trader_0": -0.17699495661530923,
+        "trader_1": 0.1623572936545738,
+        "trader_2": 0.32748997366448085,
+        "trader_3": -0.07776494371701706,
+        "trader_4": 0.0,
+        "trader_5": 0.0,
+        "trader_6": -0.5281908468433034,
+        "trader_7": 0.0,
+        "trader_8": 0.12475808520551654,
+        "trader_9": -0.17744792295050632,
+        "market_maker": 1.4339906717715931,
+        "oversight": 0.5
+      },
+      "info": {
+        "trade_count": 4,
+        "total_volume": 2.25,
+        "market_maker_spreads": {
+          "atm": 0.04,
+          "otm": 0.06,
+          "itm": 0.05
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": -0.1494438611035864,
+            "delta": -0.04964811260729465,
+            "gamma": -0.007562634057133226,
+            "vega": 0.022244758738516987,
+            "cash": 99999.853166778,
+            "contracts": 0.95,
+            "risk_score": 0.029214340757434454
+          },
+          "trader_1": {
+            "pnl": 0.6020787537906185,
+            "delta": 0.522470930082909,
+            "gamma": 0.03712240393413918,
+            "vega": 0.37796828844195035,
+            "cash": 99995.8272453757,
+            "contracts": 1.4,
+            "risk_score": 0.1328928834261416
+          },
+          "trader_2": {
+            "pnl": 0.5026375132454349,
+            "delta": 0.3918531975621818,
+            "gamma": 0.02784180295060438,
+            "vega": 0.28347621633146275,
+            "cash": 99996.92151247968,
+            "contracts": 1.05,
+            "risk_score": 0.09966966256960622
+          },
+          "trader_3": {
+            "pnl": -0.12377177645528398,
+            "delta": 0.0022142184325471825,
+            "gamma": -0.03187625297006353,
+            "vega": -0.2611214470774189,
+            "cash": 100004.97188117518,
+            "contracts": 1.35,
+            "risk_score": 0.06608406773902203
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_6": {
+            "pnl": -1.2532763772232411,
+            "delta": -1.0716727932986774,
+            "gamma": -0.05841907141619286,
+            "vega": -0.2802530988399315,
+            "cash": 100012.05020984795,
+            "contracts": 1.9,
+            "risk_score": 0.19656021778033805
+          },
+          "trader_7": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_8": {
+            "pnl": 0.2510417222530569,
+            "delta": 0.14927740859511687,
+            "gamma": 0.010606401124039766,
+            "vega": 0.10799093955484296,
+            "cash": 99998.88680361422,
+            "contracts": 0.4,
+            "risk_score": 0.03796939526461189
+          },
+          "trader_9": {
+            "pnl": -0.018125967255135822,
+            "delta": -0.12306449689275883,
+            "gamma": 0.03069857202192764,
+            "vega": -0.0036761962434282425,
+            "cash": 100000.12100469122,
+            "contracts": 2.0,
+            "risk_score": 0.06495349812238976
+          },
+          "market_maker": {
+            "pnl": 0.1888599927481371,
+            "delta": 0.17856964812597614,
+            "gamma": -0.008411221587321348,
+            "vega": -0.24662946090599447,
+            "cash": 999991.368176038,
+            "contracts": 9.05,
+            "risk_score": 0.22688439953812561
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.042634054637469984,
+          "avg_spread": 0.05000000000000001,
+          "recent_volume": 9.05,
+          "market_stability_score": 0.18313405463747
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.45,
+          "option_type": "call",
+          "reasoning": "Joining the uptrend, expecting IV to remain elevated as spot moves above 100."
+        },
+        "trader_1": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.8,
+          "option_type": "call",
+          "reasoning": "Seeking to capture bullish momentum with OTM call spread."
+        },
+        "trader_2": {
+          "selected_strike": 5,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Market has paused and there is no clear direction, holding at ATM will allow me to reassess"
+        },
+        "trader_3": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No compelling directional evidence; maintaining a balanced portfolio."
+        },
+        "trader_4": {
+          "selected_strike": 0,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_5": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_6": {
+          "selected_strike": 3,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Aging call gamma and seeking to cut losses."
+        },
+        "trader_7": {
+          "selected_strike": 6,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_8": {
+          "selected_strike": 4,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Neutralized IV spike with no conviction to trade."
+        },
+        "market_maker": {
+          "atm_spread": 0.04,
+          "otm_spread": 0.06,
+          "itm_spread": 0.05,
+          "skew_adjustment": 0.0,
+          "reasoning": "Widening spreads due to elevated gamma exposure."
+        },
+        "oversight": {
+          "flagged_agents": [],
+          "flag_type": "none",
+          "fine_amount": 0.0,
+          "halt_strikes": [],
+          "confidence": 0.0,
+          "intervention_type": "none",
+          "reasoning": ""
+        },
+        "trader_9": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 3 with atm_iv=0.197."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.04,
+        "otm": 0.06,
+        "itm": 0.05
+      },
+      "sec_fines": 0.0
+    },
+    {
+      "step": 5,
+      "rewards": {
+        "trader_0": -0.09187292470007016,
+        "trader_1": 0.8665825749709439,
+        "trader_2": 0.7582697697765027,
+        "trader_3": -0.01989923152230927,
+        "trader_4": 0.0,
+        "trader_5": 0.10833283854829477,
+        "trader_6": -1.4647107594738382,
+        "trader_7": 0.0,
+        "trader_8": 0.24759502142026973,
+        "trader_9": 0.38593258012678233,
+        "market_maker": 0.5109984766531034,
+        "oversight": 0.5
+      },
+      "info": {
+        "trade_count": 4,
+        "total_volume": 2.0,
+        "market_maker_spreads": {
+          "atm": 0.03,
+          "otm": 0.06,
+          "itm": 0.05
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": -0.24131678580365656,
+            "delta": -0.06189154546388137,
+            "gamma": -0.007371697783024284,
+            "vega": 0.024978227150239743,
+            "cash": 99999.853166778,
+            "contracts": 0.95,
+            "risk_score": 0.030635656374621824
+          },
+          "trader_1": {
+            "pnl": 1.4686613287615624,
+            "delta": 0.5823463799420372,
+            "gamma": 0.03777519960574348,
+            "vega": 0.3955941771406725,
+            "cash": 99995.8272453757,
+            "contracts": 1.4,
+            "risk_score": 0.14090413555056838
+          },
+          "trader_2": {
+            "pnl": 1.3237209917086732,
+            "delta": 0.5638439829423646,
+            "gamma": 0.04228300923400588,
+            "vega": 0.36974852932318836,
+            "cash": 99996.29337539281,
+            "contracts": 1.45,
+            "risk_score": 0.13927245492015766
+          },
+          "trader_3": {
+            "pnl": -0.14367100797759325,
+            "delta": -0.04724323945382908,
+            "gamma": -0.028137451560973848,
+            "vega": -0.2391878544953142,
+            "cash": 100004.97188117518,
+            "contracts": 1.35,
+            "risk_score": 0.06689809001930389
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.17114654723503026,
+            "delta": 0.12708419798583667,
+            "gamma": 0.013951609529698268,
+            "vega": 0.07305289646768398,
+            "cash": 99999.37186291313,
+            "contracts": 0.4,
+            "risk_score": 0.033594353257231375
+          },
+          "trader_6": {
+            "pnl": -2.915265238055247,
+            "delta": -1.0798242688046233,
+            "gamma": -0.0559491417475904,
+            "vega": -0.35040818655374883,
+            "cash": 100012.75456065174,
+            "contracts": 2.6,
+            "risk_score": 0.2174029022348734
+          },
+          "trader_7": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_8": {
+            "pnl": 0.4986367436733266,
+            "delta": 0.1663846799834392,
+            "gamma": 0.010792914173069566,
+            "vega": 0.11302690775447786,
+            "cash": 99998.88680361422,
+            "contracts": 0.4,
+            "risk_score": 0.040258324443019536
+          },
+          "trader_9": {
+            "pnl": 0.17485973799164745,
+            "delta": 0.12666673140480428,
+            "gamma": 0.007555666066111955,
+            "vega": -0.10950466594405706,
+            "cash": 100002.05047344002,
+            "contracts": 2.5,
+            "risk_score": 0.07663940616133091
+          },
+          "market_maker": {
+            "pnl": -0.33677231753374315,
+            "delta": -0.37736691853614834,
+            "gamma": -0.02090010751704062,
+            "vega": -0.27730003084314236,
+            "cash": 999989.9906306592,
+            "contracts": 11.05,
+            "risk_score": 0.29482673794474534
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.07246075883129059,
+          "avg_spread": 0.04666666666666667,
+          "recent_volume": 11.05,
+          "market_stability_score": 0.22962742549795728
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Hold steady as market adjusts to current level."
+        },
+        "trader_1": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_2": {
+          "selected_strike": 7,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.4,
+          "option_type": "call",
+          "reasoning": "Bullish sentiment & IV up on SPX. Entry at 100.00 for a short-term trade."
+        },
+        "trader_3": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Waiting for market state to stabilize."
+        },
+        "trader_4": {
+          "selected_strike": 2,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No compelling market conditions to alter portfolio position."
+        },
+        "trader_5": {
+          "selected_strike": 7,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.4,
+          "option_type": "call",
+          "reasoning": "Capitalizing on high probability of a price bounce above 100."
+        },
+        "trader_6": {
+          "selected_strike": 1,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.7,
+          "option_type": "put",
+          "reasoning": "Selling OTM put to capitalize on overbought conditions."
+        },
+        "trader_7": {
+          "selected_strike": 3,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_8": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No extreme movements in IV or spot, holding for now."
+        },
+        "market_maker": {
+          "atm_spread": 0.03,
+          "otm_spread": 0.06,
+          "itm_spread": 0.05,
+          "skew_adjustment": 0.0,
+          "reasoning": "Widening ATM spread"
+        },
+        "oversight": {
+          "flagged_agents": [],
+          "flag_type": "none",
+          "fine_amount": 0.0,
+          "halt_strikes": [],
+          "confidence": 0.0,
+          "intervention_type": "none",
+          "reasoning": ""
+        },
+        "trader_9": {
+          "selected_strike": 5,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 4 with atm_iv=0.200."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.03,
+        "otm": 0.06,
+        "itm": 0.05
+      },
+      "sec_fines": 0.0
+    },
+    {
+      "step": 6,
+      "rewards": {
+        "trader_0": -0.47848344830920236,
+        "trader_1": -0.22974136132346246,
+        "trader_2": -0.2228890673509063,
+        "trader_3": 0.0007276966817030273,
+        "trader_4": 0.0,
+        "trader_5": -0.050583046358309514,
+        "trader_6": 0.453418508080623,
+        "trader_7": 0.0,
+        "trader_8": -0.0656403889495607,
+        "trader_9": -0.23115411154947346,
+        "market_maker": 1.5288005890882386,
+        "oversight": -1.0
+      },
+      "info": {
+        "trade_count": 2,
+        "total_volume": 1.0,
+        "market_maker_spreads": {
+          "atm": 0.04,
+          "otm": 0.06,
+          "itm": 0.05
+        },
+        "detected_manipulations": {
+          "trader_0": "wash_trading",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": -0.34929387616409746,
+            "delta": 0.24288272596898267,
+            "gamma": 0.005912914778666052,
+            "vega": 0.16321980821078844,
+            "cash": 99996.14810319852,
+            "contracts": 1.45,
+            "risk_score": 0.07197541932944353
+          },
+          "trader_1": {
+            "pnl": 1.2389199674381,
+            "delta": 0.5661434204718582,
+            "gamma": 0.037549745249076796,
+            "vega": 0.3912172985568636,
+            "cash": 99995.8272453757,
+            "contracts": 1.4,
+            "risk_score": 0.1387559700025029
+          },
+          "trader_2": {
+            "pnl": 1.1008319243577669,
+            "delta": 0.5457863282844149,
+            "gamma": 0.041838569555336935,
+            "vega": 0.3646569956553479,
+            "cash": 99996.29337539281,
+            "contracts": 1.45,
+            "risk_score": 0.13677976021611107
+          },
+          "trader_3": {
+            "pnl": -0.14294331129589022,
+            "delta": -0.03339937879681218,
+            "gamma": -0.0291489776744889,
+            "vega": -0.24584146836110615,
+            "cash": 100004.97188117518,
+            "contracts": 1.35,
+            "risk_score": 0.0665836757855874
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.12056350087672074,
+            "delta": 0.1211787629305212,
+            "gamma": 0.013676260618529341,
+            "vega": 0.07124402173770027,
+            "cash": 99999.37186291313,
+            "contracts": 0.4,
+            "risk_score": 0.03271278271423389
+          },
+          "trader_6": {
+            "pnl": -2.461846729974624,
+            "delta": -1.052241055972865,
+            "gamma": -0.05948583745535188,
+            "vega": -0.3618138093265182,
+            "cash": 100012.75456065174,
+            "contracts": 2.6,
+            "risk_score": 0.21719982151207912
+          },
+          "trader_7": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_8": {
+            "pnl": 0.4329963547237659,
+            "delta": 0.1617552629919595,
+            "gamma": 0.01072849864259337,
+            "vega": 0.11177637101624674,
+            "cash": 99998.88680361422,
+            "contracts": 0.4,
+            "risk_score": 0.03964456285785798
+          },
+          "trader_9": {
+            "pnl": 0.21429523773004305,
+            "delta": -0.10956023404444581,
+            "gamma": 0.022432263203058585,
+            "vega": 0.03547961744166207,
+            "cash": 99999.34457732714,
+            "contracts": 3.0,
+            "risk_score": 0.08347689042983422
+          },
+          "market_maker": {
+            "pnl": -0.15352306769178586,
+            "delta": -0.4425458318336134,
+            "gamma": -0.04350343691742029,
+            "vega": -0.5299388349309848,
+            "cash": 999996.4015903515,
+            "contracts": 12.05,
+            "risk_score": 0.3556498414434279
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.1127517521282923,
+          "avg_spread": 0.05000000000000001,
+          "recent_volume": 12.05,
+          "market_stability_score": 0.28325175212829234
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 5,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Market support suggests an uptrend; buying a put spread to neutralize IV move."
+        },
+        "trader_1": {
+          "selected_strike": 3,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_2": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Waiting for spot to move in my favor, no immediate action taken."
+        },
+        "trader_3": {
+          "selected_strike": 2,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Current market conditions don't favor directional trade. Holding for now."
+        },
+        "trader_4": {
+          "selected_strike": 3,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Current market conditions suggest a sideways trend; no compelling reason to adjust position."
+        },
+        "trader_5": {
+          "selected_strike": 1,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No compelling directional bias; opting for stability."
+        },
+        "trader_6": {
+          "selected_strike": 2,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_7": {
+          "selected_strike": 6,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Neutral for now."
+        },
+        "trader_8": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "market_maker": {
+          "atm_spread": 0.04,
+          "otm_spread": 0.06,
+          "itm_spread": 0.05,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [],
+          "flag_type": "none",
+          "fine_amount": 0.0,
+          "halt_strikes": [],
+          "confidence": 0.0,
+          "intervention_type": "none",
+          "reasoning": ""
+        },
+        "trader_9": {
+          "selected_strike": 6,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 5 with atm_iv=0.200."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.04,
+        "otm": 0.06,
+        "itm": 0.05
+      },
+      "sec_fines": 0.0
+    },
+    {
+      "step": 7,
+      "rewards": {
+        "trader_0": -0.5328610210124692,
+        "trader_1": -1.171063848287891,
+        "trader_2": -1.1215916160649537,
+        "trader_3": 0.03728988577557224,
+        "trader_4": 0.0,
+        "trader_5": -0.23936794241818832,
+        "trader_6": 1.7784455012847444,
+        "trader_7": 1.2998784680018278,
+        "trader_8": -0.33901900195517526,
+        "trader_9": -0.3361940689263024,
+        "market_maker": 1.0415884133216826,
+        "oversight": 0.5
+      },
+      "info": {
+        "trade_count": 2,
+        "total_volume": 0.9,
+        "market_maker_spreads": {
+          "atm": 0.0423,
+          "otm": 0.074,
+          "itm": 0.0634
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": -0.8821548971765667,
+            "delta": 0.22935695545612597,
+            "gamma": 0.006538368106578861,
+            "vega": 0.16100565294073485,
+            "cash": 99996.14810319852,
+            "contracts": 1.45,
+            "risk_score": 0.07065160808231763
+          },
+          "trader_1": {
+            "pnl": 0.05235346059498669,
+            "delta": 0.48398980486630516,
+            "gamma": 0.03675460197346243,
+            "vega": 0.36448689816522545,
+            "cash": 99995.8272453757,
+            "contracts": 1.4,
+            "risk_score": 0.12754951109253804
+          },
+          "trader_2": {
+            "pnl": -0.02846089819275649,
+            "delta": 0.4553919855378721,
+            "gamma": 0.039825790781416445,
+            "vega": 0.3341541709060622,
+            "cash": 99996.29337539281,
+            "contracts": 1.45,
+            "risk_score": 0.12388493195696001
+          },
+          "trader_3": {
+            "pnl": -0.10565342552031798,
+            "delta": 0.033462438864939686,
+            "gamma": -0.034319706151546586,
+            "vega": -0.2726172331546741,
+            "cash": 100004.97188117518,
+            "contracts": 1.35,
+            "risk_score": 0.07133584966258003
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": -0.11880444154146758,
+            "delta": 0.09239963188814329,
+            "gamma": 0.01225983930131963,
+            "vega": 0.06078899728214309,
+            "cash": 99999.37186291313,
+            "contracts": 0.4,
+            "risk_score": 0.02822279863755649
+          },
+          "trader_6": {
+            "pnl": -0.2837629259486606,
+            "delta": -0.9073622137964885,
+            "gamma": -0.07758811555284831,
+            "vega": -0.40899417506647495,
+            "cash": 100012.75456065174,
+            "contracts": 2.6,
+            "risk_score": 0.2146708851074357
+          },
+          "trader_7": {
+            "pnl": 0.7860997262166791,
+            "delta": -0.3610125591044033,
+            "gamma": -0.006937222576635389,
+            "vega": -0.03439741696380299,
+            "cash": 100005.6359504029,
+            "contracts": 0.4,
+            "risk_score": 0.05031588663747478
+          },
+          "trader_8": {
+            "pnl": 0.09397735276859064,
+            "delta": 0.1382828013903729,
+            "gamma": 0.010501314849560694,
+            "vega": 0.10413911376149299,
+            "cash": 99998.88680361422,
+            "contracts": 0.4,
+            "risk_score": 0.03644271745501087
+          },
+          "trader_9": {
+            "pnl": -0.4822781715431037,
+            "delta": 0.3021372492594855,
+            "gamma": 0.014628497849518418,
+            "vega": 0.0198316131405272,
+            "cash": 100002.9483707306,
+            "contracts": 3.5,
+            "risk_score": 0.10804828537980865
+          },
+          "market_maker": {
+            "pnl": 0.9686842203426165,
+            "delta": -0.4666460943623531,
+            "gamma": -0.0016633685808262015,
+            "vega": -0.32839762101123376,
+            "cash": 999987.1618465451,
+            "contracts": 12.95,
+            "risk_score": 0.33916971896968917
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.07393444026562974,
+          "avg_spread": 0.05989999999999999,
+          "recent_volume": 12.5,
+          "market_stability_score": 0.25883444026562974
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_1": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No reason to trade yet, let the market move"
+        },
+        "trader_2": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Awaiting confirmation that 104-105 support holds."
+        },
+        "trader_3": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Staying neutral as market volatility remains steady."
+        },
+        "trader_4": {
+          "selected_strike": 3,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No strong directional view, holding a short position to capture premium."
+        },
+        "trader_5": {
+          "selected_strike": 4,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Waiting for breakout in a neutral environment."
+        },
+        "trader_6": {
+          "selected_strike": 0,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No compelling reason to trade given current market conditions."
+        },
+        "trader_7": {
+          "selected_strike": 1,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.4,
+          "option_type": "call",
+          "reasoning": "Selling overbought calls to lock in profit and set up for potential bounce."
+        },
+        "trader_8": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "market_maker": {
+          "atm_spread": 0.0423,
+          "otm_spread": 0.074,
+          "itm_spread": 0.0634,
+          "skew_adjustment": 0.0,
+          "reasoning": "Widening spreads to protect inventory from gamma squeeze."
+        },
+        "oversight": {
+          "flagged_agents": [],
+          "flag_type": "collusion",
+          "fine_amount": 0.0,
+          "halt_strikes": [],
+          "confidence": 0.9,
+          "intervention_type": "none",
+          "reasoning": "Traders 0 and 1 both targeted strike 4 with buy orders of 0.75 contracts, suggesting coordinated gamma squeeze."
+        },
+        "trader_9": {
+          "selected_strike": 7,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 6 with atm_iv=0.200."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.0423,
+        "otm": 0.074,
+        "itm": 0.0634
+      },
+      "sec_fines": 0.0
+    },
+    {
+      "step": 8,
+      "rewards": {
+        "trader_0": 0.140499288013484,
+        "trader_1": 0.30034387147374914,
+        "trader_2": 0.2837772360524083,
+        "trader_3": 0.43626774474405555,
+        "trader_4": 0.0,
+        "trader_5": 0.05851933244709642,
+        "trader_6": -0.5703288231015791,
+        "trader_7": -0.22486222274847023,
+        "trader_8": 0.2069131510852925,
+        "trader_9": 0.1583108463114562,
+        "market_maker": 0.2317220432807322,
+        "oversight": 0.5
+      },
+      "info": {
+        "trade_count": 3,
+        "total_volume": 1.5,
+        "market_maker_spreads": {
+          "atm": 0.04,
+          "otm": 0.06,
+          "itm": 0.05
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": -0.7416556091630827,
+            "delta": 0.23332991407158285,
+            "gamma": 0.0063361401217524,
+            "vega": 0.16172209597259668,
+            "cash": 99996.14810319852,
+            "contracts": 1.45,
+            "risk_score": 0.07103965705311892
+          },
+          "trader_1": {
+            "pnl": 0.3526973320687358,
+            "delta": 0.5066813945040028,
+            "gamma": 0.037167996750413816,
+            "vega": 0.37278479555330235,
+            "cash": 99995.8272453757,
+            "contracts": 1.4,
+            "risk_score": 0.13081381770589603
+          },
+          "trader_2": {
+            "pnl": 0.2553163378596518,
+            "delta": 0.48007514148634545,
+            "gamma": 0.040613574218379314,
+            "vega": 0.34346579377727365,
+            "cash": 99996.29337539281,
+            "contracts": 1.45,
+            "risk_score": 0.12759952321371365
+          },
+          "trader_3": {
+            "pnl": -0.3628697016584322,
+            "delta": -0.41812956914486005,
+            "gamma": -0.04072649356906649,
+            "vega": -0.34360456338741896,
+            "cash": 100011.906721384,
+            "contracts": 1.85,
+            "risk_score": 0.1294640106808545
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": -0.06028510909437115,
+            "delta": 0.10006409560834327,
+            "gamma": 0.012737576655568954,
+            "vega": 0.0638771971122969,
+            "cash": 99999.37186291313,
+            "contracts": 0.4,
+            "risk_score": 0.0294891599342916
+          },
+          "trader_6": {
+            "pnl": -0.8540917490502397,
+            "delta": -0.9543532001325644,
+            "gamma": -0.07234401716649191,
+            "vega": -0.39504062171540416,
+            "cash": 100012.75456065174,
+            "contracts": 2.6,
+            "risk_score": 0.21587698905139363
+          },
+          "trader_7": {
+            "pnl": 0.5612375034682089,
+            "delta": -0.3652147255076492,
+            "gamma": -0.006342665299279499,
+            "vega": -0.03180759515682814,
+            "cash": 100005.6359504029,
+            "contracts": 0.4,
+            "risk_score": 0.05023929818615954
+          },
+          "trader_8": {
+            "pnl": 0.2338205142437108,
+            "delta": 0.24899910988442175,
+            "gamma": -0.0037536209010702783,
+            "vega": 0.03443107762541818,
+            "cash": 99999.55750351032,
+            "contracts": 0.9,
+            "risk_score": 0.0478444671114121
+          },
+          "trader_9": {
+            "pnl": -0.3163984979252614,
+            "delta": 0.297492577367552,
+            "gamma": 0.015259102981003744,
+            "vega": 0.031445057789717665,
+            "cash": 100002.87268245754,
+            "contracts": 4.0,
+            "risk_score": 0.11899740470812847
+          },
+          "market_maker": {
+            "pnl": 0.9322289792510798,
+            "delta": -0.1289447381371746,
+            "gamma": 0.011052406208789937,
+            "vega": -0.23727323757095425,
+            "cash": 999979.6319947132,
+            "contracts": 14.45,
+            "risk_score": 0.33004276005432887
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.03850777654466776,
+          "avg_spread": 0.05000000000000001,
+          "recent_volume": 12.65,
+          "market_stability_score": 0.21500777654466777
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_1": {
+          "selected_strike": 4,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Waiting for IV increase to validate uptrend"
+        },
+        "trader_2": {
+          "selected_strike": 2,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Hold on the fly as 10-day MA indicates strength."
+        },
+        "trader_3": {
+          "selected_strike": 1,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Selling ITM calls due to strong market sentiment."
+        },
+        "trader_4": {
+          "selected_strike": 1,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Current market conditions favor holding neutral calls as spot moves within recent range."
+        },
+        "trader_5": {
+          "selected_strike": 1,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_6": {
+          "selected_strike": 5,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "put",
+          "reasoning": "Waiting for IV to normalize and spot to break out of recent range."
+        },
+        "trader_7": {
+          "selected_strike": 6,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Waiting for market to re-accumulate before taking a contrarian stance."
+        },
+        "trader_8": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Targeting OTM gamma as spot nears resistance levels."
+        },
+        "market_maker": {
+          "atm_spread": 0.04,
+          "otm_spread": 0.06,
+          "itm_spread": 0.05,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [],
+          "flag_type": "none",
+          "fine_amount": 0.0,
+          "halt_strikes": [],
+          "confidence": 0.0,
+          "intervention_type": "none",
+          "reasoning": "Joining the uptrend, expecting IV to remain"
+        },
+        "trader_9": {
+          "selected_strike": 0,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 7 with atm_iv=0.199."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.04,
+        "otm": 0.06,
+        "itm": 0.05
+      },
+      "sec_fines": 0.0
+    },
+    {
+      "step": 9,
+      "rewards": {
+        "trader_0": 0.13506857227372893,
+        "trader_1": 1.2739493306879737,
+        "trader_2": 1.518521001954957,
+        "trader_3": -1.1046584217614444,
+        "trader_4": 0.0,
+        "trader_5": 0.2777753989788849,
+        "trader_6": -2.1048539380369977,
+        "trader_7": -0.909124455664656,
+        "trader_8": 0.5970150496935016,
+        "trader_9": 0.9520513396588518,
+        "market_maker": 1.328510466165635,
+        "oversight": -3.0
+      },
+      "info": {
+        "trade_count": 5,
+        "total_volume": 2.2,
+        "market_maker_spreads": {
+          "atm": 0.04,
+          "otm": 0.06,
+          "itm": 0.05
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "collusion",
+          "trader_7": "collusion",
+          "trader_8": "none",
+          "trader_9": "collusion"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": -0.8156001813226194,
+            "delta": -0.03363647892566329,
+            "gamma": -0.007753090751444588,
+            "vega": 0.09247734674511583,
+            "cash": 99998.23823464285,
+            "contracts": 1.85,
+            "risk_score": 0.052712618867655756
+          },
+          "trader_1": {
+            "pnl": 1.667845494966563,
+            "delta": 0.5981284751181037,
+            "gamma": 0.038170881475218355,
+            "vega": 0.39963068102083765,
+            "cash": 99995.8272453757,
+            "contracts": 1.4,
+            "risk_score": 0.14304426820398147
+          },
+          "trader_2": {
+            "pnl": 2.385994997537156,
+            "delta": 0.9581592343782599,
+            "gamma": 0.053865255628575595,
+            "vega": 0.4892174319806073,
+            "cash": 99991.78200652453,
+            "contracts": 1.95,
+            "risk_score": 0.20528376888731698
+          },
+          "trader_3": {
+            "pnl": -1.473200982229395,
+            "delta": -0.510736503262181,
+            "gamma": -0.0333820699125941,
+            "vega": -0.29677412683258747,
+            "cash": 100011.906721384,
+            "contracts": 1.85,
+            "risk_score": 0.1311038909745145
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.21749028988451374,
+            "delta": 0.13285011343137054,
+            "gamma": 0.014274920890360698,
+            "vega": 0.07472576131935912,
+            "cash": 99999.37186291313,
+            "contracts": 0.4,
+            "risk_score": 0.034467555831217245
+          },
+          "trader_6": {
+            "pnl": -4.505964368636638,
+            "delta": -1.582086473385829,
+            "gamma": -0.057730248986703175,
+            "vega": -0.36514976727209375,
+            "cash": 100019.08545177602,
+            "contracts": 3.1,
+            "risk_score": 0.2798157236604736
+          },
+          "trader_7": {
+            "pnl": -0.34818695219614443,
+            "delta": -0.3770541347662892,
+            "gamma": -0.005011969926643493,
+            "vega": -0.02372890399474851,
+            "cash": 100005.63895040289,
+            "contracts": 0.7,
+            "risk_score": 0.05608309184676117
+          },
+          "trader_8": {
+            "pnl": 0.8308355639372125,
+            "delta": 0.24328595145600776,
+            "gamma": -0.00028419522730195254,
+            "vega": 0.055602403949682334,
+            "cash": 99999.55750351032,
+            "contracts": 0.9,
+            "risk_score": 0.04800251363148979
+          },
+          "trader_9": {
+            "pnl": 0.5839839820078305,
+            "delta": 0.3702208348437013,
+            "gamma": -0.006066684765027242,
+            "vega": -0.06166980430358385,
+            "cash": 100003.3893710548,
+            "contracts": 4.5,
+            "risk_score": 0.1356157378207394
+          },
+          "market_maker": {
+            "pnl": 1.4568021560515207,
+            "delta": 0.20086898111251933,
+            "gamma": 0.003917201575559906,
+            "vega": -0.36433102261258854,
+            "cash": 999975.2026524155,
+            "contracts": 16.65,
+            "risk_score": 0.3910868810027347
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.05158370086559497,
+          "avg_spread": 0.05000000000000001,
+          "recent_volume": 12.15,
+          "market_stability_score": 0.22308370086559498
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 4,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.4,
+          "option_type": "call",
+          "reasoning": "Reducing call position to lock in some profits, waiting for a correction in the trend."
+        },
+        "trader_1": {
+          "selected_strike": 7,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Neutral on market with mixed signals."
+        },
+        "trader_2": {
+          "selected_strike": 3,
+          "selected_maturity": 2,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Targeting OTM gamma as spot nears resistance levels."
+        },
+        "trader_3": {
+          "selected_strike": 2,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Awaiting market direction to make a move."
+        },
+        "trader_4": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Waiting for price to move past current support to reevaluate."
+        },
+        "trader_5": {
+          "selected_strike": 1,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_6": {
+          "selected_strike": 1,
+          "selected_maturity": 1,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "call",
+          "reasoning": "Expecting spot to bounce off support; selling OTM to limit potential losses."
+        },
+        "trader_7": {
+          "selected_strike": 1,
+          "selected_maturity": 0,
+          "direction": "sell",
+          "quantity": 0.3,
+          "option_type": "put",
+          "reasoning": "Attempting to cut losses from rising spot and IV."
+        },
+        "trader_8": {
+          "selected_strike": 4,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "Market at support, waiting for bounce."
+        },
+        "market_maker": {
+          "atm_spread": 0.04,
+          "otm_spread": 0.06,
+          "itm_spread": 0.05,
+          "skew_adjustment": 0.0,
+          "reasoning": ""
+        },
+        "oversight": {
+          "flagged_agents": [],
+          "flag_type": "collusion",
+          "fine_amount": 0.0,
+          "halt_strikes": [],
+          "confidence": 0.0,
+          "intervention_type": "none",
+          "reasoning": ""
+        },
+        "trader_9": {
+          "selected_strike": 1,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 8 with atm_iv=0.199."
+        }
+      },
+      "collusion_events": 1,
+      "mm_spreads": {
+        "atm": 0.04,
+        "otm": 0.06,
+        "itm": 0.05
+      },
+      "sec_fines": 0.0
+    },
+    {
+      "step": 10,
+      "rewards": {
+        "trader_0": 0.025592591407320953,
+        "trader_1": -0.8281973348936558,
+        "trader_2": -1.1649208220376313,
+        "trader_3": 0.7040774698845712,
+        "trader_4": 0.0,
+        "trader_5": -0.1764664908055764,
+        "trader_6": 1.760033016989849,
+        "trader_7": 1.1243954300138164,
+        "trader_8": -0.335823887375576,
+        "trader_9": -0.4371842392218787,
+        "market_maker": -0.054090486445513175,
+        "oversight": 0.5
+      },
+      "info": {
+        "trade_count": 3,
+        "total_volume": 1.6,
+        "market_maker_spreads": {
+          "atm": 0.04,
+          "otm": 0.06,
+          "itm": 0.05
+        },
+        "detected_manipulations": {
+          "trader_0": "none",
+          "trader_1": "none",
+          "trader_2": "none",
+          "trader_3": "none",
+          "trader_4": "none",
+          "trader_5": "none",
+          "trader_6": "none",
+          "trader_7": "none",
+          "trader_8": "none",
+          "trader_9": "none"
+        },
+        "agent_risk_summary": {
+          "trader_0": {
+            "pnl": -0.7900075899152984,
+            "delta": -0.02300207777448815,
+            "gamma": -0.008648065843382935,
+            "vega": 0.08792518044073461,
+            "cash": 99998.23823464285,
+            "contracts": 1.85,
+            "risk_score": 0.05155195215887545
+          },
+          "trader_1": {
+            "pnl": 0.8396481600729073,
+            "delta": 0.5451209592451112,
+            "gamma": 0.03808289256132766,
+            "vega": 0.38558780405805027,
+            "cash": 99995.8272453757,
+            "contracts": 1.4,
+            "risk_score": 0.1363040333548472
+          },
+          "trader_2": {
+            "pnl": 1.7805330163677766,
+            "delta": 0.31089416378543,
+            "gamma": 0.08118407513535064,
+            "vega": 0.6156285095732442,
+            "cash": 99986.04362893158,
+            "contracts": 2.75,
+            "risk_score": 0.18012589739000767
+          },
+          "trader_3": {
+            "pnl": -0.7691235123448238,
+            "delta": -0.4655785067108549,
+            "gamma": -0.037519051580412834,
+            "vega": -0.3207958617030743,
+            "cash": 100011.906721384,
+            "contracts": 1.85,
+            "risk_score": 0.13064505747355806
+          },
+          "trader_4": {
+            "pnl": 0.0,
+            "delta": 0.0,
+            "gamma": 0.0,
+            "vega": 0.0,
+            "cash": 100000.0,
+            "contracts": 0.0,
+            "risk_score": 0.0
+          },
+          "trader_5": {
+            "pnl": 0.04102379907893736,
+            "delta": 0.11339037937959016,
+            "gamma": 0.013587350335337815,
+            "vega": 0.06878569649526214,
+            "cash": 99999.37186291313,
+            "contracts": 0.4,
+            "risk_score": 0.031652547721620364
+          },
+          "trader_6": {
+            "pnl": -2.36761754753005,
+            "delta": -1.5000703467022964,
+            "gamma": -0.06977281853402807,
+            "vega": -0.4000688332683173,
+            "cash": 100019.08545177602,
+            "contracts": 3.1,
+            "risk_score": 0.27992304541067264
+          },
+          "trader_7": {
+            "pnl": 0.46235197996128435,
+            "delta": -0.587018389939431,
+            "gamma": -0.013671425678432228,
+            "vega": -0.10101944377783259,
+            "cash": 100008.85819700698,
+            "contracts": 1.0,
+            "risk_score": 0.09427235364309926
+          },
+          "trader_8": {
+            "pnl": 0.49501167656163647,
+            "delta": 0.24366245516596935,
+            "gamma": -0.0020867020343493213,
+            "vega": 0.044520083592352544,
+            "cash": 99999.55750351032,
+            "contracts": 0.9,
+            "risk_score": 0.04765293468957192
+          },
+          "trader_9": {
+            "pnl": 0.16608991785222316,
+            "delta": 0.2880999252443648,
+            "gamma": 0.024297404567243656,
+            "vega": -0.014862789721885393,
+            "cash": 100003.19646930414,
+            "contracts": 5.0,
+            "risk_score": 0.1400152333235225
+          },
+          "market_maker": {
+            "pnl": 0.14209009989540705,
+            "delta": 1.074501438306605,
+            "gamma": -0.025453658928654373,
+            "vega": -0.36570034568853405,
+            "cash": 999977.914685155,
+            "contracts": 18.25,
+            "risk_score": 0.5192016419709756
+          }
+        },
+        "market_state_summary": {
+          "inventory_stress": 0.15197836684293584,
+          "avg_spread": 0.05000000000000001,
+          "recent_volume": 12.35,
+          "market_stability_score": 0.32547836684293585
+        },
+        "recent_interventions": []
+      },
+      "actions": {
+        "trader_0": {
+          "selected_strike": 4,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_1": {
+          "selected_strike": 7,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_2": {
+          "selected_strike": 7,
+          "selected_maturity": 1,
+          "direction": "buy",
+          "quantity": 0.8,
+          "option_type": "put",
+          "reasoning": "Bearish momentum suggests weakening market and sell call spread."
+        },
+        "trader_3": {
+          "selected_strike": 7,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_4": {
+          "selected_strike": 3,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No directional bias at current spot and IV levels."
+        },
+        "trader_5": {
+          "selected_strike": 3,
+          "selected_maturity": 1,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": "No directional bias, sticking with previous position."
+        },
+        "trader_6": {
+          "selected_strike": 2,
+          "selected_maturity": 0,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "trader_7": {
+          "selected_strike": 3,
+          "selected_maturity": 2,
+          "direction": "sell",
+          "quantity": 0.3,
+          "option_type": "call",
+          "reasoning": "Reducing delta exposure as market enters overbought territory."
+        },
+        "trader_8": {
+          "selected_strike": 7,
+          "selected_maturity": 2,
+          "direction": "hold",
+          "quantity": 0.0,
+          "option_type": "call",
+          "reasoning": ""
+        },
+        "market_maker": {
+          "atm_spread": 0.04,
+          "otm_spread": 0.06,
+          "itm_spread": 0.05,
+          "skew_adjustment": 0.0,
+          "reasoning": "Maintaining current spreads to balance profitability and inventory risk."
+        },
+        "oversight": {
+          "flagged_agents": [],
+          "flag_type": "none",
+          "fine_amount": 0.0,
+          "halt_strikes": [],
+          "confidence": 0.5,
+          "intervention_type": "none",
+          "reasoning": ""
+        },
+        "trader_9": {
+          "selected_strike": 3,
+          "selected_maturity": 0,
+          "direction": "buy",
+          "quantity": 0.5,
+          "option_type": "put",
+          "reasoning": "Heuristic trader_9 action at step 9 with atm_iv=0.198."
+        }
+      },
+      "collusion_events": 0,
+      "mm_spreads": {
+        "atm": 0.04,
+        "otm": 0.06,
+        "itm": 0.05
+      },
+      "sec_fines": 0.0
+    }
+  ],
+  "final_rewards": {
+    "trader_0": -0.9661841256303564,
+    "trader_1": 0.39667652398772346,
+    "trader_2": 0.24595526354337016,
+    "trader_3": 0.42722148486495415,
+    "trader_4": 0.0,
+    "trader_5": -0.021789909607798086,
+    "trader_6": -0.19625188668561155,
+    "trader_7": 1.290287219602518,
+    "trader_8": 0.45076202759411144,
+    "trader_9": 0.48573684826595126,
+    "market_maker": 8.9500027772333,
+    "oversight": -5.5
+  }
+}

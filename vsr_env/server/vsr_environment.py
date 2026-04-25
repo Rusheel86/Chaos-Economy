@@ -45,11 +45,19 @@ from vsr_env.tasks.vega_gamma_stress import (
     VegaGammaStressTask,
     VegaGammaStressGrader,
 )
+from vsr_env.tasks.vertical_spread import (
+    VerticalSpreadTask,
+    VerticalSpreadGrader,
+)
+from vsr_env.tasks.straddle_trading import (
+    StraddleTradingTask,
+    StraddleTradingGrader,
+)
 
 # Task configurations
 TASK_CONFIG = {
     "vega_gamma_stress": {
-        "max_steps": 10,
+        "max_steps": 20,
         "task_class": VegaGammaStressTask,
         "grader_class": VegaGammaStressGrader,
     },
@@ -58,18 +66,28 @@ TASK_CONFIG = {
         "task_class": VolRegimeDetectionTask,
         "grader_class": VolRegimeDetectionGrader,
     },
+    "vertical_spread": {
+        "max_steps": 8,
+        "task_class": VerticalSpreadTask,
+        "grader_class": VerticalSpreadGrader,
+    },
     "delta_hedging": {
-        "max_steps": 5,
+        "max_steps": 8,
         "task_class": DeltaHedgingTask,
         "grader_class": DeltaHedgingGrader,
     },
+    "straddle_trading": {
+        "max_steps": 13,
+        "task_class": StraddleTradingTask,
+        "grader_class": StraddleTradingGrader,
+    },
     "earnings_vol_crush": {
-        "max_steps": 8,
+        "max_steps": 13,
         "task_class": EarningsVolCrushTask,
         "grader_class": EarningsVolCrushGrader,
     },
     "gamma_scalping": {
-        "max_steps": 10,
+        "max_steps": 17,
         "task_class": GammaScalpingTask,
         "grader_class": GammaScalpingGrader,
     },
@@ -81,6 +99,20 @@ def validate_action(action: VSRAction) -> Optional[str]:
 
     Returns None if valid, error string if invalid.
     """
+    # Check for multi-leg action
+    if action.strategy_type is not None and action.legs is not None:
+        for i, leg in enumerate(action.legs):
+            if not (0 <= leg.strike_idx <= 7):
+                return f"Invalid strike index in leg {i}"
+            if not (0 <= leg.maturity_idx <= 2):
+                return f"Invalid maturity index in leg {i}"
+            if leg.quantity < 0:
+                return f"Quantity must be non-negative in leg {i}"
+            if leg.quantity > 10.0:
+                return f"Quantity exceeds maximum of 10 contracts in leg {i}"
+        return None
+
+    # Default to single-leg validation
     if not (0 <= action.selected_strike <= 7):
         return "Invalid strike index"
     if not (0 <= action.selected_maturity <= 2):
@@ -211,17 +243,37 @@ class VSREnvironment:
         error = validate_action(action)
 
         # Execute action if valid
-        if error is None and action.direction != TradeDirection.HOLD:
-            add_position(
-                state=self._state,
-                strike_idx=action.selected_strike,
-                maturity_idx=action.selected_maturity,
-                direction=action.direction.value,
-                quantity=action.quantity,
-                engine=self.engine,
-            )
-            # Update portfolio after adding position
-            update_positions_on_market_move(self._state, self.engine)
+        if error is None:
+            if action.strategy_type is not None and action.legs is not None:
+                # Process multi-leg action
+                from vsr_env.engine.portfolio import add_position_with_strategy
+                strategy_id = str(uuid.uuid4())
+                for leg in action.legs:
+                    add_position_with_strategy(
+                        state=self._state,
+                        strike_idx=leg.strike_idx,
+                        maturity_idx=leg.maturity_idx,
+                        direction=leg.direction,
+                        quantity=leg.quantity,
+                        engine=self.engine,
+                        option_type=leg.option_type,
+                        strategy_id=strategy_id
+                    )
+                # Update portfolio after adding all legs
+                update_positions_on_market_move(self._state, self.engine)
+            elif action.direction != TradeDirection.HOLD:
+                # Process single-leg action
+                add_position(
+                    state=self._state,
+                    strike_idx=action.selected_strike,
+                    maturity_idx=action.selected_maturity,
+                    direction=action.direction.value,
+                    quantity=action.quantity,
+                    engine=self.engine,
+                    option_type=action.option_type or "call",
+                )
+                # Update portfolio after adding position
+                update_positions_on_market_move(self._state, self.engine)
 
         # Advance market
         if self._rng is not None:
@@ -400,6 +452,14 @@ class VSREnvironment:
         elif task == "vol_regime_detection":
             return self.reward_computer.compute_vol_regime_reward(
                 action, self._state, obs
+            )
+        elif task == "vertical_spread":
+            return self.reward_computer.compute_vertical_spread_reward(
+                action, self._state, obs, prev_pnl
+            )
+        elif task == "straddle_trading":
+            return self.reward_computer.compute_straddle_trading_reward(
+                action, self._state, obs, prev_pnl
             )
         else:
             return VSRReward(total=0.01)

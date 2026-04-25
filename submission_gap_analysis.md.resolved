@@ -1,0 +1,125 @@
+# Predatory Swarms — Submission Gap Analysis & "Cool Factor" Plan
+
+## Current Status vs Judging Criteria
+
+### 🔴 CRITICAL GAPS (Non-Negotiable Requirements)
+
+| Requirement | Status | Action Needed |
+|---|---|---|
+| **Short writeup / video / slides** | ❌ MISSING | Must create one of: HF blog post, < 2 min YouTube video, or slide deck |
+| **HuggingFace Space** | ⚠️ Dockerfile exists but likely not pushed | Push to HF Space with `docker` SDK |
+| **Fresh training plots from current run** | ⚠️ Running on EC2 now (2% done) | After training completes: extract logs, regenerate plots |
+| **Colab notebook (ideal)** | ⚠️ `train_grpo_colab.ipynb` exists but only 2.7KB | Needs to be a real runnable notebook |
+| **README links to HF Space + all materials** | ⚠️ Missing links | Add HF Space link, video/blog link |
+
+### 🟡 SCORING GAPS (Criteria-Specific)
+
+| Criterion | Weight | Current Score Estimate | Gap |
+|---|---|---|---|
+| **Environment Innovation (40%)** | 40% | **8/10** ✅ | Strong. 12-agent options market is genuinely novel |
+| **Showing Improvement (20%)** | 20% | **5/10** ⚠️ | Old plots show SEC at -95.6 (terrible). Need fresh numbers from current run |
+| **Storytelling & Presentation (30%)** | 30% | **4/10** 🔴 | README is technical but NOT "engaging for non-technical audience". No video/slides. No interactive demo. |
+| **Reward & Pipeline (10%)** | 10% | **7/10** ✅ | Solid. 5 decomposed rewards, anti-hack patches documented |
+
+### 🟢 WHAT'S ALREADY GOOD
+
+- ✅ OpenEnv manifest (`openenv.yaml`) exists and is valid
+- ✅ Gym-style API (`/reset`, `/step`, `/state`) implemented in `vsr_env/server/app.py`
+- ✅ Client/server separation respected (`vsr_env/client.py` vs `vsr_env/server/`)
+- ✅ No reserved tool name conflicts
+- ✅ Web UI exists (`vsr_env/server/index.html`) — 914 lines of polished dashboard
+- ✅ `Dockerfile` configured for HF Spaces (port 7860)
+- ✅ Graph generation script exists (`scripts/generate_story_graphs.py`)
+- ✅ Replay logs exist (`unified_lora_replay.json`, `unified_baseline_replay.json`)
+
+---
+
+## 🚀 "COOL FACTOR" — What Makes Judges Say "Wow"
+
+Based on the criteria screenshot: *"Is the demo engaging and easy to follow for a non-technical audience?"* and *"It should be as cool as possible"*
+
+### Priority 1: Interactive Replay Visualizer (HIGHEST IMPACT)
+
+**What:** A stunning HTML page that replays a training episode as an animated market dashboard — showing traders moving in real-time, the MM adjusting spreads, collusion forming, and the SEC swooping in.
+
+**Why it's cool:**
+- Judges spend seconds per project. An animated replay they can watch is 100× more memorable than a static README
+- Shows the Four-Act narrative as a *movie*, not bullet points
+- Zero setup — runs in any browser from the HF Space
+
+**Implementation:** Single-file HTML/JS that loads `unified_lora_replay.json` and animates through each step with:
+- Animated price chart (spot price over time)
+- Live trader position heatmap (who's buying what strike)
+- MM spread bars widening/tightening
+- SEC alert flashes when fines are issued
+- Collusion detection highlights (agents targeting same strike glow red)
+- PnL leaderboard updating in real-time
+- Act labels appearing at phase transitions
+
+### Priority 2: Slide Deck / Video Script
+
+**What:** A < 2 minute narrated walkthrough (or a polished slide deck that reads like a story)
+
+**Structure:**
+1. **Hook (10s):** "What happens when 10 AI traders discover they can break a market maker?"
+2. **Problem (20s):** Show the environment — 12 agents, asymmetric info, options pricing
+3. **The Story (40s):** Walk through the 4 acts with screenshots from the replay
+4. **Results (20s):** Training curves + LoRA vs baseline table
+5. **Why it matters (10s):** "First multi-agent options market simulation in RL"
+
+### Priority 3: Fresh Numbers After EC2 Run
+
+After the current training completes:
+1. `scp` the logs from EC2
+2. Run `generate_story_graphs.py` with new log
+3. Run `test_unified_kaggle.py` to get fresh LoRA-vs-baseline numbers
+4. Update `artifacts/eval_comparison_latest.json`
+5. Update README table
+
+---
+
+## Action Checklist (Ordered by Impact)
+
+### While EC2 Training Runs (Do Now)
+
+- [ ] **Build the Interactive Replay Visualizer** — single HTML file, loads replay JSON, animates the 4-act story
+- [ ] **Create a slide deck** (HTML presentation or Google Slides) — 8–10 slides, heavy on visuals
+- [ ] **Polish the README** — rewrite for non-technical audience, add embedded GIFs/screenshots
+
+### After EC2 Training Completes
+
+- [ ] **SCP training logs** from EC2
+- [ ] **Run eval** (`test_unified_kaggle.py`) on EC2 with new checkpoint
+- [ ] **Regenerate all plots** with fresh data
+- [ ] **Update README** with new numbers and plot images
+- [ ] **Update `eval_comparison_latest.json`**
+
+### Before Submission
+
+- [ ] **Push to HuggingFace Space** — verify `Dockerfile` builds and the web UI works
+- [ ] **Link HF Space URL in README**
+- [ ] **Link video/blog/slides in README**
+- [ ] **Clean repo** — remove debug files (`fix_test.py`, `debug_*.py`, `.pem` keys!)
+- [ ] **Verify `openenv.yaml`** matches actual task list (currently says `multi_agent_market` but server has 7 single-agent tasks)
+
+---
+
+## ⚠️ Known Issues to Fix
+
+### 1. `openenv.yaml` Task Mismatch
+The manifest declares one task (`multi_agent_market`) but the server has 7 single-agent tasks (delta_hedging, gamma_scalping, etc.) and NO multi-agent task endpoint. Either:
+- Add a `/multi_agent` endpoint, OR
+- Update `openenv.yaml` to list the actual 7 tasks
+
+### 2. Security: `.pem` files in repo
+`VSR-env.pem`, `key1.pem`, `vsr.pem` are all in the repo root. These MUST be removed before pushing to HF.
+
+### 3. README References Non-existent Scripts
+- `inference_multi_agent.py` and `visualize_multi_agent.py` are listed in Quick Start but need verification
+- The `--lora_path` in the eval command points to a Kaggle dataset path
+
+### 4. `server/app.py` is a Stub
+The `server/app.py` at repo root just imports from `vsr_env.server.app` — this is fine but might confuse judges.
+
+### 5. Old Comparison Numbers Still Hardcoded
+`scripts/generate_story_graphs.py` has `DEFAULT_COMPARISON` with the old SEC=-95.6 numbers hardcoded as fallback.

@@ -92,16 +92,23 @@ Agent reasoning: "The IV surface shows baseline 0.30 vs typical 0.10, suggesting
 
 **Formula**:
 ```python
-payload_neutrality = max(0, 1.0 - abs(expected_delta - net_delta) / 0.5) * 0.4
-pnl_reward = sigmoid(pnl_change, scale=0.4) * 0.4
-reasoning_reward = score_reasoning_quality(...) * 0.2
-
-total = payload_neutrality + pnl_reward + reasoning_reward
+direction_correctness = sigmoid(portfolio_pnl, scale=0.3)
+strike_selection_score = max(0.0, 1.0 - strike_diff / 8.0) # (0.0 if not a spread)
+cost_efficiency = max(0.0, 1.0 - abs(quantity_cost) / 2.0)
+score = direction_correctness * 0.40 + strike_selection_score * 0.35 + cost_efficiency * 0.25
 ```
 
 **Mechanism**:
-- Evaluates directional bet correctness by rewarding PnL.
-- Delta profiling (payload neutrality) ensures risk is defined correctly via spreads rather than naked options.
+- Evaluates directional bet correctness by rewarding PnL via sigmoid.
+- Requires explicitly selecting two strikes reasonably spaced. If only a single leg is bought, `strike_selection_score` drops to 0.0.
+
+**Numerical Example**:
+```
+Portfolio PnL = +$120.0 (direction_correctness = 0.75)
+Spread width = 2 strikes (strike_selection_score = 1.0 - 2/8.0 = 0.75)
+Cost factor = 0.5 (cost_efficiency = 0.75)
+Final Score = (0.75 * 0.4) + (0.75 * 0.35) + (0.75 * 0.25) = 0.75
+```
 
 ---
 
@@ -111,26 +118,27 @@ total = payload_neutrality + pnl_reward + reasoning_reward
 
 **Formula**:
 ```python
-delta_improvement = max(0, (abs(old_delta) - abs(new_delta)) / abs(old_delta))
-delta_reward = delta_improvement * 0.5
-cost_efficiency = max(0, 0.3 - trade_cost * 0.1)
-neutrality_bonus = 0.1 if abs(new_delta) < 0.05 else 0.0
-reasoning_reward = score_reasoning_quality(...) * 0.2
+pre_shock_neutrality = max(0.0, 1.0 - pre_shock_delta / initial_delta)
+post_shock_neutrality = max(0.0, 1.0 - final_delta / initial_delta)
+cost_efficiency = max(0.0, 1.0 - total_trade_cost / max_allowed_cost)
 
-total = delta_reward + cost_efficiency + neutrality_bonus + reasoning_reward
+score = pre_shock_neutrality * 0.30 + post_shock_neutrality * 0.40 + cost_efficiency * 0.30
 ```
 
 **Example Trajectory**:
 ```
-Step 1: Portfolio Delta = 2.4
-  Action: Sell 2 ATM calls
-  New Delta: 0.08
-  Reward: 0.72 (delta_reward=0.45, cost=0.18, neutrality=0.0, reasoning=0.09)
+Step 1: Portfolio initial Delta = 0.5
+  Action: Buy puts to hedge.
+  Pre-shock Delta: 0.02
+  pre_shock_neutrality = max(0, 1.0 - 0.02 / 0.5) = 0.96
 
-Step 2: Portfolio Delta = 0.08 (shock occurs, drifts to 0.12)
-  Action: Sell 0.5 OTM puts
-  New Delta: 0.03
-  Reward: 0.88 (delta_reward=0.20, cost=0.28, neutrality=0.1, reasoning=0.16)
+Step 2: Shock occurs! Delta drifts to 0.15.
+  Action: Re-hedge by buying more puts.
+  Final Delta: 0.01
+  post_shock_neutrality = max(0, 1.0 - 0.01 / 0.5) = 0.98
+
+Total Cost is low.
+Score = (0.96 * 0.30) + (0.98 * 0.40) + (1.0 * 0.30) = 0.98
 ```
 
 ---
@@ -141,16 +149,23 @@ Step 2: Portfolio Delta = 0.08 (shock occurs, drifts to 0.12)
 
 **Formula**:
 ```python
-delta_neutrality = max(0, 1.0 - abs(delta) / 0.1) * 0.4
-pnl_reward = sigmoid(pnl_change, scale=0.3) * 0.4
-reasoning_reward = score_reasoning_quality(...) * 0.2
-
-total = delta_neutrality + pnl_reward + reasoning_reward
+direction_correctness = sigmoid(portfolio_pnl, scale=0.5)
+risk_score = max(0.0, 1.0 - abs(avg_delta) / 0.3)
+straddle_buy_bonus = 1.0 # If agent correctly buys a straddle
+score = straddle_buy_bonus * 0.30 + direction_correctness * 0.40 + risk_score * 0.30
 ```
 
 **Mechanism**:
-- The agent must buy or sell straddles as an atomic strategy action.
-- Maintaining pure delta neutrality is heavily weighted, alongside capitalizing on raw volatility movements.
+- The agent must use the multi-leg straddle strategy action.
+- Maintaining pure delta neutrality historically (avg_delta) is evaluated directly (`risk_score`).
+
+**Numerical Example**:
+```
+Action = straddle strategy (bonus = 1.0)
+PnL = +$80.0 (direction_correctness = 0.65)
+Avg Delta = 0.05 (risk_score = 1.0 - 0.05/0.3 = 0.83)
+Final Score = (1.0 * 0.3) + (0.65 * 0.4) + (0.83 * 0.3) = 0.81
+```
 
 ---
 
@@ -160,11 +175,11 @@ total = delta_neutrality + pnl_reward + reasoning_reward
 
 **Formula**:
 ```python
-pnl_reward = sigmoid(pnl_change, scale=0.3) * 0.4
-delta_neutrality = (1.0 - min(abs(delta) / 0.5, 1.0)) * 0.3
-reasoning_reward = score_reasoning_quality(...) * 0.3
+pre_crush_positioning = 1.0 if pre_crush_vega < 0 else max(0.0, 1.0 - pre_crush_vega / 5.0)
+post_crush_rehedge = max(0.0, 1.0 - abs(final_delta) / 0.5)
+pnl_outcome = sigmoid(portfolio_pnl, scale=0.5)
 
-total = pnl_reward + delta_neutrality + reasoning_reward
+score = pre_crush_positioning * 0.40 + post_crush_rehedge * 0.35 + pnl_outcome * 0.25
 ```
 
 **Critical Event**:
@@ -174,10 +189,11 @@ total = pnl_reward + delta_neutrality + reasoning_reward
 
 **Sample Penalty**:
 ```
-Step 10: Portfolio Vega = 0.45
-  (No action taken)
-Step 11: IV crush occurs, Vega PnL = -0.38
-  Reward: 0.12 (pnl=-0.25 from vega loss, delta=0.22, reasoning=0.15)
+Step 10: Portfolio Vega = 5.0 (Did not position Short Vega)
+  pre_crush_positioning = 0.0
+Step 11: IV crush occurs, Vega PnL = -$380.0
+  pnl_outcome = 0.12
+  Final Score = (0.0 * 0.40) + (1.0 * 0.35) + (0.12 * 0.25) = 0.38
 ```
 
 ---
@@ -188,11 +204,11 @@ Step 11: IV crush occurs, Vega PnL = -0.38
 
 **Formula**:
 ```python
-delta_neutrality = max(0, 1.0 - abs(delta) / 0.5) * 0.5
-pnl_reward = sigmoid(pnl_change, scale=0.3) * 0.3
-reasoning_reward = score_reasoning_quality(...) * 0.2
+rehedge_quality = max(0.0, 1.0 - average_delta / 0.5)
+pnl_above_theta = sigmoid(portfolio_pnl, scale=0.3)
+timing_score = 0.5 # or 1.0 if scaled consistently
 
-total = delta_neutrality + pnl_reward + reasoning_reward
+score = rehedge_quality * 0.40 + pnl_above_theta * 0.35 + timing_score * 0.25
 ```
 
 **Mechanism**:
@@ -202,14 +218,10 @@ total = delta_neutrality + pnl_reward + reasoning_reward
 
 **Successful Scalping Example**:
 ```
-Step 1: Spot=100, Delta=0.0, Gamma=0.8
-Step 2: Spot=103, Delta=2.4 (gamma * Δspot)
-  Action: Sell 2 calls → Delta returns to 0.4
-  Reward: 0.62 (locked in gamma profit)
-
-Step 3: Spot=98, Delta=-1.6
-  Action: Buy 2 calls → Delta returns to 0.4
-  Reward: 0.58 (another gamma scalp)
+Avg Delta across episode = 0.05 (rehedge_quality = 0.9)
+PnL generated = +$45.0 (pnl_above_theta = 0.82)
+Timing Score = 0.50
+Final Score = (0.9 * 0.40) + (0.82 * 0.35) + (0.50 * 0.25) = 0.772
 ```
 
 ---

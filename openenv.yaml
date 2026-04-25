@@ -1,39 +1,21 @@
-# OpenEnv manifest for VSR-Env
-# Requirements: 1.6, 20.1
+# OpenEnv manifest for Multi-Agent VSR-Env
+# Theme #1: Multi-Agent Interactions
 
 name: vsr-env
-version: 1.0.0
-description: Volatility Surface Reasoning Environment for options portfolio management
+version: 2.0.0
+description: 12-actor market simulation for multi-agent RL - traders, market maker, oversight
 
-# Task definitions (Requirements: 2.1, 2.2, 2.3)
 tasks:
-  - name: vol_regime_detection
-    description: Identify the current market volatility regime based purely on the given IV surface
-    max_steps: 1
-    difficulty: easy
-  - name: delta_hedging
-    description: Neutralize portfolio delta through a market shock event
-    max_steps: 5
-    difficulty: medium
-  - name: earnings_vol_crush
-    description: Position for and recover from an earnings volatility crush event
-    max_steps: 8
-    difficulty: hard
-  - name: gamma_scalping
-    description: Profit from gamma scalping through spot oscillations
-    max_steps: 10
+  - name: multi_agent_market
+    description: "12-actor options market: 10 traders, 1 market maker, 1 oversight agent competing and cooperating over 300 steps"
+    max_steps: 300
     difficulty: expert
-  - name: vega_gamma_stress
-    description: Survive a catastrophic dual market shock by neutralizing risk boundaries beforehand
-    max_steps: 10
-    difficulty: super-boss
-# Type definitions (Requirement 1.6)
-action_type: VSRAction
-observation_type: VSRObservation
-reward_type: VSRReward
-state_type: VSRState
 
-# Server configuration
+action_type: MultiAgentAction
+observation_type: MultiAgentObservation
+reward_type: MultiAgentReward
+state_type: MultiAgentState
+
 server:
   host: 0.0.0.0
   port: 8000

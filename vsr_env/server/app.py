@@ -184,6 +184,55 @@ async def get_state():
         logger.error(f"State retrieval failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+class GradeRequest(BaseModel):
+    task_name: str
+    episode_history: list
+
+@app.post("/grade")
+async def grade_episode(request: GradeRequest):
+    """Evaluate a complete episode history and return a grader score.
+    
+    Args:
+        request: GradeRequest containing task_name and episode_history
+        
+    Returns:
+        Grader score (0.01 - 0.99)
+    """
+    try:
+        from vsr_env.server.vsr_environment import TASK_CONFIG
+        from vsr_env.models import VSRState
+        
+        if request.task_name not in TASK_CONFIG:
+            raise ValueError(f"Unknown task: {request.task_name}")
+            
+        config = TASK_CONFIG[request.task_name]
+        grader = config["grader_class"]()
+        
+        # We construct a mock state from the last observation
+        state = VSRState()
+        if request.episode_history:
+            last_step = request.episode_history[-1]
+            if "observation" in last_step:
+                obs = last_step["observation"]
+                if "portfolio_greeks" in obs:
+                    state.portfolio_delta = obs["portfolio_greeks"].get("delta", 0.0)
+                    state.portfolio_gamma = obs["portfolio_greeks"].get("gamma", 0.0)
+                    state.portfolio_vega = obs["portfolio_greeks"].get("vega", 0.0)
+                    
+            # For delta hedging
+            if request.task_name == "delta_hedging":
+                # Find initial delta from the first observation
+                first_obs = request.episode_history[0].get("observation", {})
+                state.initial_delta = abs(first_obs.get("portfolio_greeks", {}).get("delta", 0.5))
+                state.regime_shift_step = 3 # hardcode default
+        
+        score = grader.score(request.episode_history, state)
+        return {"grader_score": score}
+        
+    except Exception as e:
+        logger.error(f"Grading failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/telemetry")
 async def get_telemetry():

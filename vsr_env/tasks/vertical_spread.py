@@ -26,7 +26,7 @@ class VerticalSpreadTask:
         difficulty: Task difficulty level ("medium")
     """
 
-    max_steps: int = 6
+    max_steps: int = 8
     difficulty: str = "medium"
 
     def initialize(
@@ -91,7 +91,7 @@ class VerticalSpreadTask:
             "bull call spread (buy lower strike call, sell higher strike call) for bullish outlook "
             "or bear put spread (buy higher strike put, sell lower strike put) for bearish outlook. "
             "Optimize strike selection for maximum profit potential while managing breakeven risk. "
-            "You have 6 steps total."
+            "You have 8 steps total."
         )
 
 
@@ -154,19 +154,21 @@ class VerticalSpreadGrader:
                         lower_strike = min(strike1, strike2)
                         higher_strike = max(strike1, strike2)
 
-                        # Determine if bull or bear spread
+                        # Determine direction correctness
+                        # A spread is bullish if the lower strike is bought, regardless of call or put
+                        # It's bearish if the lower strike is sold.
+                        lower_direction = None
                         for leg in action.legs:
                             if leg.strike_idx == lower_strike:
                                 lower_direction = leg.direction
                                 break
 
-                        # Bull call spread: buy lower strike call
-                        is_bull = opt_type == "call" and lower_direction == "buy"
-
-                        if is_bull and expected_direction == "bull":
-                            direction_correctness = 1.0
-                        elif not is_bull and expected_direction == "bear":
-                            direction_correctness = 1.0
+                        if lower_direction:
+                            is_bull = (lower_direction == "buy")
+                            if is_bull and expected_direction == "bull":
+                                direction_correctness = 1.0
+                            elif not is_bull and expected_direction == "bear":
+                                direction_correctness = 1.0
 
                         # Strike selection quality
                         selected_strikes = sorted([strike1, strike2])
@@ -182,7 +184,12 @@ class VerticalSpreadGrader:
         if not has_spread:
             has_manual_spread = self._check_manual_spread(episode_history)
             if has_manual_spread:
+                direction_correctness, strike_selection_score = self._evaluate_manual_spread(
+                    episode_history, expected_direction, optimal_strikes
+                )
+                # Penalty for not using atomic strategy_type
                 direction_correctness *= 0.8
+                strike_selection_score *= 0.8
 
         # Entry price quality (lower is better for debit spreads)
         # Simplified: use step of entry as proxy
@@ -205,37 +212,87 @@ class VerticalSpreadGrader:
 
     def _check_manual_spread(self, episode_history: List[Any]) -> bool:
         """Check if agent built a spread manually."""
-        buy_call = False
-        sell_call = False
-        buy_put = False
-        sell_put = False
+        calls = []
+        puts = []
 
         for step in episode_history:
             action = step.get("action")
-            if action is None or not hasattr(action, "option_type"):
+            if action is None:
                 continue
 
-            if not hasattr(action, "direction"):
+            # Standard fields
+            qty = getattr(action, "quantity", 0)
+            if qty <= 0:
                 continue
 
             direction_val = action.direction.value if hasattr(action.direction, "value") else action.direction
-            opt_type = action.option_type
+            opt_type = getattr(action, "option_type", "call")
+            strike = getattr(action, "selected_strike", 0)
+
+            if opt_type == "call":
+                calls.append((strike, direction_val))
+            else:
+                puts.append((strike, direction_val))
+
+        # A spread has at least two legs of the same type with opposite directions
+        def has_opposite(legs):
+            if len(legs) < 2:
+                return False
+            has_buy = any(l[1] == "buy" for l in legs)
+            has_sell = any(l[1] == "sell" for l in legs)
+            return has_buy and has_sell
+
+        return has_opposite(calls) or has_opposite(puts)
+
+    def _evaluate_manual_spread(
+        self, episode_history: List[Any], expected_direction: str, optimal_strikes: Tuple[int, int]
+    ) -> Tuple[float, float]:
+        """Evaluate direction and strike selection for manual spreads."""
+        calls = []
+        puts = []
+        
+        for step in episode_history:
+            action = step.get("action")
+            if action is None: continue
             qty = getattr(action, "quantity", 0)
+            if qty <= 0: continue
+            
+            direction = action.direction.value if hasattr(action.direction, "value") else action.direction
+            opt_type = getattr(action, "option_type", "call")
+            strike = getattr(action, "selected_strike", 0)
+            
+            if opt_type == "call":
+                calls.append((strike, direction))
+            else:
+                puts.append((strike, direction))
 
-            if qty > 0:
-                if opt_type == "call":
-                    if direction_val == "buy":
-                        buy_call = True
-                    else:
-                        sell_call = True
-                elif opt_type == "put":
-                    if direction_val == "buy":
-                        buy_put = True
-                    else:
-                        sell_put = True
+        # Select the active group
+        legs = calls if len(calls) >= 2 else puts
+        if len(legs) < 2:
+            return 0.0, 0.0
 
-        # A spread has opposite directions
-        return (buy_call and sell_call) or (buy_put and sell_put)
+        # Extract strikes
+        buy_strikes = [l[0] for l in legs if l[1] == "buy"]
+        sell_strikes = [l[0] for l in legs if l[1] == "sell"]
+        
+        if not buy_strikes or not sell_strikes:
+            return 0.0, 0.0
+
+        # Most recent legs define the spread
+        strike_buy = buy_strikes[-1]
+        strike_sell = sell_strikes[-1]
+        
+        # Bullish if strike_buy < strike_sell
+        is_bull = strike_buy < strike_sell
+        direction_correctness = 1.0 if (is_bull and expected_direction == "bull") or (not is_bull and expected_direction == "bear") else 0.0
+        
+        # Strike selection
+        selected_strikes = sorted([strike_buy, strike_sell])
+        optimal_sorted = sorted(optimal_strikes)
+        strike_diff = abs(selected_strikes[0] - optimal_sorted[0]) + abs(selected_strikes[1] - optimal_sorted[1])
+        strike_selection_score = max(0.0, 1.0 - strike_diff / 8.0)
+        
+        return direction_correctness, strike_selection_score
 
     def _sigmoid(self, x: float, scale: float = 0.3) -> float:
         """Sigmoid function centered at 0."""

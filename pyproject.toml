@@ -39,7 +39,7 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["vsr_env*"]
+include = ["vsr_env*", "multi_agent*"]
 
 [project.scripts]
-server = "vsr_env.server.app:main"
+server = "server.app:main"
