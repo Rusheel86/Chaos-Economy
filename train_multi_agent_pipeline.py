@@ -896,7 +896,7 @@ def train_unified_model(args):
                 # ACTIVITY BONUS: reward taking a position
                 # Anti-hack: require quantity > 0 (not just direction != hold)
                 activity_bonus = 0.0
-                if is_active and raw_pnl >= 0:
+                if is_active:
                     activity_bonus = 0.15 * phase_scale
                 
                 comp["pnl"] = (raw_pnl * weights["pnl"] * phase_scale
@@ -998,7 +998,7 @@ def train_unified_model(args):
                 news_alpha_reward = 0.0
                 active_event = None
                 for event in env.black_swan_gen.events:
-                    if event.news_step <= step <= event.trigger_step:
+                    if event.news_step <= env.current_step <= event.trigger_step:
                         active_event = event
                         break
                 
@@ -1032,12 +1032,9 @@ def train_unified_model(args):
 
                 # [H1 FIX] Only reward sell_intel if someone actually bought it
                 if action.get("sell_intel"):
-                    sold = [t for t in env.marketplace.transaction_log
-                            if t["step"] == step and t["seller_id"] == agent_id]
-                    if sold:
-                        news_alpha_reward += 0.1
-                    else:
-                        news_alpha_reward -= 0.05  # spam penalty
+                    # Since they just posted, checking if bought this exact step is impossible.
+                    # Just give a small bonus for participating in intel economy.
+                    news_alpha_reward += 0.05
 
                 comp["news_alpha"] = news_alpha_reward
                 comp["diversity"] = div_score + wash_trade_penalty

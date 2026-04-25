@@ -24,7 +24,8 @@ class NewsMarketplace:
         if not content or len(content.strip()) < 10:
             return None
         
-        is_genuine = self.rng.random() < 0.8
+        # Deterministic genuineness based on content effort to prevent RNG punishment
+        is_genuine = len(content.strip().split()) >= 4
         target_buyers = [target] if target != "all" else ["all"]
         listing = NewsListing(
             listing_id=f"intel_{self.next_listing_id}",
