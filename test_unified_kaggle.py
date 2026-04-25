@@ -615,7 +615,11 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             intel_this_step = info.get("intel_transactions", [])
             if msgs_this_step:
                 for m in msgs_this_step[-3:]:
-                    print(f"  📩 [DM/Broadcast] {m.get('sender_id','?')} → #{m.get('channel','?')}: \"{m.get('content','')[:80]}\"")
+                    sender = m.get("sender", "?")
+                    recipient = m.get("recipient", "?")
+                    msg_type = m.get("type", "message")
+                    content = m.get("message", "")
+                    print(f"  📩 [{msg_type.upper()}] {sender} → {recipient}: \"{content[:80]}\"")
             if intel_this_step:
                 for t in intel_this_step[-3:]:
                     print(f"  🔍 [Intel Sale] {t.get('seller_id','?')} sold to {t.get('buyer_id','?')}: \"{t.get('content','')[:60]}\" (${t.get('price',0)})")
@@ -708,7 +712,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
     return total_rewards
 
 
-def run_multi_episode_evaluation(model, tokenizer, num_steps: int, num_episodes: int, use_lora: bool, device: str):
+def run_multi_episode_evaluation(model, tokenizer, num_steps: int, num_episodes: int, use_lora: bool, device: str, base_seed: int = 42):
     """Run many episodes and aggregate judge-facing behavior metrics."""
     aggregate_rewards = defaultdict(float)
     aggregate = {
@@ -724,12 +728,12 @@ def run_multi_episode_evaluation(model, tokenizer, num_steps: int, num_episodes:
 
     print("\n" + "=" * 70)
     mode = "TRAINED UNIFIED LoRA" if use_lora else "SCRIPTED BASELINE"
-    print(f"Running {num_episodes} episodes x {num_steps} steps with {mode}")
+    print(f"Running {num_episodes} episodes x {num_steps} steps with {mode} (base_seed={base_seed})")
     print("=" * 70)
 
     for ep in range(num_episodes):
         rewards = run_episode(
-            model, tokenizer, num_steps, use_lora, device, seed=42 + ep, verbose=(ep == 0)
+            model, tokenizer, num_steps, use_lora, device, seed=base_seed + ep, verbose=(ep == 0)
         )
         for k, v in rewards.items():
             aggregate_rewards[k] += v
@@ -780,6 +784,7 @@ def main():
     parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-3B-Instruct-bnb-4bit")
     parser.add_argument("--num_steps", type=int, default=50)
     parser.add_argument("--num_episodes", type=int, default=30)
+    parser.add_argument("--seed", type=int, default=42, help="Base seed for evaluation episodes.")
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -810,7 +815,7 @@ def main():
 
     # Test 1: Trained Unified model
     rewards_lora, metrics_lora = run_multi_episode_evaluation(
-        model, tokenizer, args.num_steps, args.num_episodes, use_lora=True, device=device
+        model, tokenizer, args.num_steps, args.num_episodes, use_lora=True, device=device, base_seed=args.seed
     )
 
     # Test 2: Baseline (all scripted)
@@ -818,7 +823,7 @@ def main():
     print("Running BASELINE with all scripted agents...")
     print("="*70)
     rewards_baseline, metrics_baseline = run_multi_episode_evaluation(
-        None, tokenizer, args.num_steps, args.num_episodes, use_lora=False, device=device
+        None, tokenizer, args.num_steps, args.num_episodes, use_lora=False, device=device, base_seed=args.seed
     )
 
     # Summary

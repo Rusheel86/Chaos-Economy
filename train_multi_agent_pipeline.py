@@ -163,17 +163,17 @@ Optional fields:
     return base
 
 
-def get_training_phase(episode: int, total_episodes: int = 250) -> str:
-    """Determine training phase based on episode number.
+def get_training_phase(index: int, total_units: int = 250) -> str:
+    """Determine training phase based on progress through episodes or steps.
 
-    Boundaries are proportional to total_episodes so all four acts
-    receive coverage regardless of dataset size:
+    Boundaries are proportional to total_units so all four acts receive
+    coverage regardless of run length:
       Act I  (Slaughter):  0 – 24%
       Act II (Adaptation): 24% – 52%
       Act III (Collusion): 52% – 80%
       Act IV (Oversight):  80% – 100%
     """
-    ratio = episode / max(1, total_episodes)
+    ratio = index / max(1, total_units)
     if ratio < 0.24:
         return "slaughter"
     elif ratio < 0.52:
@@ -182,6 +182,20 @@ def get_training_phase(episode: int, total_episodes: int = 250) -> str:
         return "collusion"
     else:
         return "oversight"
+
+
+def get_phase_boundaries(total_units: int) -> dict[str, tuple[int, int]]:
+    """Return inclusive start / exclusive end boundaries for each act."""
+    total_units = max(1, total_units)
+    act_ii_start = max(1, int(total_units * 0.24))
+    act_iii_start = max(act_ii_start + 1, int(total_units * 0.52))
+    act_iv_start = max(act_iii_start + 1, int(total_units * 0.80))
+    return {
+        "slaughter": (0, act_ii_start),
+        "adaptation": (act_ii_start, act_iii_start),
+        "collusion": (act_iii_start, act_iv_start),
+        "oversight": (act_iv_start, total_units),
+    }
 
 
 def format_oversight_prompt(obs, position_heatmap: dict, coordinated_pressure: dict, agent_thoughts: dict = None, phase: str = "oversight", env_info: dict = None) -> str:
@@ -550,11 +564,24 @@ def train_unified_model(args):
     from trl import GRPOConfig, GRPOTrainer
     from datasets import Dataset
     from multi_agent.environment import MultiAgentVSREnvironment
+    step_phase_bounds = get_phase_boundaries(args.max_steps)
+    phase_labels = {
+        "slaughter": "Act I: Slaughter",
+        "adaptation": "Act II: Adaptation",
+        "collusion": "Act III: Collusion",
+        "oversight": "Act IV: Oversight",
+    }
 
     print(f"\n{'='*70}")
     print(f"TRAINING UNIFIED MULTI-AGENT MODEL WITH NARRATIVE ARC")
-    print(f"Act I: Slaughter (0-60)  | Act II: Adaptation (60-130)")
-    print(f"Act III: Collusion (130-200) | Act IV: Oversight (200+)")
+    print(
+        f"Act I: Slaughter ({step_phase_bounds['slaughter'][0]}-{step_phase_bounds['slaughter'][1]-1})"
+        f"  | Act II: Adaptation ({step_phase_bounds['adaptation'][0]}-{step_phase_bounds['adaptation'][1]-1})"
+    )
+    print(
+        f"Act III: Collusion ({step_phase_bounds['collusion'][0]}-{step_phase_bounds['collusion'][1]-1})"
+        f" | Act IV: Oversight ({step_phase_bounds['oversight'][0]}+)"
+    )
     print(f"{'='*70}\n")
     print("STORYLINE FOR JUDGES")
     print("- Act I: The Slaughter")
@@ -578,6 +605,7 @@ def train_unified_model(args):
                 "num_episodes": args.num_episodes,
                 "episode_length": args.episode_length,
                 "max_steps": args.max_steps,
+                "phase_step_boundaries": {k: list(v) for k, v in step_phase_bounds.items()},
                 "learning_rate": args.learning_rate,
                 "num_epochs": args.num_epochs,
                 "num_traders": 4,
@@ -590,10 +618,8 @@ def train_unified_model(args):
                     "oversight": "SEC Regulator (RL)",
                 },
                 "narrative_arc": [
-                    "Act I: Slaughter (0-60)",
-                    "Act II: Adaptation (60-130)",
-                    "Act III: Collusion (130-200)",
-                    "Act IV: Oversight (200+)",
+                    f"{phase_labels[key]} ({bounds[0]}-{max(bounds[0], bounds[1]-1) if key != 'oversight' else str(bounds[0]) + '+'})"
+                    for key, bounds in step_phase_bounds.items()
                 ],
             },
             tags=["vsr-env", "multi-agent", "grpo", "chaos-economy"],
@@ -681,7 +707,7 @@ def train_unified_model(args):
 
     for seed in range(dataset_episodes):
         # Determine training phase based on episode/seed
-        phase = get_training_phase(seed, total_episodes=dataset_episodes)
+        phase = get_training_phase(seed, total_units=dataset_episodes)
         phase_seed_counts[phase] += 1
         if phase not in announced_phases:
             print(f"[{ACT_INFO[phase]['name']}] seed={seed} :: {ACT_INFO[phase]['tagline']}")
@@ -1317,6 +1343,7 @@ def train_unified_model(args):
             if not logs or not HAS_WANDB or not wandb.run:
                 return
             step = state.global_step
+            phase = get_training_phase(step, total_units=max(1, args.max_steps))
 
             # ── Log reward component breakdown ──
             reward_components = {}
@@ -1338,16 +1365,6 @@ def train_unified_model(args):
             REWARD_STATS.clear()
 
             # ── Determine and log current training phase ──
-            est_episode = step // max(1, args.logging_steps)
-            if est_episode < 60:
-                phase = "slaughter"
-            elif est_episode < 130:
-                phase = "adaptation"
-            elif est_episode < 200:
-                phase = "collusion"
-            else:
-                phase = "oversight"
-
             if phase != self._current_phase:
                 self._current_phase = phase
                 phase_names = {
