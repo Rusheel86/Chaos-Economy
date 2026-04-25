@@ -7,23 +7,22 @@ sdk: docker
 pinned: false
 ---
 
-# Predatory Swarms: Emergent Collusion in a 12-Agent Options Market
+# Predatory Swarms: Emergent Collusion in a Multi-Agent Options Market
 
 Project for **Meta × PyTorch × SST OpenEnv AI Hackathon**
 
 > [!IMPORTANT]
-> **Judge's TL;DR:** While most submissions simulate single-agent tasks or simple startup dynamics, *Predatory Swarms* tackles **Systemic Risk**. We simulate a high-fidelity 12-agent options market where 10 traders, a market maker, and a regulator engage in a high-stakes game of emergent collusion and adaptive oversight.
+> **Judge's TL;DR:** While most submissions simulate single-agent tasks or simple startup dynamics, *Predatory Swarms* tackles **Systemic Risk**. We simulate a high-fidelity multi-agent options market where 3 archetypal traders, a market maker, and a regulator engage in a high-stakes game of emergent collusion and adaptive oversight.
 
 ---
 
-## 🏆 Competitive Advantage (The "Unfair" Edge)
+## 🚀 Why Predatory Swarms?
+- **Agent Scale**: **5 RL Agents** (Aggressive + Neutral + Contrarian Traders, Market Maker, SEC Regulator) + 1 Scripted Baseline.
+- **Complexity**: **High-Fidelity Options Pricing** (Greeks, Implied Volatility Surface) providing a rigorous mathematical foundation.
+- **Narrative Arc**: **Four-Act "Black Swan" Simulation** that tests agent robustness through extreme market shocks.
+- **Training**: **Multi-Role Unified LoRA** (Cross-Agent Theory of Mind) where a single model masters multiple market personas.
+- **Observability**: **W&B Experiment Tracking** with agent conversation logs, news events, SEC enforcement, and market state snapshots.
 
-| Feature | **Predatory Swarms** | Typical Contenders (e.g., OpenOffice, Sentinel) |
-|---|---|---|
-| **Agent Scale** | **12 Agents** (10 Traders + MM + SEC) | Usually 1-4 Agents |
-| **Complexity** | **High-Fidelity Options Pricing** (Greeks/IV) | Startup/Office Tasks or Pure Text Monitoring |
-| **Narrative Arc** | **Four-Act "Black Swan" Simulation** | Static Before/After Benchmarks |
-| **Training** | **Multi-Role Unified LoRA** (Cross-Agent ToM) | Single Policy or Disconnected Agents |
 
 ---
 
@@ -47,9 +46,12 @@ Project for **Meta × PyTorch × SST OpenEnv AI Hackathon**
 - **Finance-grounded dynamics:** options-style spread/risk interactions create non-trivial adaptation pressure.
 
 ### Agent roles
-- **Traders (`trader_0..trader_9`)**: choose direction/strike/maturity/size.
-- **Market maker**: sets ATM/OTM/ITM spreads as defensive controls.
-- **Oversight**: flags suspected manipulation, can fine, and can intervene.
+- **Aggressive Trader (`trader_0`)**: high-risk momentum chaser, gamma squeeze initiator.
+- **Neutral Trader (`trader_1`)**: balanced, may join or resist coordination.
+- **Contrarian Trader (`trader_2`)**: counter-trend, exploits manipulation.
+- **Scripted Baseline (`trader_3`)**: fixed heuristic for comparison.
+- **Market Maker**: sets ATM/OTM/ITM spreads as defensive controls.
+- **Oversight (SEC)**: flags suspected manipulation, can fine, and can intervene.
 
 This setup meaningfully tests multi-agent behavior beyond single-policy optimization.
 
@@ -91,9 +93,9 @@ We generate reward evidence directly from logs:
 
 | Agent Type | Trained LoRA | Scripted Baseline |
 |---|---:|---:|
-| Aggressive Traders (0-2) | -0.93 | -4.13 |
-| Neutral Traders (3-5) | -1.08 | -4.58 |
-| Contrarian Traders (6-8) | -8.52 | -3.79 |
+| Aggressive Trader (T0) | -0.93 | -4.13 |
+| Neutral Trader (T1) | -1.08 | -4.58 |
+| Contrarian Trader (T2) | -8.52 | -3.79 |
 | Market Maker | **21.01** | 14.84 |
 | Oversight SEC | -95.60 | 7.50 |
 
@@ -109,37 +111,29 @@ We generate reward evidence directly from logs:
 - Role prompts plus parser/validators keep outputs aligned to action schemas.
 - Reward and logging signals are emitted at training checkpoints and replay/eval time.
 
-### Training command
+### How Judges Can Train the Model
+
+We have engineered this pipeline to support seamless execution on **Hugging Face Jobs** (A100 recommended) using `uv` for dependency management.
+
 ```bash
-accelerate launch \
-  --num_processes 1 \
-  --num_machines 1 \
-  --mixed_precision fp16 \
-  --dynamo_backend no \
-  train_multi_agent_pipeline.py \
-  --num_episodes 250 \
-  --dataset_episodes 100
+# 1. Start a Hugging Face Job with W&B tracking
+huggingface-cli jobs uv run \
+  --machine-type a100-large \
+  --name vsr-env-training \
+  -- "git clone https://github.com/mananpbansal/vsr-env.git && cd vsr-env && git checkout news && uv sync && python train_multi_agent_pipeline.py --base_model unsloth/Llama-3.2-3B-Instruct-bnb-4bit --num_episodes 4 --episode_length 16 --num_epochs 1 --max_steps 320 --learning_rate 5e-5 --output_dir ./multi_agent_checkpoints --wandb_project vsr-env-multi-agent"
 ```
 
-### Evaluation command (GPU-budget mode)
+### How Judges Can Evaluate the Model
+
+Once the LoRA adapter is trained (or using the provided checkpoint), judges can run the unified testing script to simulate a complete market episode and observe the "Chaos Economy" dynamics.
+
 ```bash
 python test_unified_kaggle.py \
-  --lora_path /kaggle/input/datasets/mananpbansal/models/Meta/multi_agent_checkpoints/unified_market_lora \
-  --num_steps 50 \
+  --lora_path ./multi_agent_checkpoints \
+  --num_steps 320 \
   --num_episodes 1
 ```
-
-### Full training command (500-step/episode schedule)
-```bash
-accelerate launch \
-  --num_processes 1 \
-  --num_machines 1 \
-  --mixed_precision fp16 \
-  --dynamo_backend no \
-  train_multi_agent_pipeline.py \
-  --num_episodes 500 \
-  --dataset_episodes 100
-```
+This script evaluates the RL-trained agents against scripted baselines and records metrics for manipulation detection, market making spreads, and trader profitability.
 
 ---
 
@@ -194,9 +188,14 @@ Generated artifacts:
 ## Quick Start
 
 ```bash
-pip install -e .
-python inference_multi_agent.py --output replay.json
-python visualize_multi_agent.py --replay replay.json
+# Clone and install
+git clone https://github.com/mananpbansal/vsr-env.git
+cd vsr-env
+git checkout news
+uv sync
+
+# Run evaluation of the baseline vs RL models
+python test_unified_kaggle.py --num_steps 320 --num_episodes 1
 ```
 
 ---

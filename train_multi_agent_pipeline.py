@@ -7,10 +7,10 @@ NARRATIVE ARC (Phase-Based Training):
 - Act IV: Oversight (Episodes 200-250): Full SEC enforcement, market stabilizes
 
 TRADER ARCHETYPES:
-- Aggressive (trader_0, trader_1, trader_2): High risk, momentum chase
-- Neutral (trader_3, trader_4, trader_5): Balanced, moderate positions
-- Contrarian (trader_6, trader_7, trader_8): Counter-trend, position limits
-- trader_9: Scripted baseline for comparison
+- Aggressive (trader_0): High risk, momentum chase
+- Neutral (trader_1): Balanced, moderate positions
+- Contrarian (trader_2): Counter-trend, position limits
+- trader_3: Scripted baseline for comparison
 
 Usage on Kaggle (SINGLE COMMAND for full arc):
     !python train_multi_agent_pipeline.py --num_episodes 250
@@ -26,6 +26,12 @@ import logging
 from pathlib import Path
 from collections import defaultdict
 import torch
+
+try:
+    import wandb
+    HAS_WANDB = True
+except ImportError:
+    HAS_WANDB = False
 
 # Clone repo if needed
 if not Path("multi_agent").exists() and not Path("Meta/multi_agent").exists():
@@ -54,19 +60,19 @@ sys.path.insert(0, ".")
 
 TRADER_CONFIGS = {
     "aggressive": {
-        "trader_ids": [0, 1, 2],
+        "trader_ids": [0],
         "reward_weight": {"pnl": 0.7, "position_quality": 0.1, "risk_penalty": 0.05},
         "temperature": 0.9,
         "description": "Momentum chasers, high risk, gamma squeeze initiators",
     },
     "neutral": {
-        "trader_ids": [3, 4, 5],
+        "trader_ids": [1],
         "reward_weight": {"pnl": 0.5, "position_quality": 0.3, "risk_penalty": 0.1},
         "temperature": 0.7,
         "description": "Balanced, may join coordinated pressure",
     },
     "contrarian": {
-        "trader_ids": [6, 7, 8],
+        "trader_ids": [2],
         "reward_weight": {"pnl": 0.4, "position_quality": 0.3, "risk_penalty": 0.2},
         "temperature": 0.6,
         "description": "Counter-trend, exploit manipulation",
@@ -556,6 +562,49 @@ def train_unified_model(args):
     print("- Act III: Emergent Collusion")
     print("- Act IV: The Watcher Awakens\n")
 
+    # ── W&B Initialization ──
+    wandb_api_key = os.environ.get("WANDB_API_KEY")
+    use_wandb = HAS_WANDB and wandb_api_key is not None
+    
+    if use_wandb:
+        print("[W&B] Found WANDB_API_KEY in environment. Logging in...")
+        wandb.login(key=wandb_api_key)
+        wandb_project = getattr(args, 'wandb_project', None) or "vsr-env-chaos-economy"
+        wandb.init(
+            project=wandb_project,
+            name=f"vsr-{args.max_steps}steps-{args.num_episodes}ep",
+            config={
+                "base_model": args.base_model,
+                "num_episodes": args.num_episodes,
+                "episode_length": args.episode_length,
+                "max_steps": args.max_steps,
+                "learning_rate": args.learning_rate,
+                "num_epochs": args.num_epochs,
+                "num_traders": 4,
+                "agent_layout": {
+                    "trader_0": "Aggressive (RL)",
+                    "trader_1": "Neutral (RL)",
+                    "trader_2": "Contrarian (RL)",
+                    "trader_3": "Scripted Baseline",
+                    "market_maker": "Market Maker (RL)",
+                    "oversight": "SEC Regulator (RL)",
+                },
+                "narrative_arc": [
+                    "Act I: Slaughter (0-60)",
+                    "Act II: Adaptation (60-130)",
+                    "Act III: Collusion (130-200)",
+                    "Act IV: Oversight (200+)",
+                ],
+            },
+            tags=["vsr-env", "multi-agent", "grpo", "chaos-economy"],
+        )
+        print(f"[W&B] Initialized experiment tracking (Project: {wandb_project})")
+    else:
+        if not HAS_WANDB:
+            print("[W&B] wandb not installed — skipping experiment tracking")
+        else:
+            print("[W&B] No WANDB_API_KEY found in environment — skipping experiment tracking")
+
     if use_unsloth:
         # Force float16 — Unsloth's internal LoRA kernels use fp16 and will crash
         # with a "Half vs BFloat16" error if we mix dtypes.
@@ -645,7 +694,7 @@ def train_unified_model(args):
         if ff_steps > 0:
             for step in range(ff_steps):
                 actions = {}
-                for i in range(10):
+                for i in range(4):
                     actions[f"trader_{i}"] = scripted_trader(i, step)
                 actions["market_maker"] = scripted_mm(step)
                 actions["oversight"] = scripted_oversight()
@@ -665,13 +714,13 @@ def train_unified_model(args):
         })
         phase_prompt_counts[phase] += 1
         prompts.append({
-            "prompt": clip_prompt(format_trader_prompt("neutral", "trader_3", obs["trader_3"])),
-            "seed": seed, "agent_role": "trader", "agent_id": "trader_3", "archetype": "neutral", "ff_steps": ff_steps
+            "prompt": clip_prompt(format_trader_prompt("neutral", "trader_1", obs["trader_1"])),
+            "seed": seed, "agent_role": "trader", "agent_id": "trader_1", "archetype": "neutral", "ff_steps": ff_steps
         })
         phase_prompt_counts[phase] += 1
         prompts.append({
-            "prompt": clip_prompt(format_trader_prompt("contrarian", "trader_6", obs["trader_6"])),
-            "seed": seed, "agent_role": "trader", "agent_id": "trader_6", "archetype": "contrarian", "ff_steps": ff_steps
+            "prompt": clip_prompt(format_trader_prompt("contrarian", "trader_2", obs["trader_2"])),
+            "seed": seed, "agent_role": "trader", "agent_id": "trader_2", "archetype": "contrarian", "ff_steps": ff_steps
         })
         phase_prompt_counts[phase] += 1
         
@@ -724,7 +773,7 @@ def train_unified_model(args):
     def _get_scripted_actions(step):
         if step not in _scripted_actions_cache:
             a = {}
-            for i in range(10):
+            for i in range(4):
                 a[f"trader_{i}"] = scripted_trader(i, step)
             a["market_maker"] = scripted_mm(step)
             a["oversight"] = scripted_oversight()
@@ -876,9 +925,8 @@ def train_unified_model(args):
                 if my_direction in ("buy", "sell") and my_qty < 0.1:
                     zero_qty_penalty = -1.0  # strong signal: don't game with empty trades
 
-                # PnL & Coordination
                 # Anti-hack: only award coordination bonus if agent ACTUALLY traded
-                # (quantity > 0 confirmed), and require 3+ co-located traders (was 2)
+                # (quantity > 0 confirmed), and require 2+ co-located traders
                 coordination_bonus = 0.0
                 if phase in ["collusion", "adaptation"]:
                     my_strike = action.get("selected_strike", -1)
@@ -889,8 +937,8 @@ def train_unified_model(args):
                                 for pos in other_state.positions:
                                     if pos.get("selected_strike") == my_strike:
                                         same_strike_count += 1
-                        if same_strike_count >= 3:  # raised from 2 to prevent easy farming
-                            coordination_bonus = 0.3 * phase_scale  # reduced from 0.5
+                        if same_strike_count >= 2:  # lowered from 3 for 4-trader setup
+                            coordination_bonus = 0.3 * phase_scale
 
                 # Anti-hack #2: penalize strike herding across ALL phases (STRENGTHENED)
                 # If agent picks the same strike as the prompt example default (4),
@@ -981,13 +1029,13 @@ def train_unified_model(args):
                 
                 # Anti-herding: penalize following the crowd — ALL archetypes
                 if is_active:
-                    lora_agents = {"trader_0", "trader_3", "trader_6"}
+                    lora_agents = {"trader_0", "trader_1", "trader_2"}
                     lora_directions = {aid: a.get("direction") for aid, a in actions.items() if aid in lora_agents}
                     sell_count = sum(1 for d in lora_directions.values() if d == "sell")
                     buy_count = sum(1 for d in lora_directions.values() if d == "buy")
                     total_traders = len(lora_directions)
                     # If >66% of traders go same direction, penalize joining the herd
-                    if total_traders >= 3:
+                    if total_traders >= 2:
                         if my_direction == "sell" and sell_count / total_traders > 0.66:
                             herd_penalty = -0.6 if archetype == "contrarian" else -0.4
                             div_score += herd_penalty
@@ -995,7 +1043,7 @@ def train_unified_model(args):
                             herd_penalty = -0.6 if archetype == "contrarian" else -0.4
                             div_score += herd_penalty
                     # Extra bonus for contrarians going AGAINST the herd
-                    if archetype == "contrarian" and total_traders >= 3:
+                    if archetype == "contrarian" and total_traders >= 2:
                         if my_direction == "sell" and buy_count / total_traders > 0.66:
                             div_score += 0.3  # rewarded for being contrarian
                         elif my_direction == "buy" and sell_count / total_traders > 0.66:
@@ -1157,24 +1205,38 @@ def train_unified_model(args):
             results.append(comp)
 
         return results
+    # For tracking W&B reward stats globally per step
+    REWARD_STATS = defaultdict(list)
 
     def format_reward_fn(prompts, completions, **kwargs):
-        return [r["format"] for r in _evaluate_all(prompts, completions, kwargs)]
+        vals = [r["format"] for r in _evaluate_all(prompts, completions, kwargs)]
+        REWARD_STATS["format"].extend(vals)
+        return vals
 
     def pnl_reward_fn(prompts, completions, **kwargs):
-        return [r["pnl"] for r in _evaluate_all(prompts, completions, kwargs)]
+        vals = [r["pnl"] for r in _evaluate_all(prompts, completions, kwargs)]
+        REWARD_STATS["pnl"].extend(vals)
+        return vals
 
     def risk_reward_fn(prompts, completions, **kwargs):
-        return [r["risk"] for r in _evaluate_all(prompts, completions, kwargs)]
+        vals = [r["risk"] for r in _evaluate_all(prompts, completions, kwargs)]
+        REWARD_STATS["risk"].extend(vals)
+        return vals
 
     def diversity_reward_fn(prompts, completions, **kwargs):
-        return [r["diversity"] for r in _evaluate_all(prompts, completions, kwargs)]
+        vals = [r["diversity"] for r in _evaluate_all(prompts, completions, kwargs)]
+        REWARD_STATS["diversity"].extend(vals)
+        return vals
 
     def oversight_reward_fn(prompts, completions, **kwargs):
-        return [r["oversight"] for r in _evaluate_all(prompts, completions, kwargs)]
+        vals = [r["oversight"] for r in _evaluate_all(prompts, completions, kwargs)]
+        REWARD_STATS["oversight"].extend(vals)
+        return vals
 
     def news_alpha_reward_fn(prompts, completions, **kwargs):
-        return [r["news_alpha"] for r in _evaluate_all(prompts, completions, kwargs)]
+        vals = [r["news_alpha"] for r in _evaluate_all(prompts, completions, kwargs)]
+        REWARD_STATS["news_alpha"].extend(vals)
+        return vals
 
     training_args = GRPOConfig(
         output_dir=f"{args.output_dir}/unified_v1",
@@ -1190,6 +1252,7 @@ def train_unified_model(args):
         bf16=False,   # Must be False — Unsloth kernels use fp16 internally
         fp16=True,    # Match Unsloth's internal dtype
         max_grad_norm=1.0,
+        report_to="wandb" if use_wandb else "none",
     )
 
     from transformers import TrainerCallback
@@ -1224,6 +1287,225 @@ def train_unified_model(args):
 
     best_cb = BestModelCallback(top_n=3, output_dir=args.output_dir)
 
+    # ── W&B Storytelling Callback ──
+    class WandbStorytellingCallback(TrainerCallback):
+        """Log rich multi-agent storytelling data to W&B during training.
+
+        Captures:
+        - Reward component breakdown per step
+        - Agent reasoning & conversation snapshots as W&B Tables
+        - Black swan / news event timeline
+        - SEC enforcement actions & fines
+        - Market state (spot price, IV, MM spreads)
+        - Phase transitions (Act I-IV)
+        """
+
+        def __init__(self, log_episode_every=25, episode_length=16):
+            self.log_episode_every = log_episode_every
+            self.episode_length = episode_length
+            self._current_phase = None
+
+        def on_log(self, args, state, control, logs=None, **kwargs):
+            if not logs or not HAS_WANDB or not wandb.run:
+                return
+            step = state.global_step
+
+            # ── Log reward component breakdown ──
+            reward_components = {}
+            import numpy as np
+            for key, values in REWARD_STATS.items():
+                if values:
+                    reward_components[f"story/{key}_mean"] = float(np.mean(values))
+                    reward_components[f"story/{key}_std"] = float(np.std(values))
+            
+            for key in list(logs.keys()):
+                if "reward" in key.lower():
+                    clean = key.replace("reward/", "story/").replace("_fn", "")
+                    if f"story/{clean}_mean" not in reward_components:
+                        reward_components[clean] = logs[key]
+
+            if reward_components:
+                wandb.log(reward_components, step=step)
+            REWARD_STATS.clear()
+
+            # ── Determine and log current training phase ──
+            est_episode = step // max(1, args.logging_steps)
+            if est_episode < 60:
+                phase = "slaughter"
+            elif est_episode < 130:
+                phase = "adaptation"
+            elif est_episode < 200:
+                phase = "collusion"
+            else:
+                phase = "oversight"
+
+            if phase != self._current_phase:
+                self._current_phase = phase
+                phase_names = {
+                    "slaughter": "Act I: The Slaughter",
+                    "adaptation": "Act II: Adaptive Armor",
+                    "collusion": "Act III: The Shadow Strike",
+                    "oversight": "Act IV: The Watcher Awakens",
+                }
+                wandb.log({"story/phase": phase_names.get(phase, phase)}, step=step)
+                print(f"[W&B] Phase transition → {phase_names.get(phase, phase)}")
+
+            # ── Periodic episode snapshot with agent conversations ──
+            if step > 0 and step % self.log_episode_every == 0:
+                self._log_episode_snapshot(step)
+
+        def _log_episode_snapshot(self, global_step):
+            """Run a quick scripted episode and log agent actions, news, and SEC to W&B Tables."""
+            try:
+                import numpy as np
+                env = MultiAgentVSREnvironment(episode_length=self.episode_length)
+                obs = env.reset(seed=global_step)
+
+                action_rows = []   # Agent action table
+                news_rows = []     # News & black swan events
+                sec_rows = []      # SEC enforcement log
+                market_rows = []   # Market state timeline
+
+                for s in range(self.episode_length):
+                    actions = {}
+                    for i in range(4):
+                        actions[f"trader_{i}"] = scripted_trader(i, s)
+                    actions["market_maker"] = scripted_mm(s)
+                    actions["oversight"] = scripted_oversight()
+
+                    obs, rewards, done, info = env.step(actions)
+
+                    spot = float(env.vsr_state.spot_price)
+                    iv = float(np.sqrt(env.vsr_state.variance))
+
+                    # ── Market state ──
+                    mm = actions["market_maker"]
+                    market_rows.append({
+                        "step": s, "spot_price": round(spot, 2), "iv": round(iv, 4),
+                        "mm_atm_spread": mm.get("atm_spread", 0.04),
+                        "mm_otm_spread": mm.get("otm_spread", 0.06),
+                    })
+
+                    # ── Agent actions & reasoning ──
+                    for aid, act in actions.items():
+                        if aid.startswith("trader") or aid == "market_maker":
+                            action_rows.append({
+                                "step": s, "agent_id": aid,
+                                "direction": act.get("direction", act.get("atm_spread", "N/A")),
+                                "strike": act.get("selected_strike", "N/A"),
+                                "quantity": act.get("quantity", "N/A"),
+                                "option_type": act.get("option_type", "N/A"),
+                                "reasoning": str(act.get("reasoning", ""))[:200],
+                                "reward": round(float(rewards.get(aid, 0)), 4),
+                            })
+
+                    # ── News / Black Swan events ──
+                    for event in env.black_swan_gen.events:
+                        if event.news_step == env.current_step:
+                            news_rows.append({
+                                "step": s, "event_type": "news_released",
+                                "headline": event.headline,
+                                "severity": getattr(event, "severity", "unknown"),
+                                "spot_at_event": round(spot, 2),
+                            })
+                        if event.trigger_step == env.current_step:
+                            news_rows.append({
+                                "step": s, "event_type": "black_swan_trigger",
+                                "headline": event.headline,
+                                "severity": getattr(event, "severity", "unknown"),
+                                "spot_at_event": round(spot, 2),
+                            })
+
+                    # ── Agent messages / conversations ──
+                    msgs = info.get("messages_this_step", [])
+                    for m in msgs:
+                        action_rows.append({
+                            "step": s, "agent_id": m.get("sender_id", "unknown"),
+                            "direction": "MESSAGE",
+                            "strike": m.get("channel", "N/A"),
+                            "quantity": "N/A",
+                            "option_type": "N/A",
+                            "reasoning": str(m.get("content", ""))[:200],
+                            "reward": 0.0,
+                        })
+
+                    # ── Intel transactions (fake news detection) ──
+                    for tx in info.get("intel_transactions", []):
+                        action_rows.append({
+                            "step": s, "agent_id": tx.get("seller_id", "unknown"),
+                            "direction": "INTEL_SALE",
+                            "strike": f"→{tx.get('buyer_id', '?')}",
+                            "quantity": tx.get("price", 0),
+                            "option_type": "genuine" if tx.get("is_genuine", True) else "FAKE",
+                            "reasoning": str(tx.get("content", ""))[:200],
+                            "reward": 0.0,
+                        })
+
+                    # ── SEC enforcement ──
+                    ov = actions["oversight"]
+                    flagged = ov.get("flagged_agents", [])
+                    if flagged:
+                        sec_rows.append({
+                            "step": s, "flagged_agents": str(flagged),
+                            "intervention": ov.get("intervention_type", "none"),
+                            "fine_amount": ov.get("fine_amount", 0),
+                            "confidence": ov.get("confidence", 0),
+                            "reasoning": str(ov.get("reasoning", ""))[:200],
+                        })
+
+                    if done:
+                        break
+
+                # ── Log W&B Tables ──
+                prefix = f"snapshot/step_{global_step}"
+
+                if action_rows:
+                    cols = list(action_rows[0].keys())
+                    wandb.log({
+                        f"{prefix}/agent_actions": wandb.Table(
+                            columns=cols, data=[list(r.values()) for r in action_rows]
+                        )
+                    }, step=global_step)
+
+                if news_rows:
+                    cols = list(news_rows[0].keys())
+                    wandb.log({
+                        f"{prefix}/news_events": wandb.Table(
+                            columns=cols, data=[list(r.values()) for r in news_rows]
+                        )
+                    }, step=global_step)
+
+                if sec_rows:
+                    cols = list(sec_rows[0].keys())
+                    wandb.log({
+                        f"{prefix}/sec_enforcement": wandb.Table(
+                            columns=cols, data=[list(r.values()) for r in sec_rows]
+                        )
+                    }, step=global_step)
+
+                if market_rows:
+                    cols = list(market_rows[0].keys())
+                    wandb.log({
+                        f"{prefix}/market_state": wandb.Table(
+                            columns=cols, data=[list(r.values()) for r in market_rows]
+                        )
+                    }, step=global_step)
+
+                print(f"[W&B] Logged episode snapshot at step {global_step} "
+                      f"({len(action_rows)} actions, {len(news_rows)} news, {len(sec_rows)} SEC)")
+
+            except Exception as e:
+                print(f"[W&B] Episode snapshot failed: {e}")
+
+    storytelling_cb = WandbStorytellingCallback(
+        log_episode_every=25,
+        episode_length=min(16, args.episode_length),
+    ) if use_wandb else None
+
+    callbacks = [best_cb]
+    if storytelling_cb:
+        callbacks.append(storytelling_cb)
+
     trainer = GRPOTrainer(
         model=model, args=training_args, reward_funcs=[
             format_reward_fn,
@@ -1234,9 +1516,19 @@ def train_unified_model(args):
             news_alpha_reward_fn
         ],
         processing_class=tokenizer, train_dataset=dataset,
-        callbacks=[best_cb]
+        callbacks=callbacks
     )
     trainer.train()
+
+    # ── W&B: Log final summary ──
+    if use_wandb and wandb.run:
+        wandb.summary["total_training_steps"] = args.max_steps
+        wandb.summary["total_episodes"] = args.num_episodes
+        wandb.summary["agent_count"] = 6
+        wandb.summary["rl_agents"] = 5
+        wandb.summary["scripted_agents"] = 1
+        wandb.finish()
+        print("[W&B] Experiment tracking finalized")
 
     save_path = Path(args.output_dir) / "unified_market_lora"
     model.save_pretrained(str(save_path))
@@ -1280,6 +1572,12 @@ def main():
         help="Hard cap on prompt tokens to avoid sequence overflow spam and truncation noise.",
     )
     parser.add_argument("--max_steps", type=int, default=50, help="Maximum number of training steps.")
+    parser.add_argument(
+        "--wandb_project",
+        type=str,
+        default=None,
+        help="W&B project name for experiment tracking. If not set, W&B is disabled.",
+    )
     args = parser.parse_args()
 
     # Now we just run the unified training cycle once!

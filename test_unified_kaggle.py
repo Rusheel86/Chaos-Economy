@@ -2,10 +2,11 @@
 
 This script runs the environment with the unified model acting as multiple roles:
 - Aggressive Trader (trader_0)
-- Neutral Trader (trader_3)
-- Contrarian Trader (trader_6)
+- Neutral Trader (trader_1)
+- Contrarian Trader (trader_2)
 - Market Maker (market_maker)
 - SEC Oversight (oversight)
+- trader_3 is the scripted baseline benchmark
 
 Usage in Kaggle notebook:
     !python test_unified_kaggle.py --lora_path ./multi_agent_checkpoints/unified_market_lora --num_steps 50
@@ -324,7 +325,7 @@ def scripted_oversight_underperform(step: int) -> dict:
     This policy over-fines and over-flags on a fixed schedule, which tends to
     accumulate penalties from false positives and poor intervention quality.
     """
-    flagged = [f"trader_{i}" for i in range(9) if (i + step) % 2 == 0]
+    flagged = [f"trader_{i}" for i in range(3) if (i + step) % 2 == 0]
     if step % 3 == 0:
         intervention_type = "halt"
         fine_amount = 100.0
@@ -382,7 +383,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
     obs = env.reset(seed=seed)
     _prev_directions.clear()  # Reset wash-trading history for new episode
 
-    total_rewards = {f"trader_{i}": 0.0 for i in range(10)}
+    total_rewards = {f"trader_{i}": 0.0 for i in range(4)}
     total_rewards["market_maker"] = 0.0
     total_rewards["oversight"] = 0.0
 
@@ -430,8 +431,8 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
                 coordinated = {}
                 for strike, data in strike_concentration.items():
                     unique_agents = list(set(data["agents"]))
-                    # LOOSER threshold: 3 agents OR total_qty > 25 (was 50)
-                    if len(unique_agents) >= 3 or data["total_qty"] > 25:
+                    # LOOSER threshold: 2 agents OR total_qty > 25
+                    if len(unique_agents) >= 2 or data["total_qty"] > 25:
                         coordinated[strike] = {"agents": unique_agents, "total_qty": data["total_qty"]}
                 return coordinated
 
@@ -545,13 +546,13 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             actions["oversight"] = ov_action
 
         else:
-            for i in range(9):
+            for i in range(3):
                 actions[f"trader_{i}"] = scripted_trader(i, step, trader_obs=obs.get(f"trader_{i}", {}))
             actions["market_maker"] = scripted_market_maker(step)
             actions["oversight"] = scripted_oversight_underperform(step)
 
-        # Script the benchmark trader_9
-        actions["trader_9"] = scripted_trader(9, step, trader_obs=obs.get("trader_9", {}))
+        # Script the benchmark trader_3
+        actions["trader_3"] = scripted_trader(3, step, trader_obs=obs.get("trader_3", {}))
 
         # Step environment
         obs, rewards, done, info = env.step(actions)
@@ -670,33 +671,27 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
         if verbose:
             print(f"\n--- STEP {step} ---")
         
-        # Compact summary line for all 9 traders
-        t_actions = [f"T{i}:{actions[f'trader_{i}'].get('direction', actions[f'trader_{i}'].get('action', 'hold'))[:1].upper()}" for i in range(9)]
+        # Compact summary line for all 3 RL traders + baseline
+        t_actions = [f"T{i}:{actions[f'trader_{i}'].get('direction', actions[f'trader_{i}'].get('action', 'hold'))[:1].upper()}" for i in range(4)]
         if verbose:
-            print(f"TRADERS: {' | '.join([' '.join(t_actions[i:i+3]) for i in range(0, 9, 3)])}")
+            print(f"TRADERS: {' | '.join(t_actions)}")
         
         if verbose:
             print(f"MARKET : Spread ATM {mm.get('atm_spread', 0):.3f} | ITM {mm.get('itm_spread', 0):.3f}")
             print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Flagged {ov.get('flagged_agents', [])} | Fine {ov.get('fine_amount', 0)}")
         
         if use_lora and verbose:
-            # Print reasoning grouped by archetype
-            print("  [Aggressive] ", end="")
-            for i in range(3):
-                reason = sanitize_reasoning(actions[f"trader_{i}"].get("reasoning", ""), "Targeting momentum and OTM gamma exposure.")
-                print(f"T{i}: {reason} | ", end="")
-            print("\n  [Neutral]    ", end="")
-            for i in range(3, 6):
-                reason = sanitize_reasoning(actions[f"trader_{i}"].get("reasoning", ""), "Maintaining balanced delta and hedging volatility risk.")
-                print(f"T{i}: {reason} | ", end="")
-            print("\n  [Contrarian] ", end="")
-            for i in range(6, 9):
-                reason = sanitize_reasoning(actions[f"trader_{i}"].get("reasoning", ""), "Fading extreme moves to profit from mean reversion.")
-                print(f"T{i}: {reason} | ", end="")
+            # Print reasoning for each archetype
+            reason_agg = sanitize_reasoning(actions["trader_0"].get("reasoning", ""), "Targeting momentum and OTM gamma exposure.")
+            reason_neu = sanitize_reasoning(actions["trader_1"].get("reasoning", ""), "Maintaining balanced delta and hedging volatility risk.")
+            reason_con = sanitize_reasoning(actions["trader_2"].get("reasoning", ""), "Fading extreme moves to profit from mean reversion.")
+            print(f"  [Aggressive T0] {reason_agg}")
+            print(f"  [Neutral T1]    {reason_neu}")
+            print(f"  [Contrarian T2] {reason_con}")
             
             mm_reason = sanitize_reasoning(mm.get('reasoning', ''), "Optimizing spreads to balance inventory and counterparty risk.")
             sec_reason = sanitize_reasoning(ov.get('reasoning', ''), "Monitoring trade patterns for systemic risk and coordinated pressure.")
-            print(f"\n  [MM Reason]  {mm_reason}")
+            print(f"  [MM Reason]  {mm_reason}")
             print(f"  [SEC INSIGHT] {sec_reason}")
 
         if done:
@@ -757,7 +752,7 @@ def run_multi_episode_evaluation(model, tokenizer, num_steps: int, num_episodes:
             actions = step_data.get("actions", {})
             active = 0
             flagged_now = False
-            for i in range(9):
+            for i in range(3):
                 trader_action = actions.get(f"trader_{i}", {})
                 if trader_action.get("direction", "hold") != "hold":
                     active += 1
@@ -833,27 +828,18 @@ def main():
     print(f"{'Agent Type':<25} {'Trained LoRA':>15} {'Scripted Baseline':>20}")
     print("-"*65)
     
-    avg_agg_lora = sum(rewards_lora[f"trader_{i}"] for i in [0,1,2]) / 3
-    avg_agg_base = sum(rewards_baseline[f"trader_{i}"] for i in [0,1,2]) / 3
-    print(f"{'Aggressive Traders (0-2)':<25} {avg_agg_lora:>15.3f} {avg_agg_base:>20.3f}")
-
-    avg_neu_lora = sum(rewards_lora[f"trader_{i}"] for i in [3,4,5]) / 3
-    avg_neu_base = sum(rewards_baseline[f"trader_{i}"] for i in [3,4,5]) / 3
-    print(f"{'Neutral Traders (3-5)':<25} {avg_neu_lora:>15.3f} {avg_neu_base:>20.3f}")
-
-    avg_con_lora = sum(rewards_lora[f"trader_{i}"] for i in [6,7,8]) / 3
-    avg_con_base = sum(rewards_baseline[f"trader_{i}"] for i in [6,7,8]) / 3
-    print(f"{'Contrarian Traders (6-8)':<25} {avg_con_lora:>15.3f} {avg_con_base:>20.3f}")
-
-    print(f"{'Market Maker':<25} {rewards_lora['market_maker']:>15.3f} {rewards_baseline['market_maker']:>20.3f}")
-    print(f"{'Oversight SEC':<25} {rewards_lora['oversight']:>15.3f} {rewards_baseline['oversight']:>20.3f}")
-    print(f"{'Trader 9 (Scripted Bench)':<25} {rewards_lora['trader_9']:>15.3f} {rewards_baseline['trader_9']:>20.3f}")
+    print(f"{'Aggressive (T0)':    <25} {rewards_lora['trader_0']:>15.3f} {rewards_baseline['trader_0']:>20.3f}")
+    print(f"{'Neutral (T1)':       <25} {rewards_lora['trader_1']:>15.3f} {rewards_baseline['trader_1']:>20.3f}")
+    print(f"{'Contrarian (T2)':    <25} {rewards_lora['trader_2']:>15.3f} {rewards_baseline['trader_2']:>20.3f}")
+    print(f"{'Market Maker':       <25} {rewards_lora['market_maker']:>15.3f} {rewards_baseline['market_maker']:>20.3f}")
+    print(f"{'Oversight SEC':      <25} {rewards_lora['oversight']:>15.3f} {rewards_baseline['oversight']:>20.3f}")
+    print(f"{'Scripted Bench (T3)':<25} {rewards_lora['trader_3']:>15.3f} {rewards_baseline['trader_3']:>20.3f}")
 
     print("\n" + "="*70)
     print("JUDGE CHECKS (MULTI-EPISODE)")
     print("="*70)
     total_steps = max(1, metrics_lora["total_steps"])
-    trader_activity_rate = metrics_lora["active_trader_steps"] / (total_steps * 9)
+    trader_activity_rate = metrics_lora["active_trader_steps"] / (total_steps * 3)
     spread_manage_rate = metrics_lora["spread_widening_steps"] / total_steps
     sec_flag_rate = metrics_lora["sec_flag_steps"] / total_steps
     sec_fine_rate = metrics_lora["sec_fine_steps"] / total_steps

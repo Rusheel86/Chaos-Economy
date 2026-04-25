@@ -1,0 +1,305 @@
+# 🚀 Running VSR-Env Training on Hugging Face Jobs
+
+## TL;DR
+
+You will **clone your GitHub repo inside a Docker job on HF**, train for 320 steps on an A100, and push the trained LoRA adapter back to HF Hub. No local GPU needed. Total estimated cost: **$5–$8** of your $30 credits.
+
+---
+
+## Architecture Overview
+
+```mermaid
+graph LR
+    A[Your GitHub Repo] -->|git clone| B[HF Jobs Container]
+    B -->|pip install| C[Train 320 steps on A100]
+    C -->|push_to_hub| D[HF Hub Model Repo]
+    D -->|Download locally| E[Test with test_unified_kaggle.py]
+```
+
+---
+
+## Step 0: Prerequisites
+
+### 0.1 — HF Account Setup
+1. Go to [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+2. Create a **Write** token (you'll need it to push models)
+3. Copy the token (starts with `hf_...`)
+
+### 0.2 — W&B Setup (For Storytelling Logs)
+1. Go to [wandb.ai/authorize](https://wandb.ai/authorize) to get your API key
+2. Go to your Hugging Face Settings -> **Secrets**
+3. Add a new secret: `WANDB_API_KEY` and paste your key. This is required for the narrative storytelling charts.
+
+### 0.3 — Install HF CLI locally
+```bash
+pip install -U huggingface_hub
+huggingface-cli login
+# Paste your write token when prompted
+```
+
+### 0.4 — Verify login
+```bash
+huggingface-cli whoami
+# Should print your username
+```
+
+---
+
+## Step 1: Create a HF Model Repo (to store results)
+
+```bash
+huggingface-cli repo create vsr-env-lora --type model
+```
+
+This creates `https://huggingface.co/<your-username>/vsr-env-lora` where the trained LoRA adapter will be pushed.
+
+---
+
+## Step 2: Choose Your Hardware
+
+| Flavor | GPU | VRAM | Cost/hr | 320 steps est. |
+|--------|-----|------|---------|-----------------|
+| `l4x1` | 1x L4 | 24GB | ~$0.80 | ~$2.80 (3.5hr) |
+| `a10g-large` | 1x A10G | 24GB | ~$1.50 | ~$3.75 (2.5hr) |
+| **`a100-large`** | **1x A100** | **80GB** | **~$4.00** | **~$6.00 (1.5hr)** ✅ |
+
+> [!TIP]
+> **Recommendation:** Use `a100-large`. At ~$6 for a full run, it's well within your $30 budget and finishes in ~1.5 hours instead of 3.5.
+
+---
+
+## Step 3: Run the Training Job
+
+You have **two options**:
+
+### Option A: Using HF CLI (Recommended — Simplest)
+
+Create a training script file locally at `/Users/mananbansal/Desktop/meta/hf_train.py`:
+
+```python
+# /// script
+# dependencies = [
+#     "torch",
+#     "transformers",
+#     "datasets",
+#     "trl>=0.12.0",
+#     "peft",
+#     "bitsandbytes",
+#     "accelerate",
+#     "unsloth",
+#     "scipy",
+#     "numpy",
+#     "pydantic",
+#     "huggingface_hub",
+#     "fastapi",
+#     "uvicorn",
+#     "openenv-core",
+#     "wandb",
+# ]
+# ///
+
+import os
+import subprocess
+import sys
+
+# 1. Clone repo
+print("[INFO] Cloning VSR-Env repo...")
+subprocess.run([
+    "git", "clone", "--branch", "news",
+    "https://github.com/manan-tech/VSR-Env.git",
+    "/workspace/vsr-env"
+], check=True)
+
+os.chdir("/workspace/vsr-env")
+
+# 2. Install the package in development mode
+subprocess.run([sys.executable, "-m", "pip", "install", "-e", "."], check=True)
+
+# 3. Run training
+print("[INFO] Starting training...")
+subprocess.run([
+    sys.executable, "train_multi_agent_pipeline.py",
+    "--base_model", "unsloth/Llama-3.2-3B-Instruct-bnb-4bit",
+    "--num_episodes", "5",
+    "--episode_length", "32",
+    "--num_epochs", "1",
+    "--max_steps", "320",
+    "--learning_rate", "5e-5",
+    "--output_dir", "./multi_agent_checkpoints",
+    "--wandb_project", "vsr-env-chaos-economy"
+], check=True)
+
+# 4. Push results to HF Hub
+print("[INFO] Pushing LoRA adapter to HF Hub...")
+from huggingface_hub import HfApi
+import glob
+
+token = os.environ.get("HF_TOKEN")
+api = HfApi(token=token)
+
+# Find the final checkpoint or the unified_v1 directory
+lora_path = "./multi_agent_checkpoints/unified_v1"
+if not os.path.exists(lora_path):
+    # Fall back to latest checkpoint
+    checkpoints = sorted(glob.glob("./multi_agent_checkpoints/unified_v1/checkpoint-*"))
+    if checkpoints:
+        lora_path = checkpoints[-1]
+
+# Get username
+user_info = api.whoami()
+username = user_info["name"]
+repo_id = f"{username}/vsr-env-lora"
+
+print(f"Uploading {lora_path} → {repo_id}")
+api.upload_folder(
+    folder_path=lora_path,
+    repo_id=repo_id,
+    repo_type="model",
+    commit_message="VSR-Env LoRA adapter - 320 step training"
+)
+
+print(f"[OK] Done! Model at: https://huggingface.co/{repo_id}")
+```
+
+### Windows Users (PowerShell)
+
+If you are on Windows, use **backticks (`)** for multi-line commands and ensure your `hf_train.py` uses ASCII-only characters (no emojis) to avoid encoding issues:
+
+```powershell
+# From Windows PowerShell
+huggingface-cli jobs uv run hf_train.py `
+    --flavor a100-large `
+    --timeout 4h `
+    --secret HF_TOKEN `
+    --secret WANDB_API_KEY
+```
+
+---
+
+Then run it:
+
+```bash
+# From your local machine
+huggingface-cli jobs uv run hf_train.py \
+    --flavor a100-large \
+    --timeout 4h \
+    --secret HF_TOKEN \
+    --secret WANDB_API_KEY
+```
+
+> [!IMPORTANT]
+> The `--secret HF_TOKEN` flag automatically injects your logged-in token. You MUST set `WANDB_API_KEY` in your HF Settings -> "Secrets" or pass it as an environment variable before running.
+
+### Option B: Using Python API
+
+```python
+from huggingface_hub import run_uv_job, get_token
+import os
+from pathlib import Path
+
+script = Path("hf_train.py").read_text()
+
+job = run_uv_job(
+    script,
+    flavor="a100-large",
+    timeout="4h",
+    secrets={
+        "HF_TOKEN": get_token(),
+        "WANDB_API_KEY": os.environ.get("WANDB_API_KEY")
+    },
+)
+
+print(f"Job submitted! ID: {job.id}")
+print(f"Monitor at: https://huggingface.co/jobs/{job.id}")
+```
+
+---
+
+## Step 4: Monitor the Job
+
+```bash
+# List your jobs
+huggingface-cli jobs ps
+
+# View logs (replace JOB_ID with your actual job ID)
+huggingface-cli jobs logs JOB_ID
+
+# Cancel if needed
+huggingface-cli jobs cancel JOB_ID
+```
+
+You can also monitor at `https://huggingface.co/jobs/<your-username>/<job-id>` in your browser.
+
+---
+
+## Step 5: Download the Trained Model
+
+Once the job completes, the LoRA adapter will be at `https://huggingface.co/<your-username>/vsr-env-lora`.
+
+Download it to your local machine:
+
+```bash
+# Download to your project directory
+cd /Users/mananbansal/Desktop/meta
+huggingface-cli download <your-username>/vsr-env-lora \
+    --local-dir ./multi_agent_checkpoints/unified_v1/hf_trained
+```
+
+Or download it directly on EC2:
+
+```bash
+# On EC2
+cd ~/VSR-Env
+pip install huggingface_hub
+huggingface-cli download <your-username>/vsr-env-lora \
+    --local-dir ./multi_agent_checkpoints/unified_v1/hf_trained
+```
+
+---
+
+## Step 6: Test the Model
+
+```bash
+# On EC2 (or locally if you have GPU)
+python test_unified_kaggle.py \
+    --num_steps 50 \
+    --num_episodes 1 \
+    --lora_path ./multi_agent_checkpoints/unified_v1/hf_trained
+```
+
+---
+
+## Cost Breakdown
+
+| Phase | Hardware | Time | Cost |
+|-------|----------|------|------|
+| Clone + Install | A100 | ~5 min | ~$0.30 |
+| Dataset Generation | A100 (CPU-bound) | ~2 min | ~$0.15 |
+| Training (320 steps) | A100 | ~1.5 hr | ~$6.00 |
+| Upload to Hub | A100 | ~2 min | ~$0.15 |
+| **Total** | | **~1.75 hr** | **~$6.60** |
+
+> [!NOTE]
+> With $30 credits, you can run this ~4 times. Plenty of room for iteration.
+
+---
+
+## FAQ
+
+### Do I need Docker?
+**No.** HF Jobs handles the container for you. The `uv` approach uses a pre-built Python image and installs your dependencies inline via the PEP 723 header.
+
+### Do I need to fix the openenv.yaml?
+**No.** The training script (`train_multi_agent_pipeline.py`) does NOT use the OpenEnv server. It directly imports the Python classes. The `openenv.yaml` is only for the inference server (judging), not training.
+
+### What if the job times out?
+Set `--timeout 4h` (we're using this). The training should finish in ~1.5hr on A100. The 4hr buffer handles edge cases.
+
+### What if OOM?
+The A100 has 80GB VRAM. Your 3B model in 4-bit quantization uses ~4GB. You won't OOM.
+
+### Can I use a cheaper GPU?
+Yes! Use `l4x1` (~$0.80/hr) if you're fine waiting 3.5 hours. The training output will be identical.
+
+### What about the `unsloth` dependency?
+Unsloth installs fine via pip on A100. It auto-detects the GPU and optimizes accordingly.

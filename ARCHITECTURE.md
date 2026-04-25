@@ -1,12 +1,6 @@
 # Architecture Overview: VSR-Env
 
-VSR-Env now has two layers of value:
-
-- a working single-agent options reasoning benchmark
-- a multi-agent market ecology for Theme #1 style interaction, oversight, and emergent behavior
-
-The single-agent path remains useful for baseline evaluation.
-The multi-agent path is the competition-facing system for the hackathon pitch.
+VSR-Env is a multi-agent market ecology modeling a compressed financial market for Theme #1 style interaction, oversight, and emergent behavior. The environment simulates predatory trading, market making, and regulatory enforcement.
 
 ---
 
@@ -140,19 +134,12 @@ The intended pitch should show this behavioral progression:
 ┌────────────────────────────────────────────────────────────────────┐
 │              Task Handlers (vsr_env/tasks/*.py)                    │
 │                                                                    │
-│  Each task implements:                                             │
+│  The task implements:                                              │
 │  • Task-specific state transitions                                │
 │  • Event triggers (earnings crush, macro shock)                   │
-│  • Grader instantiation                                           │
 │                                                                    │
 │  Files:                                                            │
-│  • vol_regime_detection.py  → Regime classification              │
-│  • delta_hedging.py          → Greek neutrality                  │
-│  • earnings_vol_crush.py     → Event timing, vega management     │
-│  • gamma_scalping.py         → Dynamic re-hedging                │
-│  • vega_gamma_stress.py      → Multi-derivative optimization     │
-│  • straddle_trading.py      → Vol speculation (NEW)             │
-│  • vertical_spread.py       → Directional spreads (NEW)         │
+│  • multi_agent_market.py     → The 12-actor multi-agent market  │
 └───────────────────────────┬────────────────────────────────────────┘
                             │ Uses strategy objects
                             ▼
@@ -176,11 +163,7 @@ The intended pitch should show this behavioral progression:
 │       RewardComputer (vsr_env/reward/reward_computer.py)           │
 │                                                                    │
 │  Methods:                                                          │
-│  • compute_vol_regime_reward()                                     │
-│  • compute_delta_hedging_reward()                                  │
-│  • compute_earnings_crush_reward()                                 │
-│  • compute_gamma_scalping_reward()                                 │
-│  • compute_vega_gamma_stress_reward()                              │
+│  • compute_multi_agent_reward()                                    │
 │                                                                    │
 │  Returns:                                                          │
 │  • VSRReward (total + component breakdown)                        │
@@ -279,20 +262,13 @@ class VSREnvironment:
         """
 ```
 
-**Wiring Tasks to Graders**:
+**Wiring Tasks**:
 ```python
 TASK_CONFIG = {
-    "vol_regime_detection": {
-        "max_steps": 3,
-        "task_handler": VolRegimeDetectionTask,
-        "grader_class": VolRegimeDetectionGrader,
-    },
-    "delta_hedging": {
-        "max_steps": 8,
-        "task_handler": DeltaHedgingTask,
-        "grader_class": DeltaHedgingGrader,
-    },
-    # ... more tasks
+    "multi_agent_market": {
+        "max_steps": 300,
+        "task_handler": MultiAgentMarketTask,
+    }
 }
 ```
 
@@ -460,12 +436,7 @@ vsr_env/
 │   └── reward_computer.py               # All grading formulas
 ├── tasks/
 │   ├── __init__.py
-│   ├── vol_regime_detection.py          # Tier 1 task + grader
-│   ├── delta_hedging.py                 # Tier 2 task + grader
-│   ├── straddle_trading.py              # Tier 4 task + grader
-│   ├── earnings_vol_crush.py            # Tier 5 task + grader
-│   ├── gamma_scalping.py                # Tier 6 task + grader
-│   └── vega_gamma_stress.py             # Tier 7 task + grader
+│   └── multi_agent_market.py            # Multi-agent simulation task
 ├── server/
 │   ├── __init__.py
 │   ├── app.py                           # FastAPI routes
@@ -473,7 +444,6 @@ vsr_env/
 │   └── telemetry.py                     # Trajectory logging
 └── tests/
     ├── test_env.py                      # Core environment tests
-    ├── test_grading.py                  # Reward formula tests
     └── test_integration.py              # End-to-end episode tests
 ```
 
@@ -519,27 +489,22 @@ vsr_env/
 ### Unit Tests (`tests/test_env.py`)
 
 ```python
-def test_delta_hedging_grader_perfect_neutralization():
-    """Perfect delta neutralization gives high score."""
+def test_multi_agent_reward():
+    """Agents receive correct rewards."""
     env = VSREnvironment()
-    obs = env.reset("delta_hedging", seed=123)
-    
-    # Agent hedges perfectly
-    action = VSRAction(strike=4, maturity=0, direction="sell", quantity=2.4)
-    result = env.step(action)
+    obs = env.reset("multi_agent_market", seed=123)
     
     # Check reward decomposition
-    assert result["info"]["reward_components"]["greek_component"] > 0.4
-    assert result["reward_components"]["total"] > 0.7
+    pass
 ```
 
 ### Integration Tests (`tests/test_integration.py`)
 
 ```python
 def test_full_episode_trajectory():
-    """Run complete delta_hedging episode, verify grader score."""
+    """Run complete episode."""
     env = VSREnvironment()
-    obs = env.reset("delta_hedging", seed=456)
+    obs = env.reset("multi_agent_market", seed=456)
     
     # Run to completion
     for _ in range(5):
@@ -548,8 +513,8 @@ def test_full_episode_trajectory():
         if result["done"]:
             break
     
-    # Check grader score is in valid range
-    assert 0.0 <= result["info"]["grader_score"] <= 1.0
+    # Check episode completeness
+    assert result["done"]
 ```
 
 ---

@@ -106,4 +106,4 @@ train.log
 fix_test.py
 fix_test2.py
 multi_agent_checkpoints_local/*
-other_readmes/*
+other_readmes/*.round1_archive/
