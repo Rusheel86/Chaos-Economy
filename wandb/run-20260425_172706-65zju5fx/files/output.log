@@ -1,0 +1,50 @@
+wandb: Detected [huggingface_hub.inference, mcp, openai] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai
+[W&B] Initialized experiment tracking (Project: vsr-env-chaos-economy)
+==((====))==  Unsloth 2026.4.8: Fast Llama patching. Transformers: 5.5.0.
+   \\   /|    NVIDIA L4. Num GPUs = 1. Max memory: 22.034 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.10.0+cu130. CUDA: 8.9. CUDA Toolkit: 13.0. Triton: 3.6.0
+\        /    Bfloat16 = TRUE. FA [Xformers = None. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+Unsloth: Fast downloading is enabled - ignore downloading bars which are red colored!
+Loading weights: 100%|██████████| 254/254 [00:00<00:00, 545.94it/s]
+Unsloth: Will load unsloth/Llama-3.2-3B-Instruct-bnb-4bit as a legacy tokenizer.
+Not an error, but Unsloth cannot patch MLP layers with our manual autograd engine since either LoRA adapters
+are not enabled or a bias term (like in Qwen) is used.
+Unsloth 2026.4.8 patched 28 layers with 28 QKV layers, 28 O layers and 0 MLP layers.
+Building unified dataset with phase-based curriculum...
+Using 16/16 episodes for dataset construction.
+[Act I: The Slaughter] seed=0 :: Traders attack, MM bleeds, SEC stays silent.
+[Act II: Adaptation] seed=4 :: MM widens spreads and learns defensive quoting.
+[Act III: Emergent Collusion] seed=9 :: Traders coordinate pressure and amplify squeezes.
+[Act IV: The Watcher Awakens] seed=13 :: SEC flags manipulation, fines increase, market stabilizes.
+Dataset created with 80 examples.
+
+Narrative Arc Coverage:
+  - Act I: The Slaughter: seeds=4, prompts=20
+  - Act II: Adaptation: seeds=5, prompts=25
+  - Act III: Emergent Collusion: seeds=4, prompts=20
+  - Act IV: The Watcher Awakens: seeds=3, prompts=15
+==((====))==  Unsloth - 2x faster free finetuning | Num GPUs used = 1
+   \\   /|    Num examples = 80 | Num Epochs = 7 | Total steps = 250
+O^O/ \_/ \    Batch size per device = 2 | Gradient accumulation steps = 2
+\        /    Data Parallel GPUs = 1 | Total batch size (2 x 2 x 1) = 4
+ "-____-"     Trainable parameters = 36,700,160 of 3,249,449,984 (1.13% trained)
+  0%|          | 0/250 [00:00<?, ?it/s]Passing `generation_config` together with generation-related arguments=({'cache_implementation', 'disable_compile', 'pad_token_id'}) is deprecated and will be removed in future versions. Please pass either a `generation_config` object OR all generation parameters explicitly, but not both.
+Both `max_new_tokens` (=512) and `max_length`(=131072) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+`use_return_dict` is deprecated! Use `return_dict` instead!
+
+Unsloth: Will smartly offload gradients to save VRAM!
+  0%|          | 1/250 [00:33<2:19:30, 33.62s/it]Both `max_new_tokens` (=512) and `max_length`(=131072) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  1%|          | 2/250 [01:12<2:32:36, 36.92s/it]Both `max_new_tokens` (=512) and `max_length`(=131072) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  1%|          | 3/250 [01:51<2:35:55, 37.88s/it]Both `max_new_tokens` (=512) and `max_length`(=131072) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  2%|▏         | 4/250 [03:02<3:27:40, 50.65s/it]Both `max_new_tokens` (=512) and `max_length`(=131072) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  2%|▏         | 5/250 [03:38<3:04:48, 45.26s/it]Both `max_new_tokens` (=512) and `max_length`(=131072) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+📊 Best models: [(0.35943677425384524, 5)]
+[W&B] Phase transition → Act I: The Slaughter
+{'loss': '-0.04899', 'grad_norm': '0.2894', 'learning_rate': '8e-06', 'num_tokens': '2.246e+04', 'completions/mean_length': '444.7', 'completions/min_length': '364.2', 'completions/max_length': '504.8', 'completions/clipped_ratio': '0.55', 'completions/mean_terminated_length': '300.8', 'completions/min_terminated_length': '261.8', 'completions/max_terminated_length': '347.2', 'rewards/format_reward_fn/mean': '0.925', 'rewards/format_reward_fn/std': '0.15', 'rewards/pnl_reward_fn/mean': '-0.04806', 'rewards/pnl_reward_fn/std': '0.903', 'rewards/risk_reward_fn/mean': '0', 'rewards/risk_reward_fn/std': '0', 'rewards/diversity_reward_fn/mean': '-0.2475', 'rewards/diversity_reward_fn/std': '0.2013', 'rewards/oversight_reward_fn/mean': '-0.24', 'rewards/oversight_reward_fn/std': '0.423', 'rewards/news_alpha_reward_fn/mean': '-0.03', 'rewards/news_alpha_reward_fn/std': '0.04761', 'reward': '0.3594', 'reward_std': '0.5312', 'frac_reward_zero_std': '0.1', 'completion_length': '444.7', 'kl': '5.823e-06', 'clip_ratio/low_mean': '0', 'clip_ratio/low_min': '0', 'clip_ratio/high_mean': '0', 'clip_ratio/high_max': '0', 'clip_ratio/region_mean': '0', 'epoch': '0.125'}
+wandb: WARNING Tried to log to step 5 that is less than the current step 51. Steps must be monotonically increasing, so this data will be ignored. See https://wandb.me/define-metric to log data out of order.
+  2%|▏         | 6/250 [04:18<2:57:40, 43.69s/it]Both `max_new_tokens` (=512) and `max_length`(=131072) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  3%|▎         | 7/250 [04:57<2:50:31, 42.10s/it]Both `max_new_tokens` (=512) and `max_length`(=131072) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)
+  3%|▎         | 8/250 [05:36<2:45:51, 41.12s/it]Both `max_new_tokens` (=512) and `max_length`(=131072) seem to have been set. `max_new_tokens` will take precedence. Please refer to the documentation for more information. (https://huggingface.co/docs/transformers/main/en/main_classes/text_generation)

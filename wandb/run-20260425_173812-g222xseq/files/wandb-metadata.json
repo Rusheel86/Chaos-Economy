@@ -1,0 +1,54 @@
+{
+  "os":  "Linux-6.1.166-197.305.amzn2023.x86_64-x86_64-with-glibc2.34",
+  "python":  "CPython 3.13.12",
+  "startedAt":  "2026-04-25T17:38:12.120865Z",
+  "args":  [
+    "--base_model",
+    "unsloth/Llama-3.2-3B-Instruct-bnb-4bit",
+    "--num_episodes",
+    "16",
+    "--episode_length",
+    "50",
+    "--max_steps",
+    "250",
+    "--learning_rate",
+    "5e-5",
+    "--output_dir",
+    "./multi_agent_checkpoints"
+  ],
+  "program":  "/home/ec2-user/VSR-Env/train_multi_agent_pipeline.py",
+  "codePath":  "train_multi_agent_pipeline.py",
+  "codePathLocal":  "train_multi_agent_pipeline.py",
+  "git":  {
+    "remote":  "https://github.com/manan-tech/VSR-Env.git",
+    "commit":  "cd0c40d29b29c19878e3f317d3a2306da9c08301"
+  },
+  "email":  "rusheel.sharma30@nmims.edu.in",
+  "root":  "/home/ec2-user/VSR-Env",
+  "host":  "ip-172-31-37-121.ec2.internal",
+  "executable":  "/opt/pytorch/bin/python",
+  "cpu_count":  2,
+  "cpu_count_logical":  4,
+  "gpu":  "NVIDIA L4",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "107294470144",
+      "used":  "19091767296"
+    }
+  },
+  "memory":  {
+    "total":  "16117743616"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA L4",
+      "memoryTotal":  "24152899584",
+      "cudaCores":  7424,
+      "architecture":  "Ada",
+      "uuid":  "GPU-48242d90-6bd1-6e63-7a33-51c379b80025"
+    }
+  ],
+  "cudaVersion":  "13.0",
+  "writerId":  "hyw9gpcdqvz20ga23mqtrelca4fcjz0n"
+}
