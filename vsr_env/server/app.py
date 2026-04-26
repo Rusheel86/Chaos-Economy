@@ -77,10 +77,17 @@ class StepResponse(BaseModel):
 # === Endpoints ===
 
 
-@app.get("/", response_class=RedirectResponse)
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    """Redirect root to the Web UI."""
-    return RedirectResponse(url="/dashboard")
+    """Serve the Custom Web UI dashboard at the root URL."""
+    ui_path = os.path.join(os.path.dirname(__file__), "..", "..", "server", "index.html")
+    try:
+        with open(ui_path, "r", encoding="utf-8") as f:
+            html = f.read()
+        return HTMLResponse(content=html, status_code=200)
+    except Exception as e:
+        logger.error(f"Failed to load UI: {e}")
+        return HTMLResponse(content=f"Error loading UI: {e}", status_code=500)
 
 
 @app.get("/web", response_class=HTMLResponse)
