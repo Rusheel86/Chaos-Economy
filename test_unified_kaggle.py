@@ -569,8 +569,37 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
         # Count collusion events
         collusion_count = count_collusion_events(actions)
         mm_spreads = actions["market_maker"]
+        mm = actions["market_maker"]
+        ov = actions["oversight"]
+
+        # ====== PRINT STEP HEADER FIRST ======
+        if verbose:
+            print(f"\n--- STEP {step} ---")
         
-        # --- PRICE DISPLAY: Show market prices and executed trades ---
+        # Compact summary line for all 3 RL traders + baseline
+        t_actions = [f"T{i}:{actions[f'trader_{i}'].get('direction', actions[f'trader_{i}'].get('action', 'hold'))[:1].upper()}" for i in range(4)]
+        if verbose:
+            print(f"TRADERS: {' | '.join(t_actions)}")
+        
+        if verbose:
+            print(f"MARKET : Spread ATM {mm.get('atm_spread', 0):.3f} | ITM {mm.get('itm_spread', 0):.3f}")
+            print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Flagged {ov.get('flagged_agents', [])} | Fine {ov.get('fine_amount', 0)}")
+        
+        if use_lora and verbose:
+            # Print reasoning for each archetype
+            reason_agg = sanitize_reasoning(actions["trader_0"].get("reasoning", ""), "Targeting momentum and OTM gamma exposure.")
+            reason_neu = sanitize_reasoning(actions["trader_1"].get("reasoning", ""), "Maintaining balanced delta and hedging volatility risk.")
+            reason_con = sanitize_reasoning(actions["trader_2"].get("reasoning", ""), "Fading extreme moves to profit from mean reversion.")
+            print(f"  [Aggressive T0] {reason_agg}")
+            print(f"  [Neutral T1]    {reason_neu}")
+            print(f"  [Contrarian T2] {reason_con}")
+            
+            mm_reason = sanitize_reasoning(mm.get('reasoning', ''), "Optimizing spreads to balance inventory and counterparty risk.")
+            sec_reason = sanitize_reasoning(ov.get('reasoning', ''), "Monitoring trade patterns for systemic risk and coordinated pressure.")
+            print(f"  [MM Reason]  {mm_reason}")
+            print(f"  [SEC INSIGHT] {sec_reason}")
+
+        # ====== PRICES & TRADES (now appears under the correct step header) ======
         if verbose:
             
             import numpy as np
@@ -598,7 +627,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
                 recent_trades = [t for t in env.trade_log if t.get("step") == env.current_step]
                 if recent_trades:
                     price_lines.append(f"  [TRADES] {len(recent_trades)} executed:")
-                    for t in recent_trades[:8]:  # Show up to 5
+                    for t in recent_trades[:8]:  # Show up to 8
                         d = t.get("direction", "?")
                         ep = t.get("execution_price", 0)
                         tp = t.get("theo_price", 0)
@@ -612,8 +641,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             for line in price_lines:
                 print(line)
 
-        # --- DEMO TRACE 1: COMMS & SEC ENFORCEMENT ("Money Shot") ---
-        ov = actions["oversight"]
+        # ====== COMMS & SEC ENFORCEMENT ======
         flagged = ov.get("flagged_agents", [])
         fine_amt = ov.get("fine_amount", 0)
         msgs_this_step = info.get("messages_this_step", [])
@@ -661,6 +689,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
         if verbose and fake_news_this_step:
             print(f"  ⚠️  FAKE NEWS DETECTED at step {step}: {[f.get('seller_id','?') for f in fake_news_this_step]}")
 
+        # Track replay data for visualization
         replay_data["steps"].append({
             "step": step + 1,
             "rewards": rewards,
@@ -681,35 +710,6 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
         # Track rewards
         for k in total_rewards.keys():
             total_rewards[k] += rewards.get(k, 0)
-
-        # Print step logs - ALL 9 TRADERS for judge transparency
-        mm = actions["market_maker"]
-        
-        if verbose:
-            print(f"\n--- STEP {step} ---")
-        
-        # Compact summary line for all 3 RL traders + baseline
-        t_actions = [f"T{i}:{actions[f'trader_{i}'].get('direction', actions[f'trader_{i}'].get('action', 'hold'))[:1].upper()}" for i in range(4)]
-        if verbose:
-            print(f"TRADERS: {' | '.join(t_actions)}")
-        
-        if verbose:
-            print(f"MARKET : Spread ATM {mm.get('atm_spread', 0):.3f} | ITM {mm.get('itm_spread', 0):.3f}")
-            print(f"SEC     : Action {ov.get('intervention_type', 'none')} | Flagged {ov.get('flagged_agents', [])} | Fine {ov.get('fine_amount', 0)}")
-        
-        if use_lora and verbose:
-            # Print reasoning for each archetype
-            reason_agg = sanitize_reasoning(actions["trader_0"].get("reasoning", ""), "Targeting momentum and OTM gamma exposure.")
-            reason_neu = sanitize_reasoning(actions["trader_1"].get("reasoning", ""), "Maintaining balanced delta and hedging volatility risk.")
-            reason_con = sanitize_reasoning(actions["trader_2"].get("reasoning", ""), "Fading extreme moves to profit from mean reversion.")
-            print(f"  [Aggressive T0] {reason_agg}")
-            print(f"  [Neutral T1]    {reason_neu}")
-            print(f"  [Contrarian T2] {reason_con}")
-            
-            mm_reason = sanitize_reasoning(mm.get('reasoning', ''), "Optimizing spreads to balance inventory and counterparty risk.")
-            sec_reason = sanitize_reasoning(ov.get('reasoning', ''), "Monitoring trade patterns for systemic risk and coordinated pressure.")
-            print(f"  [MM Reason]  {mm_reason}")
-            print(f"  [SEC INSIGHT] {sec_reason}")
 
         if done:
             break
