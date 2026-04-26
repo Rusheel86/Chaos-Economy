@@ -666,8 +666,8 @@
         async function loadDefaultData() {
             // Try fetch from server or relative path (works with HTTP server)
             const paths = [
-                ["../unified_lora_replay.json", "lora"],
-                ["../unified_baseline_replay.json", "baseline"]
+                ["/replay/unified_lora_replay.json", "lora"],
+                ["/replay/unified_baseline_replay.json", "baseline"]
             ];
             let loaded = 0;
             for (const [url, target] of paths) {

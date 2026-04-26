@@ -93,7 +93,7 @@ async def root():
 @app.get("/web", response_class=HTMLResponse)
 async def web_ui():
     """Serve the Custom Web UI dashboard."""
-    ui_path = os.path.join(os.path.dirname(__file__), "index.html")
+    ui_path = os.path.join(os.path.dirname(__file__), "..", "..", "server", "index.html")
     try:
         with open(ui_path, "r", encoding="utf-8") as f:
             html = f.read()
