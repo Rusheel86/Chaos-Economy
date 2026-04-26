@@ -120,6 +120,7 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
 - Large positions acceptable
 - Chase IV moves, join trends
 - Strength in numbers - if others buying same strike, consider joining
+- Prefer trading over holding — only hold if you see no edge at all
 """
     elif trader_type == "neutral":
         base += """
@@ -128,6 +129,7 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
 - Keep delta/gamma balanced
 - Join profitable trends moderately
 - Moderate position sizes
+- You may hold occasionally but prefer trading — active traders earn more PnL.
 """
     else:
         base += """
@@ -136,6 +138,7 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
 - Fade extreme IV moves
 - Strict position limits
 - If everyone buying, consider selling
+- Prefer trading the opposite side over sitting out — contrarians need positions to profit
 """
 
     # Anti-hack: Use varied strike, maturity, option_type in example to avoid anchoring

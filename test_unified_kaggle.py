@@ -522,9 +522,10 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120, temperature=0.40)[0]
             ov_action = parse_llm_output(ov_output, "oversight") or scripted_oversight()
 
-            # Patch RL Hack #4: Oversight always-flag exploit
-            # Model learned to flag everyone as "collusion" every step.
+            # Patch RL Hack #4: Oversight always-flag exploit (softened)
             # Remove traders who are holding — can't collude if not trading.
+            # But DON'T wipe the entire action if list empties — let SEC
+            # still report its findings via reasoning.
             if isinstance(ov_action.get("flagged_agents"), list):
                 active_traders = {
                     aid for aid in actions
@@ -539,14 +540,13 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
                     ov_action["fine_amount"] = 0.0
 
             # Patch RL Hack #6: Cap oversight aggressiveness
-            # LoRA SEC learned to always issue max fines — cap to reduce PnL drain
             if ov_action.get("fine_amount", 0) > 75:
                 ov_action["fine_amount"] = 75.0
             # Downgrade halts to warnings — halts are too destructive
             if ov_action.get("intervention_type") == "halt":
                 ov_action["intervention_type"] = "warning"
-            # Confidence gate: only enforce if model is actually confident
-            if ov_action.get("confidence", 0) < 0.2:
+            # Confidence gate: very low bar — only suppress if model is nearly zero confidence
+            if ov_action.get("confidence", 0) < 0.1:
                 ov_action["intervention_type"] = "none"
                 ov_action["fine_amount"] = 0.0
                 ov_action["flagged_agents"] = []
