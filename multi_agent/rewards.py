@@ -140,8 +140,8 @@ def calculate_oversight_reward(oversight_action: OversightAction,
     if not harmful_events and not oversight_action.flagged_agents:
         reward += 0.5  # correct restraint — rewarded for NOT flagging when nothing's wrong
 
-    # Anti-hack: REMOVED unconditional patrol bonus (+0.1)
-    # It rewarded showing up regardless of accuracy, incentivizing carpet-bombing.
+    # REMOVED unconditional patrol bonus (+0.1)
+    # It rewarded showing up regardless of accuracy.
     # Now only reward patrol effort when there are actual true positives.
     if true_positive_count > 0:
         reward += 0.1  # patrol bonus only for accurate surveillance
@@ -152,7 +152,7 @@ def calculate_oversight_reward(oversight_action: OversightAction,
     if any(agent_id.lower() in reasoning for agent_id in oversight_action.flagged_agents):
         reward += 0.1
 
-    # Anti-hack: Gate intervention bonuses on accuracy
+    # Gate intervention bonuses on accuracy
     # Only reward fines/halts when they're backed by true positives
     if true_positive_count > 0:
         if oversight_action.intervention_type == "fine" and oversight_action.fine_amount > 0:
@@ -164,7 +164,7 @@ def calculate_oversight_reward(oversight_action: OversightAction,
         if oversight_action.intervention_type in ("fine", "halt"):
             reward -= 0.3
 
-    # Anti-hack: Penalize excessive fines
+    # Penalize excessive fines
     if oversight_action.fine_amount > 100:
         reward -= 0.3  # discourage max-fine strategies
 

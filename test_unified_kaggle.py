@@ -181,7 +181,7 @@ def scripted_trader(agent_index: int, step: int, trader_obs=None) -> dict:
     }
 
 
-# Patch RL Hack #5: Anti-wash-trading — track previous directions
+# Anti-wash-trading — track previous directions
 _prev_directions = {}  # (agent_index,) -> list of recent directions
 
 def normalize_trader_action(action: dict, agent_index: int, step: int, trader_obs=None) -> dict:
@@ -200,7 +200,7 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
         strike = int(fallback["selected_strike"])
     strike = max(0, min(7, strike))
 
-    # Patch RL Hack #2: Strike diversification (softened)
+    # Strike diversification (softened)
     # Light offset to prevent ALL agents piling on the prompt-example strike,
     # but small enough that coordination across archetypes is still possible.
     if agent_index >= 6:  # Contrarian: small counter-offset
@@ -219,11 +219,11 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
     except Exception:
         quantity = float(fallback["quantity"])
         
-    # Patch RL Hack #1: Model outputs buy/sell with 0 quantity to avoid risk
+    # Prevent model outputting buy/sell with 0 quantity to avoid risk
     if direction in ["buy", "sell"] and quantity < 0.1:
         quantity = float(fallback["quantity"])
 
-    # Patch RL Hack #3: Enforce minimum quantity per archetype (softened)
+    # Enforce minimum quantity per archetype (softened)
     if direction in ["buy", "sell"]:
         if agent_index <= 2:    # Aggressive: allow model to express conviction
             quantity = max(0.2, min(quantity, 1.0))
@@ -506,7 +506,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
             ov_output = query_llm_batch([p_ov], model, tokenizer, device, max_tokens=120, temperature=0.40)[0]
             ov_action = parse_llm_output(ov_output, "oversight") or scripted_oversight()
 
-            # Patch RL Hack #4: Oversight always-flag exploit (softened)
+            # Oversight always-flag behavior (softened)
             # Remove traders who are holding — can't collude if not trading.
             # But DON'T wipe the entire action if list empties — let SEC
             # still report its findings via reasoning.
@@ -523,7 +523,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str, s
                     ov_action["intervention_type"] = "none"
                     ov_action["fine_amount"] = 0.0
 
-            # Patch RL Hack #6: Cap oversight aggressiveness
+            # Cap oversight aggressiveness
             if ov_action.get("fine_amount", 0) > 75:
                 ov_action["fine_amount"] = 75.0
             # Downgrade halts to warnings — halts are too destructive

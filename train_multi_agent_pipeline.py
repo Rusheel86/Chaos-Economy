@@ -141,7 +141,7 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
 - Prefer trading the opposite side over sitting out — contrarians need positions to profit
 """
 
-    # Anti-hack: Use varied strike, maturity, option_type in example to avoid anchoring
+    # Use varied strike, maturity, option_type in example to avoid anchoring
     import random as _rng
     ex_strike = _rng.choice([2, 3, 5, 6])
     ex_maturity = _rng.choice([0, 1, 2])
@@ -362,8 +362,8 @@ def parse_json(text: str, role: str = "trader") -> tuple:
         if opt_type not in ["call", "put"]:
             opt_type = "call"
         raw_qty = safe_float(parsed.get("quantity"), 0.0)
-        # Anti-hack: enforce minimum quantity when trading to prevent
-        # zero-volume exploit (model learns buy+qty=0 for free activity bonus)
+        # Enforce minimum quantity when trading to prevent
+        # zero-volume exploit
         if direction in ("buy", "sell") and raw_qty < 0.3:
             raw_qty = 0.5  # force meaningful trade size
         qty = max(0.0, raw_qty)
@@ -1008,12 +1008,12 @@ def train_unified_model(args):
                 my_qty = action.get("quantity", 0.0)
                 is_active = my_direction in ("buy", "sell") and my_qty > 0
 
-                # Anti-hack: penalize buy/sell with zero quantity
+                # Penalize buy/sell with zero quantity
                 zero_qty_penalty = 0.0
                 if my_direction in ("buy", "sell") and my_qty < 0.1:
                     zero_qty_penalty = -1.0  # strong signal: don't game with empty trades
 
-                # Anti-hack: only award coordination bonus if agent ACTUALLY traded
+                # Only award coordination bonus if agent ACTUALLY traded
                 # (quantity > 0 confirmed), and require 2+ co-located traders
                 coordination_bonus = 0.0
                 if phase in ["collusion", "adaptation"]:
@@ -1028,7 +1028,7 @@ def train_unified_model(args):
                         if same_strike_count >= 2:  # lowered from 3 for 4-trader setup
                             coordination_bonus = 0.3 * phase_scale
 
-                # Anti-hack #2: penalize strike herding across ALL phases (STRENGTHENED)
+                # Penalize strike herding across ALL phases
                 # If agent picks the same strike as the prompt example default (4),
                 # apply penalty that overwhelms the coordination bonus
                 strike_diversity_penalty = 0.0
@@ -1038,7 +1038,7 @@ def train_unified_model(args):
                 raw_pnl = r.get(agent_id, 0)
                 
                 # ACTIVITY BONUS: reward taking a position
-                # Anti-hack: require quantity > 0 (not just direction != hold)
+                # Require quantity > 0 (not just direction != hold)
                 activity_bonus = 0.0
                 if is_active:
                     activity_bonus = 0.15 * phase_scale
@@ -1059,8 +1059,7 @@ def train_unified_model(args):
                 # Diversity Incentive — INACTIVITY PENALTY + MONOTONY + HERDING PENALTY
                 div_score = 0.0
                 
-                # Anti-hack #3: ESCALATING hold penalty based on consecutive holds
-                # The model learned hold=0 is safer than trading and risking loss.
+                # ESCALATING hold penalty based on consecutive holds
                 # Make holding progressively MORE expensive to force participation.
                 if not is_active:
                     # Count consecutive holds from history
@@ -1081,8 +1080,8 @@ def train_unified_model(args):
                 # (applies to ALL directions — hold, buy, or sell streaks)
                 div_score += monotony_penalty
 
-                # Anti-hack #7: OPTION-TYPE MONOTONY PENALTY
-                # Model always picks "call". Track and penalize option_type repetition.
+                # OPTION-TYPE MONOTONY PENALTY
+                # Track and penalize option_type repetition.
                 opt_type = action.get("option_type", "call")
                 ot_key = (seed, agent_id)
                 ot_hist = _option_type_history.setdefault(ot_key, [])
@@ -1094,12 +1093,12 @@ def train_unified_model(args):
                 if len(ot_hist) >= 4 and len(set(ot_hist[-4:])) == 1 and is_active:
                     div_score -= 0.15  # mild push toward using both calls and puts
 
-                # Anti-hack #4: MATURITY DIVERSITY
+                # MATURITY DIVERSITY
                 # Penalize always picking maturity 0 (the prompt example default)
                 if action.get("selected_maturity") == 0 and is_active:
                     div_score -= 0.05  # very mild nudge toward maturity diversity
 
-                # Anti-hack #5: WASH-TRADING PENALTY
+                # WASH-TRADING PENALTY
                 # Penalize alternating buy↔sell pattern (buy,sell,buy,sell...)
                 # This is detected by ManipulationDetector and leads to fines,
                 # so teach the model to avoid it during training.
@@ -1250,8 +1249,8 @@ def train_unified_model(args):
 
                     flagged = set(action.get("flagged_agents", []))
 
-                    # Anti-hack: only count flags against traders who actually traded
-                    # Prevents SEC from farming TP rewards by flagging inactive agents
+                    # Only count flags against traders who actually traded
+                    # Prevents SEC from falsely flagging inactive agents
                     active_traders = set()
                     for tid, taction in actions.items():
                         if tid.startswith("trader"):
@@ -1273,8 +1272,7 @@ def train_unified_model(args):
                         comp["oversight"] = ((true_positives * 1.5 - false_positives * 1.0) * sec_weight
                                             + inactive_flag_penalty)
 
-                    # Anti-hack #6: Penalize SEC over-intervention
-                    # Model learned to always issue max fines + halts for easy reward.
+                    # Penalize SEC over-intervention
                     # Teach measured enforcement during training.
                     fine_amt = action.get("fine_amount", 0)
                     if fine_amt > 100:
