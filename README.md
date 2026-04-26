@@ -12,7 +12,7 @@ pinned: false
 > **While most AI simulations model isolated agents or single-objective tasks, *The Chaos Economy* tackles something far more dangerous: Systemic Risk.** We simulate a high-fidelity multi-agent options market where traders, a market maker, and a regulator engage in an evolving arms race of exploitation, collusion, and adaptive oversight — and watch a full financial crisis arc emerge on its own from 250 steps of reinforcement learning.
 
 ### 🔗 Links
-- **Hugging Face Space:** `Coming Soon (Pushing via OpenEnv CLI)`
+- **Hugging Face Space:** [https://huggingface.co/spaces/MananBansal/Chaos-Economy](https://huggingface.co/spaces/MananBansal/Chaos-Economy)
 - **Full Narrative Report:** [The Chaos Economy: A Story of Systemic Risk](./STORYTELLING.md)
 - **Demo Video:** `Coming Soon`
 
