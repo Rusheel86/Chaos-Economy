@@ -80,7 +80,7 @@ class StepResponse(BaseModel):
 @app.get("/", response_class=RedirectResponse)
 async def root():
     """Redirect root to the Web UI."""
-    return RedirectResponse(url="/web")
+    return RedirectResponse(url="/dashboard")
 
 
 @app.get("/web", response_class=HTMLResponse)

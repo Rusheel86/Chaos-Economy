@@ -3,11 +3,11 @@
 
 name: vsr-env
 version: 2.0.0
-description: 12-actor market simulation for multi-agent RL - traders, market maker, oversight
+description: 6-actor market simulation for multi-agent RL - traders, market maker, oversight
 
 tasks:
   - name: multi_agent_market
-    description: "12-actor options market: 10 traders, 1 market maker, 1 oversight agent competing and cooperating over 300 steps"
+    description: "6-actor options market: 4 traders (trader_0 to trader_3), 1 market maker, 1 oversight agent competing and cooperating over 300 steps"
     max_steps: 300
     difficulty: expert
 
