@@ -33,12 +33,12 @@ def calculate_trader_reward(agent_state: AgentState, prev_state: AgentState, age
     total_economic_delta = (pnl_delta + cash_delta * 0.1) * 10.0
     
     # 2. Activity Bonus / Hold Penalty
-    # Must be meaningful relative to potential trading losses (~1.0)
-    # to prevent the model from learning "hold = safe = optimal"
+    # Moderate signal: enough to discourage always-hold but not so strong
+    # that it dominates PnL and causes blind overtrading
     if direction in ["buy", "sell"]:
-        activity_bonus = 0.3
+        activity_bonus = 0.15
     else:
-        activity_bonus = -0.15  # penalize consecutive holds
+        activity_bonus = -0.05  # mild hold discouragement
     
     # 3. Archetype-Specific Goals
     archetype_bonus = 0.0
