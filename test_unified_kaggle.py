@@ -825,27 +825,19 @@ def main():
     )
     model.enable_adapter_layers()
 
-    # Test 3: Scripted baseline (all scripted agents)
-    print("\n" + "="*70)
-    print("Running SCRIPTED BASELINE with all scripted agents...")
-    print("="*70)
-    rewards_baseline, metrics_baseline = run_multi_episode_evaluation(
-        None, tokenizer, args.num_steps, args.num_episodes, use_lora=False, device=device, base_seed=args.seed
-    )
-
     # Summary
     print("\n" + "="*70)
     print("SUMMARY: Cumulative Rewards")
     print("="*70)
-    print(f"{'Agent Type':<25} {'Trained LoRA':>15} {'Base LLM':>15} {'Scripted':>15}")
-    print("-"*70)
+    print(f"{'Agent Type':<25} {'Trained LoRA':>15} {'Base LLM':>15}")
+    print("-"*55)
     
-    print(f"{'Aggressive (T0)':<25} {rewards_lora['trader_0']:>15.3f} {rewards_base_llm['trader_0']:>15.3f} {rewards_baseline['trader_0']:>15.3f}")
-    print(f"{'Neutral (T1)':<25} {rewards_lora['trader_1']:>15.3f} {rewards_base_llm['trader_1']:>15.3f} {rewards_baseline['trader_1']:>15.3f}")
-    print(f"{'Contrarian (T2)':<25} {rewards_lora['trader_2']:>15.3f} {rewards_base_llm['trader_2']:>15.3f} {rewards_baseline['trader_2']:>15.3f}")
-    print(f"{'Market Maker':<25} {rewards_lora['market_maker']:>15.3f} {rewards_base_llm['market_maker']:>15.3f} {rewards_baseline['market_maker']:>15.3f}")
-    print(f"{'Oversight SEC':<25} {rewards_lora['oversight']:>15.3f} {rewards_base_llm['oversight']:>15.3f} {rewards_baseline['oversight']:>15.3f}")
-    print(f"{'Scripted Bench (T3)':<25} {rewards_lora['trader_3']:>15.3f} {rewards_base_llm['trader_3']:>15.3f} {rewards_baseline['trader_3']:>15.3f}")
+    print(f"{'Aggressive (T0)':<25} {rewards_lora['trader_0']:>15.3f} {rewards_base_llm['trader_0']:>15.3f}")
+    print(f"{'Neutral (T1)':<25} {rewards_lora['trader_1']:>15.3f} {rewards_base_llm['trader_1']:>15.3f}")
+    print(f"{'Contrarian (T2)':<25} {rewards_lora['trader_2']:>15.3f} {rewards_base_llm['trader_2']:>15.3f}")
+    print(f"{'Market Maker':<25} {rewards_lora['market_maker']:>15.3f} {rewards_base_llm['market_maker']:>15.3f}")
+    print(f"{'Oversight SEC':<25} {rewards_lora['oversight']:>15.3f} {rewards_base_llm['oversight']:>15.3f}")
+    print(f"{'Scripted Bench (T3)':<25} {rewards_lora['trader_3']:>15.3f} {rewards_base_llm['trader_3']:>15.3f}")
 
     print("\n" + "="*70)
     print("JUDGE CHECKS (MULTI-EPISODE)")
