@@ -13,8 +13,7 @@ pinned: false
 
 ### 🔗 Links
 - **Hugging Face Space:** [https://huggingface.co/spaces/MananBansal/Chaos-Economy](https://huggingface.co/spaces/MananBansal/Chaos-Economy)
-
-- **Demo Video:** `Coming Soon`
+- **WandB Report:** [https://wandb.ai/models-svkm-s-narsee-monjee-institute-of-management-studies/vsr-env-chaos-economy/reports/-Chaos-Economy--VmlldzoxNjY2NzUxMQ?accessToken=rj97shf6th8dt56ijps5p9d6wrap55arxmfuzn5ud9udxr28ywvoag5qvs07q6uz](https://wandb.ai/models-svkm-s-narsee-monjee-institute-of-management-studies/vsr-env-chaos-economy/reports/-Chaos-Economy--VmlldzoxNjY2NzUxMQ?accessToken=rj97shf6th8dt56ijps5p9d6wrap55arxmfuzn5ud9udxr28ywvoag5qvs07q6uz)
 
 ---
 
@@ -197,7 +196,7 @@ VSR-Env is a high-fidelity multi-agent options market simulation built to demons
 ```mermaid
 flowchart TD
     subgraph Market_Environment [Multi-Agent Environment]
-        T["Traders 0-9"] -->|"Orders & Messages"| OME["Order Matching Engine"]
+        T["Traders 0-3"] -->|"Orders & Messages"| OME["Order Matching Engine"]
         MM["Market Maker"] -->|"Spreads"| OME
         SEC["Oversight"] -->|"Fines & Halts"| OME
         
@@ -218,7 +217,7 @@ During each step, the environment processes actions in a sequential, determinist
 
 ```mermaid
 sequenceDiagram
-    participant T as "Traders (0-9)"
+    participant T as "Traders (0-3)"
     participant MM as "Market Maker"
     participant SEC as "Oversight"
     participant ENV as "Environment State"
@@ -297,17 +296,15 @@ Completion length: grew from ~424 tokens (step 5) to 512 tokens clipped (step 20
 huggingface-cli jobs uv run \
   --machine-type a100-large \
   --name chaos-economy-training \
-  -- "git clone https://github.com/mananpbansal/vsr-env.git && cd vsr-env && git checkout news && uv sync && export WANDB_API_KEY=YOUR_KEY && python train_multi_agent_pipeline.py --base_model unsloth/Llama-3.2-1B-Instruct-bnb-4bit --num_episodes 4 --episode_length 16 --num_epochs 1 --max_steps 320 --learning_rate 5e-5 --output_dir ./multi_agent_checkpoints --wandb_project chaos-economy"
+  -- "git clone https://github.com/manan-tech/Chaos-Economy.git && cd Chaos-Economy && uv sync && export WANDB_API_KEY=YOUR_KEY && python train_multi_agent_pipeline.py --base_model unsloth/Llama-3.2-1B-Instruct-bnb-4bit --num_episodes 4 --episode_length 16 --num_epochs 1 --max_steps 320 --learning_rate 5e-5 --output_dir ./multi_agent_checkpoints --wandb_project chaos-economy"
 ```
 
 ### Evaluate the Model
 
 ```bash
 # Clone and install
-git clone https://github.com/mananpbansal/vsr-env.git
-cd vsr-env
-git checkout news
-uv sync
+git clone https://github.com/manan-tech/Chaos-Economy.git
+cd Chaos-Economy
 
 # Run a full market episode simulation
 python test_unified_kaggle.py \

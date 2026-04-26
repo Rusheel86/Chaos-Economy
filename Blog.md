@@ -2,7 +2,7 @@
 
 At step 120 of a reinforcement learning run, something unexpected happened.
 
-Five AI agents — traders, a market maker, and a regulator — had been grinding through a simulated options market for hours. Then, without any script for *how*, the traders found each other. They piled into the same option strikes. They developed signaling behaviors through the message channel, correlated with their coordinated actions. They executed a functional analog of a Gamma Squeeze in near-perfect unison. Reward spiked to an all-time high of **2.092**.
+Six AI agents — traders, a market maker, and a regulator — had been grinding through a simulated options market for hours. Then, without any script for *how*, the traders found each other. They piled into the same option strikes. They developed signaling behaviors through the message channel, correlated with their coordinated actions. They executed a functional analog of a Gamma Squeeze in near-perfect unison. Reward spiked to an all-time high of **2.092**.
 
 Fifty steps later, the whole thing collapsed. The correction was brutal: reward cratered to **-1.154**, the worst single step in the entire run.
 
