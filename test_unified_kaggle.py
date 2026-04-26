@@ -359,7 +359,7 @@ def query_llm_batch(prompts: list, model, tokenizer, device: str, max_tokens: in
             temperature=temperature,
             do_sample=temperature > 0,
             pad_token_id=tokenizer.pad_token_id,
-            # Suppress the max_length warning
+            repetition_penalty=1.2,
             max_length=None, 
         )
     
