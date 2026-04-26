@@ -670,7 +670,7 @@ def train_unified_model(args):
             lora_dropout=0,
         )
     else:
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
         from peft import get_peft_model, LoraConfig, TaskType
         
         print("Unsloth unavailable or incompatible, falling back to standard HuggingFace transformers + PEFT.")
@@ -680,7 +680,18 @@ def train_unified_model(args):
             model = AutoModelForCausalLM.from_pretrained(args.base_model, device_map=device_map, torch_dtype=torch.float16)
         elif torch.cuda.is_available():
             device_map = "auto"
-            model = AutoModelForCausalLM.from_pretrained(args.base_model, device_map=device_map, load_in_4bit=True)
+            quantization_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_use_double_quant=True,
+            )
+            model = AutoModelForCausalLM.from_pretrained(
+                args.base_model,
+                device_map=device_map,
+                torch_dtype=torch.float16,
+                quantization_config=quantization_config,
+            )
         else:
             device_map = "cpu"
             model = AutoModelForCausalLM.from_pretrained(args.base_model, device_map=device_map)
@@ -697,6 +708,35 @@ def train_unified_model(args):
             target_modules=["q_proj", "k_proj", "v_proj", "o_proj"]
         )
         model = get_peft_model(model, peft_config)
+
+    def _set_model_torch_dtype(target_dtype):
+        # Keep model config dtype aligned with GRPO precision flags.
+        if hasattr(model, "config"):
+            model.config.torch_dtype = target_dtype
+        base_model = getattr(model, "base_model", None)
+        if base_model is not None and hasattr(base_model, "config"):
+            base_model.config.torch_dtype = target_dtype
+
+    def _infer_model_torch_dtype():
+        cfg_dtype = getattr(getattr(model, "config", None), "torch_dtype", None)
+        if cfg_dtype in (torch.float16, torch.bfloat16, torch.float32):
+            return cfg_dtype
+        for param in model.parameters():
+            if param.is_floating_point():
+                return param.dtype
+        return torch.float32
+
+    model_dtype = _infer_model_torch_dtype()
+    if torch.cuda.is_available() and model_dtype == torch.bfloat16 and not torch.cuda.is_bf16_supported():
+        print("[Precision] bf16 model on non-bf16 GPU detected; forcing float16 for trainer compatibility.")
+        model_dtype = torch.float16
+        _set_model_torch_dtype(model_dtype)
+
+    use_bf16 = bool(torch.cuda.is_available() and model_dtype == torch.bfloat16 and torch.cuda.is_bf16_supported())
+    use_fp16 = bool(torch.cuda.is_available() and not use_bf16)
+
+    if torch.cuda.is_available() and use_fp16:
+        _set_model_torch_dtype(torch.float16)
     max_prompt_tokens = max(256, args.max_prompt_tokens)
 
     def clip_prompt(prompt_text: str) -> str:
@@ -1297,8 +1337,8 @@ def train_unified_model(args):
         save_steps=100,
         save_total_limit=2,
         learning_rate=args.learning_rate,
-        bf16=torch.cuda.is_bf16_supported(),
-        fp16=not torch.cuda.is_bf16_supported(),    # Match Unsloth's internal dtype
+        bf16=use_bf16,
+        fp16=use_fp16,
         max_grad_norm=1.0,
         report_to="wandb" if use_wandb else "none",
     )
