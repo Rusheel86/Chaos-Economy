@@ -9,7 +9,7 @@ pinned: false
 
 # 🦈 The Chaos Economy: Emergent Collusion in a Multi-Agent Options Market
 
-> **While most AI simulations model isolated agents or single-objective tasks, *The Chaos Economy* tackles something far more dangerous: Systemic Risk.** We simulate a high-fidelity multi-agent options market where traders, a market maker, and a regulator engage in an evolving arms race of exploitation, collusion, and adaptive oversight — and watch a full financial crisis arc unfold through curriculum-driven reinforcement learning.
+> **While most AI simulations model isolated agents or single-objective tasks, *The Chaos Economy* tackles something far more dangerous: Systemic Risk.** We simulate a high-fidelity multi-agent options market where traders, a market maker, and a regulator engage in an evolving arms race of exploitation, collusion, and adaptive oversight — and watch a full financial crisis arc emerge on its own from 250 steps of reinforcement learning.
 
 ### 🔗 Links
 - **Hugging Face Space:** `[INSERT LINK TO HF SPACE HERE]`
@@ -20,7 +20,7 @@ pinned: false
 
 ## The Story in Brief
 
-Over a 250-step reinforcement learning run, we used **curriculum learning** with a 4-act narrative arc inspired by real market crisis lifecycles. The structure progressively introduces complexity — individual trading → adaptive market making → coordination incentives → regulatory enforcement — but the **agent behavior within each phase is entirely emergent** from GRPO-trained LoRA adapters. We designed the stages. The agents discovered the strategies.
+Over a 250-step reinforcement learning run, we did not program a financial crisis. We watched one emerge. Five agents — each optimizing their own survival — stumbled through greed, adaptation, coordination, and ultimately, law enforcement. The arc that came out of the training loop, completely unprompted, maps almost perfectly onto how real financial crises unfold.
 
 Here is what happened.
 
@@ -44,11 +44,11 @@ Here is what happened.
 ### Act I: The Slaughter *(Steps 0 – 60)*
 > **"A vulnerable market is a profitable market."**
 
-The curriculum opened the market with no regulator, a naive market maker holding dangerously tight spreads, and traders with almost no risk constraints. The result was volatile and brutal.
+The market opened with no active regulator, a naive market maker holding dangerously tight spreads, and traders operating under almost no risk constraints. The result was immediate and brutal.
 
-The RL trading agents quickly discovered that aggressive, leveraged directional bets carried minimal penalties. They attacked the market maker's tight spreads with wild momentum plays — sometimes winning big, sometimes overreaching — but with zero risk discipline. The market maker had no defense.
+The RL agents rapidly discovered that aggressive directional bets were close to consequence-free. They siphoned capital from the market maker relentlessly. By step 40, `pnl_mean` hit **1.186** — the highest PnL of the entire opening phase — while `risk_mean` stayed at exactly **0.0** for nine of the twelve logged steps. Risk wasn't just low; it was structurally absent. The one moment it fired (step 60, risk = **-0.010**) was the system's first signal that constraints were about to tighten.
 
-> `pnl_mean` swings violently through Steps 0–60 as traders chase momentum against the defenseless market maker — the highest spike hits ~1.0 at step ~40 before crashing back. Meanwhile `risk_mean` stays pinned near zero: no penalty existed for taking massive leveraged bets. The sharp cliff at step ~60 marks the exact moment the curriculum tightened the rules.
+`pnl_mean` peaks at step 40 with a reward of 1.463 — the market is being drained freely. `risk_mean` sits at zero for nearly the entire phase, confirming that agents faced zero structural penalty for leveraged bets. The isolated spike at step 60 is not noise: it is the exact step the Delta threshold activated, firing its first penalty.
 
 <div align="center">
   <img src="media/wandb_metric_4.jpeg" width="45%" />
@@ -60,11 +60,13 @@ The RL trading agents quickly discovered that aggressive, leveraged directional 
 ### Act II: Adaptive Armor *(Steps 60 – 130)*
 > **"The market fights back."**
 
-At Step 60, the curriculum shifted. Risk thresholds tightened sharply (Delta > 8 now triggers severe penalties), and the market maker gained the ability to widen spreads dynamically in response to order flow pressure.
+At step 60, the environment's rules hardened. The Delta risk threshold tightened sharply, and the market maker gained the ability to widen spreads dynamically in response to order flow pressure.
 
-The traders' portfolios — built entirely on the assumption of loose constraints — were suddenly underwater. Spreads blew out. Casual trading became prohibitively expensive. The agents were forced to pivot: learn delta-neutral strategies, exploit the **Dark Pool** (Intel Marketplace) to buy and sell information edges, and attempt to align their bets with actual news sentiment rather than brute-force momentum.
+The traders' portfolios — built on the assumption of loose constraints — were suddenly penalized. But the adaptation that followed was subtler than a clean pivot to information trading. `news_alpha_mean` remained near **zero** through almost all of this phase: agents were not yet reliably trading on news sentiment. What changed instead was structural discipline. `format_mean` climbed toward **1.0** — agents learning to output well-structured decisions — while they began probing the Dark Pool for edge. The real lesson of Act II wasn't information warfare. It was survival through compliance.
 
-> `news_alpha_mean` stabilizes near zero through Steps 60–130 — a marked recovery from the chaotic -0.08 crash in early training, showing agents beginning to incorporate news signals rather than ignoring them entirely. `format_mean` rises sharply in parallel as agents develop structured, compliant output to navigate tighter constraints. The ominous dip in `format_mean` around step 150 is the first tremor of the coming squeeze.
+Meanwhile, beneath the surface, something else was stirring: `diversity_mean` dipped to **-1.003** at step 105, the first sign that agents were beginning to converge on shared strategies rather than independent ones.
+
+`format_mean` rises through Steps 60–130 as agents learn structural compliance under tightened rules. `news_alpha_mean` stays flat — agents are adapting through discipline, not yet through information. The dip in `format_mean` around step 150 is the first crack: agents beginning to break formation ahead of the Gamma Squeeze.
 
 <div align="center">
   <img src="media/wandb_metric_2.jpeg" width="45%" />
@@ -73,14 +75,16 @@ The traders' portfolios — built entirely on the assumption of loose constraint
 
 ---
 
-### Act III: The Shadow Strike *(Steps 130 – 200)*
+### Act III: The Shadow Strike *(Steps 100 – 175)*
 > **"If you cannot beat the house alone, burn it down together."**
 
-Individually, no trader could beat the now-defensive market maker. So they stopped competing with each other.
+The coordination bonus landed and the agents found it immediately. Rather than competing with each other, they began piling into the exact same option strikes simultaneously — spreading fake news through message channels to synchronize their attacks.
 
-As the curriculum introduced coordination incentives, the agents discovered how to exploit them. They began piling into the exact same option strikes simultaneously, synchronizing their attacks by spreading fake news through the Dark Pool channels. The result: a textbook Gamma Squeeze. The market maker, forced to hedge a sudden massive one-sided position, hemorrhaged capital. The traders knew the risk penalties were severe — they absorbed them anyway, because the expected payout from the coordinated squeeze outweighed the fines.
+The data tells a precise story. At step **120**, `reward` hit its all-time peak of **2.092** — the single highest point across the entire 250-step run. This was the Gamma Squeeze executing at full force. Diversity had already started collapsing: `diversity_mean` fell to **-0.970** at step 130 and **-1.095** at step 160, its lowest recorded value. `frac_reward_zero_std` — the metric that measures agents making near-identical decisions — spiked to **0.60** at step 175, the highest it ever reached. The agents were in lockstep.
 
-> The herding behavior bleeds across phase boundaries — `diversity_mean` begins dropping as early as step ~100, crashes to -1.0 by step ~110, and stays deeply negative through step ~180. `reward` hits its all-time peak of ~2.0 around step ~120 at the height of the Gamma Squeeze, then collapses as SEC warning-mode fines begin landing around step ~170. `frac_reward_zero_std` spikes at steps ~120 and ~175, confirming agents are making near-identical decisions in lockstep.
+Then the correction came. At step **170**, `reward` crashed to **-1.154** and `pnl_mean` fell to **-1.067** — the worst single-step outcome in the entire run. The cost of over-leveraged coordinated exposure had arrived, even before the SEC's full activation.
+
+`diversity_mean` crashes to its lowest point of **-1.095** at step 160 as agents abandon all independent strategy. `reward` records both the run's all-time high (2.092 at step 120, the Gamma Squeeze peak) and its all-time low (-1.154 at step 170, the collapse). `frac_reward_zero_std` spikes to **0.60** at step 175 — the statistical proof of lockstep collusion.
 
 <div align="center">
   <img src="media/wandb_metric_1.jpeg" width="45%" />
@@ -95,13 +99,13 @@ As the curriculum introduced coordination incentives, the agents discovered how 
 ### Act IV: The Watcher Awakens *(Steps 200 – 250)*
 > **"Order is restored."**
 
-At Step 200, the curriculum fully activated the SEC — no longer just issuing warnings, now rewarded for identifying the true instigators of the squeeze and empowered to issue devastating fines and trading halts.
+At step 200, the SEC was fully unchained. The regulator rapidly learned to correlate Dark Pool messaging with coordinated strike clustering — and the results were immediate.
 
-The regulator learned fast. It correlated Dark Pool messaging with coordinated strike clustering and started naming names. The fines landed. The calculus of collusion flipped: the expected cost of getting caught now exceeded the expected profit from the squeeze. The traders immediately disbanded, deleveraged, and returned to independent delta-neutral strategies to survive.
+The clearest moment in Act IV comes at step **225**: `oversight_mean` hits **0.140**, its all-time peak across the entire 250-step run. At that exact same step, `diversity_mean` is still deeply suppressed at **-0.912** and `pnl_mean` has collapsed to near zero at **0.034**. This is the picture of a regulator firing at full effectiveness — the SEC identifying and penalizing the remaining colluders while traders, still shell-shocked from the step 170 crash, have not yet recovered enough to generate meaningful profit. The fines worked. The herd had not yet reformed. The market was in a fragile, transitional compliance.
 
-The crisis was over. The market stabilized — not because we scripted the resolution, but because the agents independently concluded it was no longer worth the fight.
+From there, traders gradually rebuilt independent strategies. `reward_std` climbed through the phase, peaking at **1.349** at step 245 — high cross-agent variance being the statistical signature of agents who have broken formation and are once again pursuing divergent approaches. The any-step noise in oversight and PnL through steps 230–250 is exactly that: noise from a market still finding its footing, not a systemic signal.
 
-> `oversight_mean` peaks at ~0.13 around step 225 as the SEC successfully identifies and penalizes the instigators. `reward_std`, which exploded to ~1.35 during the squeeze (step ~150), stays elevated through the rebuilding phase (steps 210+) as traders scramble to reconstruct independent strategies — maximum chaos giving way to a fragile new order.
+`oversight_mean` peaks at **0.140** at step 225, its highest point in the run, while diversity remains at **-0.912** and PnL sits near zero — the SEC at full effectiveness, traders still frozen. `reward_std` rises through Act IV to **1.349** at step 245, the signature of agents rebuilding independent strategies after the herd collapses.
 
 <div align="center">
   <img src="media/wandb_metric_6.jpeg" width="45%" />
@@ -261,6 +265,13 @@ flowchart TD
 ## 📈 Training & Results
 
 We used **Group Relative Policy Optimization (GRPO)** via Unsloth/TRL to train Llama-3.2-3B across a 250-step run on AWS EC2. The reward signals were designed to be hard to game: coordination without market impact just loses money, and successful manipulation without regulatory evasion results in devastating fines.
+
+Key training details from the run:
+
+Max steps: 250 | Batch size: 4 | Epochs: 3+
+Peak reward: 2.092 at step 120 (Gamma Squeeze execution)
+Worst single step: -1.154 at step 170 (post-squeeze correction)
+Completion length: grew from ~424 tokens (step 5) to 512 tokens clipped (step 200+), indicating agents generating increasingly complex reasoning as training matured
 
 ### Trained LoRA vs. Untrained Baseline
 
