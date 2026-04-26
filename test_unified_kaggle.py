@@ -724,7 +724,7 @@ def run_multi_episode_evaluation(model, tokenizer, num_steps: int, num_episodes:
     }
 
     print("\n" + "=" * 70)
-    mode = "TRAINED UNIFIED LoRA" if use_lora else "SCRIPTED BASELINE"
+    mode = "TRAINED UNIFIED LoRA" if use_lora else "BASE LLM (no LoRA)"
     print(f"Running {num_episodes} episodes x {num_steps} steps with {mode} (base_seed={base_seed})")
     print("=" * 70)
 
@@ -821,7 +821,7 @@ def main():
     print("="*70)
     model.disable_adapter_layers()
     rewards_base_llm, metrics_base_llm = run_multi_episode_evaluation(
-        model, tokenizer, args.num_steps, args.num_episodes, use_lora=True, device=device, base_seed=args.seed
+        model, tokenizer, args.num_steps, args.num_episodes, use_lora=False, device=device, base_seed=args.seed
     )
     model.enable_adapter_layers()
 
