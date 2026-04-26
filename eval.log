@@ -1,0 +1,1351 @@
+/opt/pytorch/lib64/python3.13/site-packages/torch/cuda/__init__.py:65: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+Skipping import of cpp extensions due to incompatible torch version. Please upgrade to torch >= 2.11.0 (found 2.10.0+cu130).
+2026-04-26 06:40:32,425 [INFO] Loaded openenv.yaml manifest successfully with 1 tasks.
+2026-04-26 06:40:32,964 [INFO] HTTP Request: HEAD https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-26 06:40:32,969 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/bb1d317a108579fb40e646af8924a5e7ec5604b1/config.json "HTTP/1.1 200 OK"
+2026-04-26 06:40:32,990 [INFO] HTTP Request: HEAD https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-26 06:40:32,990 [WARNING] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-26 06:40:32,994 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/bb1d317a108579fb40e646af8924a5e7ec5604b1/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-26 06:40:33,027 [INFO] HTTP Request: GET https://huggingface.co/api/models/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-26 06:40:33,045 [INFO] HTTP Request: GET https://huggingface.co/api/models/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-26 06:40:33,948 [INFO] HTTP Request: GET https://huggingface.co/api/models/unsloth/Llama-3.2-3B-Instruct-bnb-4bit "HTTP/1.1 200 OK"
+2026-04-26 06:40:33,980 [INFO] HTTP Request: HEAD https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-26 06:40:33,985 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/bb1d317a108579fb40e646af8924a5e7ec5604b1/config.json "HTTP/1.1 200 OK"
+2026-04-26 06:40:34,010 [INFO] HTTP Request: HEAD https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-26 06:40:34,015 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/bb1d317a108579fb40e646af8924a5e7ec5604b1/config.json "HTTP/1.1 200 OK"
+/opt/pytorch/lib64/python3.13/site-packages/transformers/quantizers/auto.py:262: UserWarning: You passed `quantization_config` or equivalent parameters to `from_pretrained` but the model you're loading already has a `quantization_config` attribute. The `quantization_config` from the model will be used.
+  warnings.warn(warning_msg)
+Using device: cuda
+
+Loading base model: unsloth/Llama-3.2-3B-Instruct-bnb-4bit
+Loading weights:   0%|          | 0/254 [00:00<?, ?it/s]Loading weights:  30%|██▉       | 76/254 [00:00<00:00, 752.97it/s]Loading weights:  60%|██████    | 153/254 [00:00<00:00, 761.60it/s]Loading weights:  91%|█████████▏| 232/254 [00:00<00:00, 774.49it/s]Loading weights: 100%|██████████| 254/254 [00:00<00:00, 774.77it/s]
+2026-04-26 06:40:35,928 [INFO] HTTP Request: HEAD https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-26 06:40:35,933 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/unsloth/Llama-3.2-3B-Instruct-bnb-4bit/bb1d317a108579fb40e646af8924a5e7ec5604b1/generation_config.json "HTTP/1.1 200 OK"
+Loading LoRA adapter: multi_agent_checkpoints/unified_market_lora
+
+======================================================================
+Running 1 episodes x 30 steps with TRAINED UNIFIED LoRA (base_seed=42)
+======================================================================
+
+======================================================================
+Running 30 steps with TRAINED UNIFIED LoRA (seed=42)
+======================================================================
+
+
+--- STEP 0 ---
+TRADERS: T0:B | T1:S | T2:B | T3:H
+MARKET : Spread ATM 0.030 | ITM 0.040
+SEC     : Action fine | Flagged ['trader_0', 'trader_1', 'trader_2'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Bullish outlook faded given increasing volatility
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Protective measures taken as high-gamma trades detected and coordinated pressure building.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.47 | IV=0.1992
+           ATM Call K=100 30d: Theo=$1.341  Bid=$1.326  Ask=$1.356
+           ATM Put  K=100 30d: Theo=$3.464  Bid=$3.449  Ask=$3.479
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $2.508 (theo=$2.493)
+           trader_1: SELL 0.6x call K=110 @ $2.826 (theo=$2.861)
+           trader_2: BUY 0.5x call K=100 @ $2.508 (theo=$2.493)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 0) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1', 'trader_2']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 1 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.030 | ITM 0.060
+SEC     : Action none | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [Aggressive T0] Investing heavily in bullish gamma, following sharp trend upside.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads across all strikes as an emergency measure to mitigate pote
+  [SEC INSIGHT] Both traded aggressively at strike 4, indicating potential coordination
+  [PRICES] Spot=$97.95 | IV=0.1977
+           ATM Call K=100 30d: Theo=$1.507  Bid=$1.492  Ask=$1.522
+           ATM Put  K=100 30d: Theo=$3.151  Bid=$3.136  Ask=$3.166
+  [TRADES] 3 executed:
+           trader_0: BUY 0.6x call K=95 @ $5.878 (theo=$5.863)
+           trader_1: BUY 0.5x call K=100 @ $1.356 (theo=$1.341)
+           trader_2: BUY 0.4x put K=95 @ $1.065 (theo=$1.050)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 1) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: NONE on ['trader_0', 'trader_1']
+  💰 Fine: $25 | Confidence: 95%
+  🧠 SEC Reasoning: Both traded aggressively at strike 4, indicating potential coordination
+  ══════════════════════════════════════════════
+
+--- STEP 2 ---
+TRADERS: T0:B | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.034 | ITM 0.045
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Buying call
+  [Neutral T1]    Waiting to hit new highs, and we can capitalize with moderate positions.
+  [Contrarian T2] Counter-trend play given high IV; likely volatility will abate soon, allowing me to take profits.
+  [MM Reason]  Gamma squeeze detected; widening spreads as precautionary measure
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$98.04 | IV=0.1975
+           ATM Call K=100 30d: Theo=$1.543  Bid=$1.527  Ask=$1.560
+           ATM Put  K=100 30d: Theo=$3.089  Bid=$3.072  Ask=$3.106
+  [TRADES] 3 executed:
+           trader_0: BUY 0.8x call K=100 @ $1.524 (theo=$1.507)
+           trader_1: BUY 0.4x call K=110 @ $2.219 (theo=$2.179)
+           trader_2: SELL 0.5x call K=110 @ $0.014 (theo=$0.053)
+
+--- STEP 3 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.036 | ITM 0.071
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads as insurance against potential losses.
+  [SEC INSIGHT] Both traded 4 with similar quantities indicating coordinated attack
+  [PRICES] Spot=$98.07 | IV=0.1968
+           ATM Call K=100 30d: Theo=$1.547  Bid=$1.529  Ask=$1.565
+           ATM Put  K=100 30d: Theo=$3.066  Bid=$3.048  Ask=$3.084
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.561 (theo=$1.543)
+           trader_1: BUY 0.5x call K=100 @ $1.561 (theo=$1.543)
+           trader_2: BUY 0.5x call K=100 @ $1.561 (theo=$1.543)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 3) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 85%
+  🧠 SEC Reasoning: Both traded 4 with similar quantities indicating coordinated attack
+  ══════════════════════════════════════════════
+
+--- STEP 4 ---
+TRADERS: T0:S | T1:S | T2:S | T3:H
+MARKET : Spread ATM 0.039 | ITM 0.052
+SEC     : Action warning | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Gamma protection against
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  High gamma detected; widening spreads across all strikes as an insurance policy against potential sq
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.42 | IV=0.1966
+           ATM Call K=100 30d: Theo=$1.299  Bid=$1.279  Ask=$1.318
+           ATM Put  K=100 30d: Theo=$3.464  Bid=$3.445  Ask=$3.483
+  [TRADES] 3 executed:
+           trader_0: SELL 0.8x put K=100 @ $3.046 (theo=$3.066)
+           trader_1: SELL 0.8x call K=100 @ $3.475 (theo=$3.494)
+           trader_2: SELL 0.5x call K=100 @ $1.528 (theo=$1.547)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 4) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: WARNING on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 95%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 5 ---
+TRADERS: T0:S | T1:S | T2:B | T3:H
+MARKET : Spread ATM 0.036 | ITM 0.048
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Earnings sending stock into reverse; selling puts and calls around it — this has good bear potential until tomorrow.
+  [Neutral T1]    Delta inversion pointing to down trend reversal possibility — seek offsetting gains.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads as insurance against potential losses.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.69 | IV=0.1954
+           ATM Call K=100 30d: Theo=$1.384  Bid=$1.366  Ask=$1.402
+           ATM Put  K=100 30d: Theo=$3.281  Bid=$3.263  Ask=$3.300
+  [TRADES] 3 executed:
+           trader_0: SELL 0.4x call K=102 @ $2.236 (theo=$2.254)
+           trader_1: SELL 0.6x put K=100 @ $5.418 (theo=$5.437)
+           trader_2: BUY 0.5x call K=100 @ $1.317 (theo=$1.299)
+
+--- STEP 6 ---
+TRADERS: T0:B | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.037 | ITM 0.050
+SEC     : Action none | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Protective measures taken as coordinated pressure detected and widening spreads anticipated to mitig
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.86 | IV=0.1953
+           ATM Call K=100 30d: Theo=$1.449  Bid=$1.430  Ask=$1.468
+           ATM Put  K=100 30d: Theo=$3.175  Bid=$3.156  Ask=$3.194
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.403 (theo=$1.384)
+           trader_1: BUY 0.5x call K=100 @ $1.403 (theo=$1.384)
+           trader_2: SELL 0.5x call K=100 @ $1.365 (theo=$1.384)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 6) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: NONE on ['trader_0', 'trader_1']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 7 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.038 | ITM 0.077
+SEC     : Action none | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Step price increase indicates upside probability & time is right to target ITM gamma with moderate position sizing
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads as insurance against potential losses.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$99.23 | IV=0.1952
+           ATM Call K=100 30d: Theo=$2.043  Bid=$2.024  Ask=$2.063
+           ATM Put  K=100 30d: Theo=$2.403  Bid=$2.384  Ask=$2.423
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.468 (theo=$1.449)
+           trader_1: BUY 0.4x call K=110 @ $0.761 (theo=$0.716)
+           trader_2: BUY 0.5x call K=100 @ $1.468 (theo=$1.449)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 7) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: NONE on ['trader_0', 'trader_1']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 8 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.042 | ITM 0.056
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Step up IV chase,
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Tracking support levels and momentum reversal indicators...
+  [MM Reason]  Mitigating high-gamma risks and maintaining delta neutrality by widening spreads across all strikes.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$98.59 | IV=0.1982
+           ATM Call K=100 30d: Theo=$1.781  Bid=$1.761  Ask=$1.802
+           ATM Put  K=100 30d: Theo=$2.782  Bid=$2.761  Ask=$2.803
+  [TRADES] 3 executed:
+           trader_0: BUY 0.8x call K=100 @ $2.064 (theo=$2.043)
+           trader_1: BUY 0.5x call K=110 @ $0.139 (theo=$0.090)
+           trader_2: BUY 0.3x put K=100 @ $3.624 (theo=$3.603)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 8) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 95%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 9 ---
+TRADERS: T0:H | T1:S | T2:B | T3:H
+MARKET : Spread ATM 0.043 | ITM 0.071
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Bullish setup but not confident enough to add more capital
+  [Neutral T1]    Following price bounce to target early roll-off
+  [Contrarian T2] Contrarian counter-trend stance anticipating oversold sentiment
+  [MM Reason]  Mitigating high-gamma risks by widening spreads and hedging positions slightly.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$96.09 | IV=0.2000
+           ATM Call K=100 30d: Theo=$0.911  Bid=$0.889  Ask=$0.932
+           ATM Put  K=100 30d: Theo=$4.407  Bid=$4.385  Ask=$4.428
+  [TRADES] 2 executed:
+           trader_1: SELL 0.4x call K=100 @ $5.949 (theo=$5.970)
+           trader_2: BUY 0.5x call K=100 @ $5.991 (theo=$5.970)
+
+--- STEP 10 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.040 | ITM 0.053
+SEC     : Action fine | Flagged ['trader_2'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Defensive widening of spreads as high gamma risk is detected and inventory levels need protection.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.04 | IV=0.1983
+           ATM Call K=100 30d: Theo=$1.181  Bid=$1.161  Ask=$1.201
+           ATM Put  K=100 30d: Theo=$3.734  Bid=$3.714  Ask=$3.754
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.931 (theo=$0.911)
+           trader_1: BUY 0.5x call K=85 @ $11.494 (theo=$11.467)
+           trader_2: BUY 0.4x put K=100 @ $5.366 (theo=$5.346)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 10) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_2']
+  💰 Fine: $25 | Confidence: 95%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 11 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.043 | ITM 0.086
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  High gamma detected; widening spreads across all strikes to mitigate potential losses and preserve i
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$98.41 | IV=0.1989
+           ATM Call K=100 30d: Theo=$1.709  Bid=$1.688  Ask=$1.731
+           ATM Put  K=100 30d: Theo=$2.892  Bid=$2.870  Ask=$2.913
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.203 (theo=$1.181)
+           trader_1: BUY 0.5x call K=100 @ $1.203 (theo=$1.181)
+           trader_2: BUY 0.5x call K=100 @ $1.203 (theo=$1.181)
+
+--- STEP 12 ---
+TRADERS: T0:B | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.064 | ITM 0.080
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Preventing delta-neutralization
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.93 | IV=0.1970
+           ATM Call K=100 30d: Theo=$1.493  Bid=$1.461  Ask=$1.525
+           ATM Put  K=100 30d: Theo=$3.152  Bid=$3.121  Ask=$3.184
+  [TRADES] 3 executed:
+           trader_0: BUY 0.8x call K=110 @ $0.893 (theo=$0.845)
+           trader_1: BUY 0.4x call K=100 @ $1.741 (theo=$1.709)
+           trader_2: SELL 0.3x put K=100 @ $4.037 (theo=$4.069)
+
+--- STEP 13 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.049 | ITM 0.065
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Hedging against potential gamma squeeze by widening ITM spread and reducing OTM/ATM.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$98.62 | IV=0.1959
+           ATM Call K=100 30d: Theo=$1.768  Bid=$1.744  Ask=$1.793
+           ATM Put  K=100 30d: Theo=$2.739  Bid=$2.715  Ask=$2.764
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $5.600 (theo=$5.576)
+           trader_1: BUY 0.5x call K=100 @ $3.454 (theo=$3.430)
+           trader_2: BUY 0.5x call K=100 @ $1.518 (theo=$1.493)
+
+  🗞️  [BREAKING NEWS] WHO declares global health emergency
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 13) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $25 | Confidence: 95%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 14 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.053 | ITM 0.140
+SEC     : Action fine | Flagged ['trader_0', 'trader_1', 'trader_2'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Defensive widening of spreads amid high gamma concerns and increasing pressure from coordinated trad
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$96.94 | IV=0.1953
+           ATM Call K=100 30d: Theo=$1.120  Bid=$1.094  Ask=$1.147
+           ATM Put  K=100 30d: Theo=$3.768  Bid=$3.742  Ask=$3.795
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.795 (theo=$1.768)
+           trader_1: BUY 0.5x call K=100 @ $1.795 (theo=$1.768)
+           trader_2: BUY 0.5x call K=100 @ $1.795 (theo=$1.768)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 14) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1', 'trader_2']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 15 ---
+TRADERS: T0:B | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.052 | ITM 0.070
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Market trend reversal expected; provide stop loss to my buyers.
+  [Neutral T1]    Moderating exposure
+  [Contrarian T2] Since WHO declared a global health emergency, we can anticipate heightened volatility and fear-based trades, which could create a short squeeze opport
+  [MM Reason]  Defensive widening of spreads amid heightened gamma concerns and coordinated pressure detection.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$96.39 | IV=0.1954
+           ATM Call K=100 30d: Theo=$0.952  Bid=$0.926  Ask=$0.978
+           ATM Put  K=100 30d: Theo=$4.151  Bid=$4.124  Ask=$4.177
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.146 (theo=$1.120)
+           trader_1: BUY 0.4x call K=100 @ $5.038 (theo=$5.012)
+           trader_2: SELL 0.4x call K=100 @ $4.986 (theo=$5.012)
+
+--- STEP 16 ---
+TRADERS: T0:S | T1:H | T2:S | T3:H
+MARKET : Spread ATM 0.052 | ITM 0.086
+SEC     : Action fine | Flagged ['trader_0'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads to mitigate risk and maintain profit margins.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$96.18 | IV=0.1974
+           ATM Call K=100 30d: Theo=$0.911  Bid=$0.885  Ask=$0.937
+           ATM Put  K=100 30d: Theo=$4.318  Bid=$4.293  Ask=$4.344
+  [TRADES] 2 executed:
+           trader_0: SELL 0.5x call K=110 @ $0.010 (theo=$0.022)
+           trader_2: SELL 0.6x call K=110 @ $0.459 (theo=$0.519)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 16) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 17 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.051 | ITM 0.085
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads across all strikes as an insurance policy against potential
+  [SEC INSIGHT] Both traders_0 and traders_1 targeted strike 4 simultaneously with identical buying quantities, indicating coordination to manage their portfolios by
+  [PRICES] Spot=$97.02 | IV=0.1971
+           ATM Call K=100 30d: Theo=$1.163  Bid=$1.137  Ask=$1.188
+           ATM Put  K=100 30d: Theo=$3.735  Bid=$3.710  Ask=$3.761
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.936 (theo=$0.911)
+           trader_1: BUY 0.5x call K=100 @ $0.936 (theo=$0.911)
+           trader_2: BUY 0.5x call K=100 @ $0.936 (theo=$0.911)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 17) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 95%
+  🧠 SEC Reasoning: Both traders_0 and traders_1 targeted strike 4 simultaneously with identical buying quantities, indicating coordination to manage their portfolios by
+  ══════════════════════════════════════════════
+
+--- STEP 18 ---
+TRADERS: T0:B | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.056 | ITM 0.111
+SEC     : Action none | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [Aggressive T0] Bullish sentiment weakening amid WHO declaration — positioning against potential downtrend
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Shorting premium amid WHO's unexpected announcement boosts volatility expectations.
+  [MM Reason]  High gamma detected; widening spreads as insurance against potential squeeze.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$78.36 | IV=0.3615
+           ATM Call K=100 30d: Theo=$0.032  Bid=$0.010  Ask=$0.060
+           ATM Put  K=100 30d: Theo=$21.264  Bid=$21.236  Ask=$21.291
+  [TRADES] 3 executed:
+           trader_0: BUY 1.0x call K=110 @ $0.679 (theo=$0.614)
+           trader_1: BUY 0.5x call K=100 @ $1.191 (theo=$1.163)
+           trader_2: SELL 0.4x put K=100 @ $4.736 (theo=$4.763)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 18) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: NONE on ['trader_0', 'trader_1']
+  💰 Fine: $25 | Confidence: 95%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 19 ---
+TRADERS: T0:B | T1:B | T2:S | T3:S
+MARKET : Spread ATM 0.034 | ITM 0.057
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Tracking strong momentum — targeting short delta to lock position
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Prevent large delta exposure given today's high IV jump. Given recent history of low volatility during summer periods and
+  [MM Reason]  Adjusting spreads to mitigate potential gamma squeeze and maintain inventory stability.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$79.76 | IV=0.3637
+           ATM Call K=100 30d: Theo=$0.055  Bid=$0.038  Ask=$0.073
+           ATM Put  K=100 30d: Theo=$19.885  Bid=$19.868  Ask=$19.902
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=110 @ $0.264 (theo=$0.223)
+           trader_1: BUY 0.5x call K=100 @ $0.072 (theo=$0.032)
+           trader_2: SELL 0.4x put K=110 @ $30.488 (theo=$30.517)
+           trader_3: SELL 0.8x put K=105 @ $25.736 (theo=$25.765)
+
+--- STEP 20 ---
+TRADERS: T0:B | T1:B | T2:H | T3:S
+MARKET : Spread ATM 0.038 | ITM 0.075
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Defensive widening of spreads amid heightened gamma concerns and increasing delta exposure.
+  [SEC INSIGHT] Traders 0 and 1 simultaneously bought strikes 7 &amp; 4, indicating coordination between two active participants
+  [PRICES] Spot=$80.24 | IV=0.3651
+           ATM Call K=100 30d: Theo=$0.067  Bid=$0.048  Ask=$0.086
+           ATM Put  K=100 30d: Theo=$19.415  Bid=$19.396  Ask=$19.434
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=110 @ $1.469 (theo=$1.425)
+           trader_1: BUY 0.5x call K=100 @ $0.099 (theo=$0.055)
+           trader_3: SELL 0.8x put K=110 @ $28.948 (theo=$28.985)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 20) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 95%
+  🧠 SEC Reasoning: Traders 0 and 1 simultaneously bought strikes 7 &amp; 4, indicating coordination between two active participants
+  ══════════════════════════════════════════════
+
+--- STEP 21 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.040 | ITM 0.066
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 60.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Liquidate short VIX futures as 50% drop risked the entire portfolio with a potential $150k loss.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$81.09 | IV=0.3651
+           ATM Call K=100 30d: Theo=$0.088  Bid=$0.068  Ask=$0.108
+           ATM Put  K=100 30d: Theo=$18.586  Bid=$18.566  Ask=$18.606
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.113 (theo=$0.067)
+           trader_1: BUY 0.5x call K=100 @ $0.113 (theo=$0.067)
+           trader_2: BUY 0.5x call K=100 @ $0.113 (theo=$0.067)
+           trader_3: SELL 0.8x put K=85 @ $6.052 (theo=$6.085)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 21) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $60 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 22 ---
+TRADERS: T0:B | T1:S | T2:S | T3:S
+MARKET : Spread ATM 0.041 | ITM 0.055
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] High momentum call flow indicates short-term potential for upward movement. Early entry in trending markets is my bet here and should yield maximum ga
+  [Neutral T1]    Trendline support converges on $80.4; entering bearish swing trade with moderate gamma hedge at ATM call price of $85.32 due to higher VIX suggesting
+  [Contrarian T2] Counter-trend setup emerging; oversold sentiment ahead of long gamma unwind.
+  [MM Reason]  Cautious widening of spreads amid rising gamma concerns and slight delta shift towards negative valu
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$78.28 | IV=0.3657
+           ATM Call K=100 30d: Theo=$0.034  Bid=$0.014  Ask=$0.055
+           ATM Put  K=100 30d: Theo=$21.348  Bid=$21.328  Ask=$21.369
+  [TRADES] 4 executed:
+           trader_0: BUY 0.8x call K=100 @ $3.176 (theo=$3.128)
+           trader_1: SELL 0.5x call K=100 @ $3.080 (theo=$3.128)
+           trader_2: SELL 0.4x put K=100 @ $19.573 (theo=$19.600)
+           trader_3: SELL 0.8x put K=90 @ $10.784 (theo=$10.811)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 22) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 92%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 23 ---
+TRADERS: T0:S | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.063 | ITM 0.076
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Rising volatility creates call buyers demand; look to capture short-term price appreciation while betting against longer-term trend due to increased i
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Protective measures taken as coordinated pressure detected and high gamma risk indicated.
+  [SEC INSIGHT] Traders 0 and 1 targeted strike 4 with similar buy orders, indicating coordination
+  [PRICES] Spot=$76.75 | IV=0.3652
+           ATM Call K=100 30d: Theo=$0.019  Bid=$0.010  Ask=$0.050
+           ATM Put  K=100 30d: Theo=$22.854  Bid=$22.823  Ask=$22.885
+  [TRADES] 4 executed:
+           trader_0: SELL 0.5x call K=110 @ $0.010 (theo=$0.002)
+           trader_1: BUY 0.5x call K=90 @ $0.451 (theo=$0.406)
+           trader_2: BUY 0.5x call K=100 @ $0.079 (theo=$0.034)
+           trader_3: SELL 0.8x put K=95 @ $17.710 (theo=$17.748)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 23) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 90%
+  🧠 SEC Reasoning: Traders 0 and 1 targeted strike 4 with similar buy orders, indicating coordination
+  ══════════════════════════════════════════════
+
+--- STEP 24 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.043 | ITM 0.071
+SEC     : Action warning | Flagged ['trader_0', 'trader_1'] | Fine 60.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads as insurance against potential losses.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$76.68 | IV=0.3649
+           ATM Call K=100 30d: Theo=$0.018  Bid=$0.010  Ask=$0.040
+           ATM Put  K=100 30d: Theo=$22.930  Bid=$22.909  Ask=$22.952
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.069 (theo=$0.019)
+           trader_1: BUY 0.5x call K=100 @ $0.069 (theo=$0.019)
+           trader_2: BUY 0.5x call K=100 @ $0.069 (theo=$0.019)
+           trader_3: SELL 0.8x put K=98 @ $20.348 (theo=$20.384)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 24) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: WARNING on ['trader_0', 'trader_1']
+  💰 Fine: $60 | Confidence: 95%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 25 ---
+TRADERS: T0:S | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.044 | ITM 0.089
+SEC     : Action warning | Flagged ['trader_0', 'trader_1'] | Fine 75.0
+  [Aggressive T0] Chasing delta trend while respecting volatility thresholds to maintain capital efficiency and maximizing relative value.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  High gamma detected; widening spreads across all strikes to mitigate potential losses and maintain p
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$73.92 | IV=0.3642
+           ATM Call K=100 30d: Theo=$0.006  Bid=$0.010  Ask=$0.028
+           ATM Put  K=100 30d: Theo=$25.672  Bid=$25.650  Ask=$25.695
+  [TRADES] 4 executed:
+           trader_0: SELL 1.0x call K=110 @ $0.974 (theo=$1.026)
+           trader_1: BUY 0.5x call K=100 @ $0.070 (theo=$0.018)
+           trader_2: BUY 0.4x call K=110 @ $0.223 (theo=$0.171)
+           trader_3: SELL 0.8x put K=100 @ $22.632 (theo=$22.676)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 25) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: WARNING on ['trader_0', 'trader_1']
+  💰 Fine: $75 | Confidence: 92%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 26 ---
+TRADERS: T0:S | T1:B | T2:S | T3:S
+MARKET : Spread ATM 0.069 | ITM 0.085
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Spot hovering around key support zone — selling puts to reduce exposure and cut losses early
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Falling spot with rising IV indicates excessive volatility fear among participants — positioning strategy counter-culture is justified.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$75.50 | IV=0.3647
+           ATM Call K=100 30d: Theo=$0.011  Bid=$0.010  Ask=$0.046
+           ATM Put  K=100 30d: Theo=$24.100  Bid=$24.065  Ask=$24.135
+  [TRADES] 4 executed:
+           trader_0: SELL 0.6x put K=110 @ $34.783 (theo=$34.825)
+           trader_1: BUY 0.5x call K=100 @ $0.056 (theo=$0.006)
+           trader_2: SELL 0.5x call K=100 @ $0.010 (theo=$0.006)
+           trader_3: SELL 0.8x put K=105 @ $29.537 (theo=$29.580)
+
+--- STEP 27 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.074 | ITM 0.090
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$76.71 | IV=0.3648
+           ATM Call K=100 30d: Theo=$0.019  Bid=$0.010  Ask=$0.055
+           ATM Put  K=100 30d: Theo=$22.896  Bid=$22.859  Ask=$22.933
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.064 (theo=$0.011)
+           trader_1: BUY 0.5x call K=100 @ $0.064 (theo=$0.011)
+           trader_2: BUY 0.5x call K=100 @ $0.064 (theo=$0.011)
+           trader_3: SELL 0.8x put K=110 @ $34.003 (theo=$34.048)
+
+--- STEP 28 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.051 | ITM 0.101
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Contrarian approach suggests fading large IV move while waiting for balance in activity, but considering a short call with high strike value given rec
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$77.88 | IV=0.3649
+           ATM Call K=100 30d: Theo=$0.029  Bid=$0.010  Ask=$0.054
+           ATM Put  K=100 30d: Theo=$21.739  Bid=$21.714  Ask=$21.764
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.078 (theo=$0.019)
+           trader_1: BUY 0.5x call K=100 @ $0.078 (theo=$0.019)
+           trader_2: BUY 0.4x call K=100 @ $0.078 (theo=$0.019)
+           trader_3: SELL 0.8x put K=110 @ $32.061 (theo=$32.112)
+
+--- STEP 29 ---
+TRADERS: T0:B | T1:B | T2:S | T3:S
+MARKET : Spread ATM 0.052 | ITM 0.070
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Delta shorting strategy, anticipating mid-swap price convergence
+  [Contrarian T2] Contrary stance given rising vols and delta,
+  [MM Reason]  Adjusting spreads to mitigate potential gamma squeeze and maintain position stability.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$77.58 | IV=0.3659
+           ATM Call K=100 30d: Theo=$0.027  Bid=$0.010  Ask=$0.053
+           ATM Put  K=100 30d: Theo=$22.037  Bid=$22.011  Ask=$22.064
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.090 (theo=$0.029)
+           trader_1: BUY 0.6x put K=100 @ $21.633 (theo=$21.599)
+           trader_2: SELL 0.4x call K=105 @ $1.598 (theo=$1.659)
+           trader_3: SELL 0.8x put K=85 @ $10.932 (theo=$10.967)
+
+Saved episode replay to unified_lora_replay.json
+[Episode 1/1] collusion=10 spread_widen=16 sec_flags=19 sec_fines=19
+
+======================================================================
+Running BASE LLM (no LoRA adapter) for comparison...
+======================================================================
+
+======================================================================
+Running 1 episodes x 30 steps with TRAINED UNIFIED LoRA (base_seed=42)
+======================================================================
+
+======================================================================
+Running 30 steps with TRAINED UNIFIED LoRA (seed=42)
+======================================================================
+
+
+--- STEP 0 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.010 | ITM 0.010
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    High probability target, attempting
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads across all strikes to mitigate potential losses and preserv
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.47 | IV=0.1992
+           ATM Call K=100 30d: Theo=$1.341  Bid=$1.336  Ask=$1.346
+           ATM Put  K=100 30d: Theo=$3.464  Bid=$3.459  Ask=$3.469
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $2.498 (theo=$2.493)
+           trader_1: BUY 1.0x call K=100 @ $4.584 (theo=$4.579)
+           trader_2: BUY 0.5x call K=100 @ $2.498 (theo=$2.493)
+
+--- STEP 1 ---
+TRADERS: T0:B | T1:S | T2:B | T3:H
+MARKET : Spread ATM 0.034 | ITM 0.067
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Expect volatility to rise and spread out the premium by buying calls with strong upward momentum
+  [Neutral T1]    OTC call spread with strong price support; moderate positioning given high IV and short duration, expecting volatility to decrease over next week with
+  [Contrarian T2] Contrary reaction due severe volatility move.
+  [MM Reason]  Protective measures taken as coordinated pressure is detected and widening spreads mitigate potentia
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.95 | IV=0.1977
+           ATM Call K=100 30d: Theo=$1.507  Bid=$1.491  Ask=$1.524
+           ATM Put  K=100 30d: Theo=$3.151  Bid=$3.134  Ask=$3.167
+  [TRADES] 3 executed:
+           trader_0: BUY 1.0x call K=100 @ $3.269 (theo=$3.252)
+           trader_1: SELL 0.4x call K=110 @ $2.043 (theo=$2.082)
+           trader_2: BUY 0.4x put K=100 @ $3.481 (theo=$3.464)
+
+--- STEP 2 ---
+TRADERS: T0:B | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.035 | ITM 0.047
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Out of volatility favor to limit potential losses due upcoming economic data, coupled by overbought conditions on DTE 2 call spreads, leading us to an
+  [Contrarian T2] Overbought IV indicates extreme bullish sentiment — fading gamma
+  [MM Reason]  Hedging and widening spreads to mitigate high gamma risk and maintain position stability.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$98.04 | IV=0.1975
+           ATM Call K=100 30d: Theo=$1.543  Bid=$1.526  Ask=$1.561
+           ATM Put  K=100 30d: Theo=$3.089  Bid=$3.072  Ask=$3.107
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x put K=100 @ $3.168 (theo=$3.151)
+           trader_1: BUY 0.5x call K=100 @ $1.525 (theo=$1.507)
+           trader_2: SELL 0.6x put K=100 @ $5.205 (theo=$5.222)
+
+--- STEP 3 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.036 | ITM 0.072
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Market is currently oversold with the price of $98.04 and expected to rebound given recent data, I will target this recovery by taking advantage of an
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Hedging strategy initiated to mitigate high gamma risk and maintain optimal pricing under increased
+  [SEC INSIGHT] Both traded strike 4 simultaneously, indicating coordination
+  [PRICES] Spot=$98.07 | IV=0.1968
+           ATM Call K=100 30d: Theo=$1.547  Bid=$1.529  Ask=$1.565
+           ATM Put  K=100 30d: Theo=$3.066  Bid=$3.048  Ask=$3.084
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.562 (theo=$1.543)
+           trader_1: BUY 0.5x call K=100 @ $1.562 (theo=$1.543)
+           trader_2: BUY 0.5x call K=100 @ $1.562 (theo=$1.543)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 3) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $25 | Confidence: 95%
+  🧠 SEC Reasoning: Both traded strike 4 simultaneously, indicating coordination
+  ══════════════════════════════════════════════
+
+--- STEP 4 ---
+TRADERS: T0:B | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.039 | ITM 0.066
+SEC     : Action warning | Flagged ['trader_0', 'trader_1', 'trader_2'] | Fine 0.0
+  [Aggressive T0] Mixed signals around delta neutral position; waiting for confirmation to enter aggressively
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Extreme gamma move imminent due low vols — shortening exposure to delta and volatility risk.
+  [MM Reason]  Gamma squeeze detected; widening spreads as insurance against potential losses.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.42 | IV=0.1966
+           ATM Call K=100 30d: Theo=$1.299  Bid=$1.279  Ask=$1.318
+           ATM Put  K=100 30d: Theo=$3.464  Bid=$3.444  Ask=$3.484
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x put K=95 @ $2.016 (theo=$1.997)
+           trader_1: BUY 0.5x call K=100 @ $1.567 (theo=$1.547)
+           trader_2: SELL 0.3x call K=100 @ $5.627 (theo=$5.646)
+
+--- STEP 5 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.039 | ITM 0.052
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Protective measures taken as coordinated pressure detected and high gamma risk assessed.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.69 | IV=0.1954
+           ATM Call K=100 30d: Theo=$1.384  Bid=$1.365  Ask=$1.404
+           ATM Put  K=100 30d: Theo=$3.281  Bid=$3.262  Ask=$3.301
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.318 (theo=$1.299)
+           trader_1: BUY 0.5x call K=100 @ $1.318 (theo=$1.299)
+           trader_2: BUY 0.5x call K=100 @ $1.318 (theo=$1.299)
+
+--- STEP 6 ---
+TRADERS: T0:H | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.042 | ITM 0.056
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Marked down ATM price due to potential short squeeze; taking contrarian stance against high vols and tight ITMs.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.86 | IV=0.1953
+           ATM Call K=100 30d: Theo=$1.449  Bid=$1.428  Ask=$1.470
+           ATM Put  K=100 30d: Theo=$3.175  Bid=$3.154  Ask=$3.196
+  [TRADES] 2 executed:
+           trader_1: BUY 0.5x call K=100 @ $1.405 (theo=$1.384)
+           trader_2: SELL 0.4x call K=110 @ $2.007 (theo=$2.056)
+
+--- STEP 7 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.043 | ITM 0.057
+SEC     : Action fine | Flagged ['trader_0', 'trader_1', 'trader_2'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Spot falling rapidly into support zone; short call positioning anticipated by sellers & low vols. Expect large move higher upon open once shorts liqui
+  [MM Reason]  Protective measures taken as coordinated pressure detected and high gamma risk identified.
+  [SEC INSIGHT] All three traders targeted strike 4 with simultaneous buys, indicating coordination
+  [PRICES] Spot=$99.23 | IV=0.1952
+           ATM Call K=100 30d: Theo=$2.043  Bid=$2.022  Ask=$2.065
+           ATM Put  K=100 30d: Theo=$2.403  Bid=$2.382  Ask=$2.425
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.470 (theo=$1.449)
+           trader_1: BUY 0.5x call K=100 @ $1.470 (theo=$1.449)
+           trader_2: BUY 0.4x call K=90 @ $11.637 (theo=$11.608)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 7) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1', 'trader_2']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: All three traders targeted strike 4 with simultaneous buys, indicating coordination
+  ══════════════════════════════════════════════
+
+--- STEP 8 ---
+TRADERS: T0:B | T1:S | T2:B | T3:H
+MARKET : Spread ATM 0.048 | ITM 0.064
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Inverted vols indicate high demand; selling puts can cap losses.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Protective measures taken as gamma squeeze detected and coordinated pressure rising.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$98.59 | IV=0.1982
+           ATM Call K=100 30d: Theo=$1.781  Bid=$1.757  Ask=$1.805
+           ATM Put  K=100 30d: Theo=$2.782  Bid=$2.758  Ask=$2.806
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $2.067 (theo=$2.043)
+           trader_1: SELL 1.0x put K=110 @ $10.553 (theo=$10.584)
+           trader_2: BUY 0.6x call K=110 @ $2.549 (theo=$2.493)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 8) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 9 ---
+TRADERS: T0:B | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.050 | ITM 0.067
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Spot at all-time highs suggests potential reversal due to reduced investor confidence — Contradicting recent buyer sentiment by hedging.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$96.09 | IV=0.2000
+           ATM Call K=100 30d: Theo=$0.911  Bid=$0.886  Ask=$0.936
+           ATM Put  K=100 30d: Theo=$4.407  Bid=$4.382  Ask=$4.432
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.806 (theo=$1.781)
+           trader_1: BUY 0.5x call K=100 @ $1.806 (theo=$1.781)
+           trader_2: SELL 0.4x call K=110 @ $0.811 (theo=$0.869)
+
+--- STEP 10 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.047 | ITM 0.062
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [Aggressive T0] Spot trending downward and time is right to chase alpha. Short-term momentum will guide my move.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.04 | IV=0.1983
+           ATM Call K=100 30d: Theo=$1.181  Bid=$1.158  Ask=$1.205
+           ATM Put  K=100 30d: Theo=$3.734  Bid=$3.711  Ask=$3.757
+  [TRADES] 3 executed:
+           trader_0: BUY 1.0x call K=105 @ $1.314 (theo=$1.259)
+           trader_1: BUY 0.5x call K=100 @ $0.934 (theo=$0.911)
+           trader_2: BUY 0.5x call K=100 @ $0.934 (theo=$0.911)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 10) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 11 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.052 | ITM 0.069
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$98.41 | IV=0.1989
+           ATM Call K=100 30d: Theo=$1.709  Bid=$1.683  Ask=$1.735
+           ATM Put  K=100 30d: Theo=$2.892  Bid=$2.866  Ask=$2.918
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.207 (theo=$1.181)
+           trader_1: BUY 0.5x call K=100 @ $1.207 (theo=$1.181)
+           trader_2: BUY 0.5x call K=100 @ $1.207 (theo=$1.181)
+
+--- STEP 12 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.058 | ITM 0.097
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads to mitigate potential losses.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.93 | IV=0.1970
+           ATM Call K=100 30d: Theo=$1.493  Bid=$1.464  Ask=$1.522
+           ATM Put  K=100 30d: Theo=$3.152  Bid=$3.123  Ask=$3.181
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.738 (theo=$1.709)
+           trader_1: BUY 0.4x call K=100 @ $1.738 (theo=$1.709)
+           trader_2: BUY 0.5x call K=100 @ $1.738 (theo=$1.709)
+
+--- STEP 13 ---
+TRADERS: T0:H | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.060 | ITM 0.080
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$98.62 | IV=0.1959
+           ATM Call K=100 30d: Theo=$1.768  Bid=$1.738  Ask=$1.798
+           ATM Put  K=100 30d: Theo=$2.739  Bid=$2.710  Ask=$2.769
+  [TRADES] 2 executed:
+           trader_1: BUY 0.5x call K=100 @ $1.523 (theo=$1.493)
+           trader_2: BUY 0.5x call K=100 @ $1.523 (theo=$1.493)
+
+  🗞️  [BREAKING NEWS] WHO declares global health emergency
+
+--- STEP 14 ---
+TRADERS: T0:B | T1:B | T2:S | T3:H
+MARKET : Spread ATM 0.064 | ITM 0.085
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Following WHO's announcement and its impact on VIX. Will likely boost ATM IV
+  [Neutral T1]    Neutralizing long positions amid WHO announcement.
+  [Contrarian T2] Spot poised to drop after WHO announcement; shortening IV risk with shorter-term call sales.
+  [MM Reason]  Mitigating high-gamma risks by widening spreads and hedging positions.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$96.94 | IV=0.1953
+           ATM Call K=100 30d: Theo=$1.120  Bid=$1.088  Ask=$1.152
+           ATM Put  K=100 30d: Theo=$3.768  Bid=$3.736  Ask=$3.800
+  [TRADES] 3 executed:
+           trader_0: BUY 1.0x call K=110 @ $0.919 (theo=$0.845)
+           trader_1: BUY 1.0x call K=100 @ $5.954 (theo=$5.922)
+           trader_2: SELL 0.4x call K=100 @ $3.719 (theo=$3.751)
+
+--- STEP 15 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.090 | ITM 0.110
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads as insurance against potential losses
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$96.39 | IV=0.1954
+           ATM Call K=100 30d: Theo=$0.952  Bid=$0.907  Ask=$0.997
+           ATM Put  K=100 30d: Theo=$4.151  Bid=$4.105  Ask=$4.196
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.165 (theo=$1.120)
+           trader_1: BUY 0.5x call K=100 @ $1.165 (theo=$1.120)
+           trader_2: BUY 0.4x call K=100 @ $1.165 (theo=$1.120)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 15) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 95%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 16 ---
+TRADERS: T0:B | T1:S | T2:B | T3:H
+MARKET : Spread ATM 0.060 | ITM 0.101
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Delta-negatives flooding into long vols — time to short.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  High gamma detected; widening spreads as insurance against potential squeeze
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$96.18 | IV=0.1974
+           ATM Call K=100 30d: Theo=$0.911  Bid=$0.881  Ask=$0.941
+           ATM Put  K=100 30d: Theo=$4.318  Bid=$4.288  Ask=$4.349
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.982 (theo=$0.952)
+           trader_1: SELL 0.5x put K=100 @ $4.120 (theo=$4.151)
+           trader_2: BUY 0.5x call K=100 @ $0.982 (theo=$0.952)
+
+--- STEP 17 ---
+TRADERS: T0:B | T1:H | T2:B | T3:H
+MARKET : Spread ATM 0.062 | ITM 0.082
+SEC     : Action fine | Flagged ['trader_0'] | Fine 25.0
+  [Aggressive T0] Following trend and trying to add volatility,
+  [Neutral T1]    Current volatility is extremely high and the sudden declaration of WHO's global health emergency has no direct relation to our options market.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$97.02 | IV=0.1971
+           ATM Call K=100 30d: Theo=$1.163  Bid=$1.132  Ask=$1.194
+           ATM Put  K=100 30d: Theo=$3.735  Bid=$3.704  Ask=$3.766
+  [TRADES] 2 executed:
+           trader_0: BUY 0.4x call K=100 @ $0.942 (theo=$0.911)
+           trader_2: BUY 0.5x call K=100 @ $0.942 (theo=$0.911)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 17) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 18 ---
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.067 | ITM 0.089
+SEC     : Action fine | Flagged ['trader_0', 'trader_1', 'trader_2'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads as insurance against potential losses.
+  [SEC INSIGHT] Multiple agents targeting strike 4 with coordinated buys
+  [PRICES] Spot=$78.36 | IV=0.3615
+           ATM Call K=100 30d: Theo=$0.032  Bid=$0.010  Ask=$0.065
+           ATM Put  K=100 30d: Theo=$21.264  Bid=$21.230  Ask=$21.297
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.196 (theo=$1.163)
+           trader_1: BUY 0.5x call K=100 @ $1.196 (theo=$1.163)
+           trader_2: BUY 0.5x call K=100 @ $1.196 (theo=$1.163)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 18) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1', 'trader_2']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: Multiple agents targeting strike 4 with coordinated buys
+  ══════════════════════════════════════════════
+
+--- STEP 19 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.035 | ITM 0.046
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Extremely low IV and heavy call buying setup strong contrarian play on short-term recovery towards key support.
+  [MM Reason]  Defensive widening of spreads amidst rising gamma concerns and slight delta shift towards negative v
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$79.76 | IV=0.3637
+           ATM Call K=100 30d: Theo=$0.055  Bid=$0.038  Ask=$0.073
+           ATM Put  K=100 30d: Theo=$19.885  Bid=$19.868  Ask=$19.903
+  [TRADES] 4 executed:
+           trader_0: BUY 0.4x call K=105 @ $0.048 (theo=$0.008)
+           trader_1: BUY 0.5x call K=100 @ $0.073 (theo=$0.032)
+           trader_2: BUY 0.3x call K=110 @ $1.238 (theo=$1.198)
+           trader_3: SELL 0.8x put K=105 @ $25.742 (theo=$25.765)
+
+--- STEP 20 ---
+TRADERS: T0:S | T1:B | T2:S | T3:S
+MARKET : Spread ATM 0.037 | ITM 0.050
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Reducing delta exposure with recent rally undone.
+  [Neutral T1]    Waiting for strong bullish sentiment before adding call positions beyond current limits
+  [Contrarian T2] As spot approaches a possible support level around
+  [MM Reason]  Gamma squeeze detected; widening spreads across all strikes to mitigate potential losses and preserv
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$80.24 | IV=0.3651
+           ATM Call K=100 30d: Theo=$0.067  Bid=$0.048  Ask=$0.086
+           ATM Put  K=100 30d: Theo=$19.415  Bid=$19.396  Ask=$19.434
+  [TRADES] 4 executed:
+           trader_0: SELL 0.5x call K=100 @ $0.012 (theo=$0.055)
+           trader_1: BUY 0.3x call K=110 @ $1.468 (theo=$1.425)
+           trader_2: SELL 0.8x call K=100 @ $2.705 (theo=$2.749)
+           trader_3: SELL 0.8x put K=110 @ $28.960 (theo=$28.985)
+
+--- STEP 21 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.039 | ITM 0.052
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Traded long to initiate momentum position after breaking through recent highs and targeting support next week.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Counter-trend following - high implied volatility and potential short-term pullback.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$81.09 | IV=0.3651
+           ATM Call K=100 30d: Theo=$0.088  Bid=$0.069  Ask=$0.107
+           ATM Put  K=100 30d: Theo=$18.586  Bid=$18.567  Ask=$18.605
+  [TRADES] 4 executed:
+           trader_0: BUY 0.3x call K=110 @ $0.375 (theo=$0.330)
+           trader_1: BUY 0.5x call K=100 @ $0.112 (theo=$0.067)
+           trader_2: BUY 0.4x call K=110 @ $0.375 (theo=$0.330)
+           trader_3: SELL 0.8x put K=85 @ $6.060 (theo=$6.085)
+
+--- STEP 22 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.040 | ITM 0.054
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Following strength in underlying momentum and large IV move with a short-term call position to take advantage of potential explosive growth ahead.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Market moving toward extreme levels of volatility as basis risk increases.
+  [MM Reason]  Gamma squeeze detected; widening spreads as insurance against potential losses.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$78.28 | IV=0.3657
+           ATM Call K=100 30d: Theo=$0.034  Bid=$0.014  Ask=$0.054
+           ATM Put  K=100 30d: Theo=$21.348  Bid=$21.328  Ask=$21.368
+  [TRADES] 4 executed:
+           trader_0: BUY 1.0x call K=100 @ $3.175 (theo=$3.128)
+           trader_1: BUY 0.5x call K=110 @ $0.053 (theo=$0.006)
+           trader_2: BUY 0.5x call K=100 @ $1.184 (theo=$1.137)
+           trader_3: SELL 0.8x put K=90 @ $10.784 (theo=$10.811)
+
+--- STEP 23 ---
+TRADERS: T0:B | T1:S | T2:B | T3:S
+MARKET : Spread ATM 0.041 | ITM 0.081
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Mitigating high-gamma risk by widening spreads and hedging positions.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$76.75 | IV=0.3652
+           ATM Call K=100 30d: Theo=$0.019  Bid=$0.010  Ask=$0.039
+           ATM Put  K=100 30d: Theo=$22.854  Bid=$22.834  Ask=$22.874
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.088 (theo=$0.034)
+           trader_1: SELL 0.4x call K=100 @ $2.367 (theo=$2.421)
+           trader_2: BUY 0.5x call K=100 @ $0.088 (theo=$0.034)
+           trader_3: SELL 0.8x put K=95 @ $17.708 (theo=$17.748)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 23) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $25 | Confidence: 85%
+  🧠 SEC Reasoning: Suspicious coordinated activity detected.
+  ══════════════════════════════════════════════
+
+--- STEP 24 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.055 | ITM 0.082
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Continuing long skew trend — awaiting short-term support confirmation.
+  [Neutral T1]    Waiting patiently to capitalize on potential breakout opportunity.
+  [Contrarian T2] Spotted 50% increase of delta calls overnight with limited premium paid; extremely aggressive orderbook behavior indicates strong expectations for pri
+  [MM Reason]  Gamma squeeze detected; widening spreads across all strikes
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$76.68 | IV=0.3649
+           ATM Call K=100 30d: Theo=$0.018  Bid=$0.010  Ask=$0.046
+           ATM Put  K=100 30d: Theo=$22.930  Bid=$22.903  Ask=$22.957
+  [TRADES] 4 executed:
+           trader_0: BUY 0.9x put K=100 @ $22.650 (theo=$22.609)
+           trader_1: BUY 0.4x call K=110 @ $1.086 (theo=$1.038)
+           trader_2: BUY 0.5x call K=100 @ $0.067 (theo=$0.019)
+           trader_3: SELL 0.8x put K=98 @ $20.343 (theo=$20.384)
+
+--- STEP 25 ---
+TRADERS: T0:B | T1:S | T2:B | T3:S
+MARKET : Spread ATM 0.041 | ITM 0.082
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Market is expecting upward momentum — use gamma to hedge against unexpected downturns with an ATM call selling strategy that has high liquidity.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Gamma squeeze detected; widening spreads to mitigate potential losses and maintain profitable positi
+  [SEC INSIGHT] Both traders placed identical quantities of directional bets targeting strike 4, indicating coordination.
+  [PRICES] Spot=$73.92 | IV=0.3642
+           ATM Call K=100 30d: Theo=$0.006  Bid=$0.010  Ask=$0.026
+           ATM Put  K=100 30d: Theo=$25.672  Bid=$25.652  Ask=$25.693
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.066 (theo=$0.018)
+           trader_1: SELL 0.4x call K=100 @ $2.009 (theo=$2.056)
+           trader_2: BUY 0.5x call K=100 @ $0.066 (theo=$0.018)
+           trader_3: SELL 0.8x put K=100 @ $22.635 (theo=$22.676)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 25) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 95%
+  🧠 SEC Reasoning: Both traders placed identical quantities of directional bets targeting strike 4, indicating coordination.
+  ══════════════════════════════════════════════
+
+--- STEP 26 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.042 | ITM 0.056
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 50.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Contrary to other bulls charging into calls, I believe spot is overdue for correction.
+  [MM Reason]  Defensive widening of spreads amid heightened gamma concerns and rising coordinated pressure.
+  [SEC INSIGHT] Both traders_0 and traders_1 simultaneously bought strikes 4, indicating coordination between them
+  [PRICES] Spot=$75.50 | IV=0.3647
+           ATM Call K=100 30d: Theo=$0.011  Bid=$0.010  Ask=$0.032
+           ATM Put  K=100 30d: Theo=$24.100  Bid=$24.079  Ask=$24.121
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.054 (theo=$0.006)
+           trader_1: BUY 0.5x call K=100 @ $0.054 (theo=$0.006)
+           trader_2: BUY 1.0x call K=110 @ $0.145 (theo=$0.096)
+           trader_3: SELL 0.8x put K=105 @ $29.552 (theo=$29.580)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 26) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1']
+  💰 Fine: $50 | Confidence: 95%
+  🧠 SEC Reasoning: Both traders_0 and traders_1 simultaneously bought strikes 4, indicating coordination between them
+  ══════════════════════════════════════════════
+
+--- STEP 27 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.044 | ITM 0.058
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Chasing ATMs with aggressive momentum — expecting short squeeze
+  [Neutral T1]    OTM pricing reflects volatility underestimation by order book — short odds favor me!
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$76.71 | IV=0.3648
+           ATM Call K=100 30d: Theo=$0.019  Bid=$0.010  Ask=$0.040
+           ATM Put  K=100 30d: Theo=$22.896  Bid=$22.874  Ask=$22.918
+  [TRADES] 4 executed:
+           trader_0: BUY 0.3x call K=110 @ $0.051 (theo=$0.000)
+           trader_1: BUY 0.3x call K=100 @ $0.062 (theo=$0.011)
+           trader_2: BUY 0.5x call K=100 @ $0.062 (theo=$0.011)
+           trader_3: SELL 0.8x put K=110 @ $34.019 (theo=$34.048)
+
+--- STEP 28 ---
+TRADERS: T0:B | T1:H | T2:B | T3:S
+MARKET : Spread ATM 0.069 | ITM 0.084
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Short call premiums becoming attractive given reduced spread — entering long to build position.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Spot has broken support; considering short call with high delta.
+  [MM Reason]  Protective measures taken as gamma squeeze detected and coordinated pressure rising rapidly.
+  [SEC INSIGHT] Monitoring trade patterns for systemic risk and coordinated pressure.
+  [PRICES] Spot=$77.88 | IV=0.3649
+           ATM Call K=100 30d: Theo=$0.029  Bid=$0.010  Ask=$0.063
+           ATM Put  K=100 30d: Theo=$21.739  Bid=$21.704  Ask=$21.773
+  [TRADES] 3 executed:
+           trader_0: BUY 0.6x call K=100 @ $0.068 (theo=$0.019)
+           trader_2: BUY 0.5x call K=100 @ $0.068 (theo=$0.019)
+           trader_3: SELL 0.8x put K=110 @ $32.070 (theo=$32.112)
+
+--- STEP 29 ---
+TRADERS: T0:B | T1:B | T2:B | T3:S
+MARKET : Spread ATM 0.048 | ITM 0.080
+SEC     : Action fine | Flagged ['trader_0', 'trader_1', 'trader_2'] | Fine 30.0
+  [Aggressive T0] Targeting momentum and OTM gamma exposure.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [MM Reason]  Defensive widening of spreads amid high gamma concerns and increasing volatility.
+  [SEC INSIGHT] All three traders targeting ATM IV 4 with significant quantities, indicating coordination
+  [PRICES] Spot=$77.58 | IV=0.3659
+           ATM Call K=100 30d: Theo=$0.027  Bid=$0.010  Ask=$0.051
+           ATM Put  K=100 30d: Theo=$22.037  Bid=$22.013  Ask=$22.061
+  [TRADES] 4 executed:
+           trader_0: BUY 0.5x call K=100 @ $0.085 (theo=$0.029)
+           trader_1: BUY 0.4x call K=100 @ $0.760 (theo=$0.704)
+           trader_2: BUY 0.5x call K=100 @ $0.085 (theo=$0.029)
+           trader_3: SELL 0.8x put K=85 @ $10.927 (theo=$10.967)
+
+  🚨 ══════ SEC ENFORCEMENT TRACE (Step 29) ══════
+  📊 [Pattern Detection] SEC detected coordinated pressure from trade patterns
+  ⚖️  SEC RULING: FINE on ['trader_0', 'trader_1', 'trader_2']
+  💰 Fine: $30 | Confidence: 85%
+  🧠 SEC Reasoning: All three traders targeting ATM IV 4 with significant quantities, indicating coordination
+  ══════════════════════════════════════════════
+
+Saved episode replay to unified_lora_replay.json
+[Episode 1/1] collusion=8 spread_widen=17 sec_flags=12 sec_fines=11
+
+======================================================================
+SUMMARY: Cumulative Rewards
+======================================================================
+Agent Type                   Trained LoRA        Base LLM
+-------------------------------------------------------
+Aggressive (T0)                   -13.977         -27.885
+Neutral (T1)                       -1.270          -2.288
+Contrarian (T2)                     1.630          -3.489
+Market Maker                       15.348          10.694
+Oversight SEC                     -38.750         -19.775
+Scripted Bench (T3)                 8.778           8.778
+
+======================================================================
+JUDGE CHECKS (MULTI-EPISODE)
+======================================================================
+Evaluated episodes: 1
+Trader activity rate: 96.67%
+MM spread widening rate (ATM > 0.05): 53.33%
+SEC flag rate: 63.33%
+SEC fine rate: 63.33%
+Collusion events: 10
+Total SEC fines: $770.00
+PASS - Traders actively place trades
+PASS - MM dynamically widens spreads under stress
+PASS - SEC flags suspicious behavior
+PASS - SEC issues fines in at least some steps
+
+======================================================================
+NARRATIVE ARC VERIFICATION
+======================================================================
+
+📊 TELEMETRY:
+  • Collusion events detected: 8
+  • MM spread widening events (ATM > 0.05): 17
+  • Total SEC fines issued: $380.00
+
+🎭 ACT DETECTED: Mixed signals - model may need more training
+
+✅ SUCCESS METRICS:
+  • MM Survived (PnL > 0): ✅ Yes
+  • SEC Active (fines > 0): ✅ Yes
+  • Traders Coordinating: ✅ Yes
+
+📰 FAKE NEWS / NEWS IMPACT ANALYSIS:
+  • Steps with active news headlines: 6
+  • Steps with fake news detected: 0
+  • Spot price range: $73.92 — $99.23 (Δ$25.31)
