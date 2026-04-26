@@ -13,7 +13,7 @@ pinned: false
 
 ### 🔗 Links
 - **Hugging Face Space:** [https://huggingface.co/spaces/MananBansal/Chaos-Economy](https://huggingface.co/spaces/MananBansal/Chaos-Economy)
-- **Full Narrative Report:** [The Chaos Economy: A Story of Systemic Risk](./STORYTELLING.md)
+
 - **Demo Video:** `Coming Soon`
 
 ---
