@@ -18,10 +18,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY vsr_env/ ./vsr_env/
+COPY server/ ./server/
 COPY pyproject.toml .
 COPY openenv.yaml .
 COPY inference.py .
 COPY README.md .
+COPY unified_lora_replay.json .
+COPY unified_baseline_replay.json .
 
 # Install the package
 RUN pip install --no-cache-dir -e .
@@ -37,4 +40,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 ENV ENABLE_WEB_INTERFACE=true
 
 # Run uvicorn server (Requirement 14.4)
-CMD ["uvicorn", "vsr_env.server.app:app", "--host", "0.0.0.0", "--port", "7860", "--log-level", "info"]
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860", "--log-level", "info"]

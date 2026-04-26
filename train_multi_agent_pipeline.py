@@ -1331,7 +1331,7 @@ def train_unified_model(args):
         num_train_epochs=args.num_epochs,
         max_steps=args.max_steps,
         per_device_train_batch_size=2,
-        num_generations=4,
+        num_generations=2,
         max_completion_length=512,
         logging_steps=5,
         save_steps=100,
@@ -1605,6 +1605,10 @@ def train_unified_model(args):
         processing_class=tokenizer, train_dataset=dataset,
         callbacks=callbacks
     )
+
+    if not hasattr(trainer, "current_gradient_accumulation_steps"):
+        trainer.current_gradient_accumulation_steps = 1
+
     trainer.train()
 
     # ── W&B: Log final summary ──
