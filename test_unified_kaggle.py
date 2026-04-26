@@ -815,9 +815,19 @@ def main():
         model, tokenizer, args.num_steps, args.num_episodes, use_lora=True, device=device, base_seed=args.seed
     )
 
-    # Test 2: Baseline (all scripted)
+    # Test 2: Base LLM (LoRA disabled — shows what training actually learned)
     print("\n" + "="*70)
-    print("Running BASELINE with all scripted agents...")
+    print("Running BASE LLM (no LoRA adapter) for comparison...")
+    print("="*70)
+    model.disable_adapter_layers()
+    rewards_base_llm, metrics_base_llm = run_multi_episode_evaluation(
+        model, tokenizer, args.num_steps, args.num_episodes, use_lora=True, device=device, base_seed=args.seed
+    )
+    model.enable_adapter_layers()
+
+    # Test 3: Scripted baseline (all scripted agents)
+    print("\n" + "="*70)
+    print("Running SCRIPTED BASELINE with all scripted agents...")
     print("="*70)
     rewards_baseline, metrics_baseline = run_multi_episode_evaluation(
         None, tokenizer, args.num_steps, args.num_episodes, use_lora=False, device=device, base_seed=args.seed
@@ -827,15 +837,15 @@ def main():
     print("\n" + "="*70)
     print("SUMMARY: Cumulative Rewards")
     print("="*70)
-    print(f"{'Agent Type':<25} {'Trained LoRA':>15} {'Scripted Baseline':>20}")
-    print("-"*65)
+    print(f"{'Agent Type':<25} {'Trained LoRA':>15} {'Base LLM':>15} {'Scripted':>15}")
+    print("-"*70)
     
-    print(f"{'Aggressive (T0)':<25} {rewards_lora['trader_0']:>15.3f} {rewards_baseline['trader_0']:>20.3f}")
-    print(f"{'Neutral (T1)':<25} {rewards_lora['trader_1']:>15.3f} {rewards_baseline['trader_1']:>20.3f}")
-    print(f"{'Contrarian (T2)':<25} {rewards_lora['trader_2']:>15.3f} {rewards_baseline['trader_2']:>20.3f}")
-    print(f"{'Market Maker':<25} {rewards_lora['market_maker']:>15.3f} {rewards_baseline['market_maker']:>20.3f}")
-    print(f"{'Oversight SEC':<25} {rewards_lora['oversight']:>15.3f} {rewards_baseline['oversight']:>20.3f}")
-    print(f"{'Scripted Bench (T3)':<25} {rewards_lora['trader_3']:>15.3f} {rewards_baseline['trader_3']:>20.3f}")
+    print(f"{'Aggressive (T0)':<25} {rewards_lora['trader_0']:>15.3f} {rewards_base_llm['trader_0']:>15.3f} {rewards_baseline['trader_0']:>15.3f}")
+    print(f"{'Neutral (T1)':<25} {rewards_lora['trader_1']:>15.3f} {rewards_base_llm['trader_1']:>15.3f} {rewards_baseline['trader_1']:>15.3f}")
+    print(f"{'Contrarian (T2)':<25} {rewards_lora['trader_2']:>15.3f} {rewards_base_llm['trader_2']:>15.3f} {rewards_baseline['trader_2']:>15.3f}")
+    print(f"{'Market Maker':<25} {rewards_lora['market_maker']:>15.3f} {rewards_base_llm['market_maker']:>15.3f} {rewards_baseline['market_maker']:>15.3f}")
+    print(f"{'Oversight SEC':<25} {rewards_lora['oversight']:>15.3f} {rewards_base_llm['oversight']:>15.3f} {rewards_baseline['oversight']:>15.3f}")
+    print(f"{'Scripted Bench (T3)':<25} {rewards_lora['trader_3']:>15.3f} {rewards_base_llm['trader_3']:>15.3f} {rewards_baseline['trader_3']:>15.3f}")
 
     print("\n" + "="*70)
     print("JUDGE CHECKS (MULTI-EPISODE)")
