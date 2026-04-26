@@ -45,7 +45,7 @@ The repo is **private**, so you need a GitHub Personal Access Token (PAT).
 
 ### Clone with PAT
 ```bash
-git clone -b Agentic-AI https://***REMOVED***@github.com/manan-tech/VSR-Env.git
+git clone -b Agentic-AI https://github.com/manan-tech/VSR-Env.git
 cd VSR-Env
 ```
 

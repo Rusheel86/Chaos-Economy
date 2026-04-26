@@ -93,7 +93,7 @@ full_diff.txt
 MULTI_LEG_IMPLEMENTATION.md
 results.txt
 Meta/*
-key1.pem
+*.pem
 unified_market_lora.zip
 # Training artifacts (too large for git)
 multi_agent_checkpoints/
