@@ -150,7 +150,7 @@ def format_trader_prompt(trader_type: str, target_agent: str, obs) -> str:
     base += f"""
 ## Response Format (MANDATORY)
 Return ONLY a JSON object on a single line. No extra text.
-- direction: "buy", "sell", or "hold"
+- direction: "buy" or "sell" (preferred) — "hold" only when you have zero conviction
 - option_type: "call" or "put" — choose based on your directional view
 - quantity: a number >= 0.3 (minimum trade size). Do NOT output 0.
 - selected_maturity: 0 (short), 1 (medium), or 2 (long) — vary based on conviction

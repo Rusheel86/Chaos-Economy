@@ -235,26 +235,10 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
     quantity = max(0.0, min(1.0, quantity))
     if direction == "hold":
         quantity = 0.0
-
-    # Patch RL Hack #5: Anti-wash-trading
-    # Model learned to alternate buy/sell every step → detected as wash trading
-    # → fines destroy PnL. Force traders to hold a direction for 2+ steps.
-    history = _prev_directions.setdefault(agent_index, [])
-    if direction in ("buy", "sell") and len(history) >= 1:
-        last_dir = history[-1]
-        if last_dir in ("buy", "sell") and last_dir != direction:
-            # Trying to flip — check if they held the previous direction long enough
-            streak = 0
-            for past in reversed(history):
-                if past == last_dir:
-                    streak += 1
-                else:
-                    break
-            if streak < 2:  # Must hold for at least 2 steps before flipping
-                direction = last_dir  # Force continuation
-    history.append(direction)
-    if len(history) > 8:
-        _prev_directions[agent_index] = history[-8:]
+    # NOTE: Anti-wash-trading hack removed at inference time.
+    # It was useful during training but at inference it suppresses
+    # direction changes, which may have contributed to the model
+    # learning to default to "hold" instead of trading.
 
     option_type = str(action.get("option_type", fallback["option_type"])).lower()
     if option_type not in {"call", "put"}:
