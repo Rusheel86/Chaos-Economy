@@ -21,7 +21,8 @@ COPY vsr_env/ ./vsr_env/
 COPY server/ ./server/
 COPY pyproject.toml .
 COPY openenv.yaml .
-COPY inference.py .
+COPY client.py .
+COPY __init__.py .
 COPY README.md .
 COPY unified_lora_replay.json .
 COPY unified_baseline_replay.json .

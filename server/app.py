@@ -44,6 +44,18 @@ async def serve_replay(filename: str):
     return FileResponse(fpath, media_type="application/json")
 
 
+@app.get("/logs/{filename}")
+async def serve_logs(filename: str):
+    """Serve evaluation and training log files to judges."""
+    safe_names = {"eval.log", "eval_seed0_3ep.log", "train_8_episodes.log"}
+    if filename not in safe_names:
+        return HTMLResponse(content="Log file not found or unauthorized", status_code=404)
+    fpath = os.path.join(_PROJECT_ROOT, filename)
+    if not os.path.exists(fpath):
+        return HTMLResponse(content=f"{filename} not found", status_code=404)
+    return FileResponse(fpath, media_type="text/plain")
+
+
 def main():
     """Main entry point for starting the server."""
     import uvicorn
