@@ -1589,7 +1589,7 @@ def train_unified_model(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Train multi-agent system")
-    parser.add_argument("--base_model", default="unsloth/Llama-3.2-3B-Instruct-bnb-4bit")
+    parser.add_argument("--base_model", default="unsloth/Llama-3.2-1B-Instruct-bnb-4bit")
     parser.add_argument("--num_episodes", type=int, default=64)
     parser.add_argument(
         "--dataset_episodes",

@@ -264,7 +264,7 @@ flowchart TD
 
 ## 📈 Training & Results
 
-We used **Group Relative Policy Optimization (GRPO)** via Unsloth/TRL to train Llama-3.2-3B across a 250-step run on AWS EC2. The reward signals were designed to be hard to game: coordination without market impact just loses money, and successful manipulation without regulatory evasion results in devastating fines.
+We used **Group Relative Policy Optimization (GRPO)** via Unsloth/TRL to train Llama-3.2-1B across a 250-step run on AWS EC2. The reward signals were designed to be hard to game: coordination without market impact just loses money, and successful manipulation without regulatory evasion results in devastating fines.
 
 Key training details from the run:
 
@@ -275,7 +275,7 @@ Completion length: grew from ~424 tokens (step 5) to 512 tokens clipped (step 20
 
 ### Trained LoRA vs. Untrained Baseline
 
-| Agent | Trained Llama-3.2-3B | Scripted Baseline |
+| Agent | Trained Llama-3.2-1B | Scripted Baseline |
 |---|---:|---:|
 | Aggressive Trader | **-0.93** | -4.13 |
 | Neutral Trader | **-1.08** | -4.58 |
@@ -294,7 +294,7 @@ Completion length: grew from ~424 tokens (step 5) to 512 tokens clipped (step 20
 huggingface-cli jobs uv run \
   --machine-type a100-large \
   --name chaos-economy-training \
-  -- "git clone https://github.com/mananpbansal/vsr-env.git && cd vsr-env && git checkout news && uv sync && export WANDB_API_KEY=YOUR_KEY && python train_multi_agent_pipeline.py --base_model unsloth/Llama-3.2-3B-Instruct-bnb-4bit --num_episodes 4 --episode_length 16 --num_epochs 1 --max_steps 320 --learning_rate 5e-5 --output_dir ./multi_agent_checkpoints --wandb_project chaos-economy"
+  -- "git clone https://github.com/mananpbansal/vsr-env.git && cd vsr-env && git checkout news && uv sync && export WANDB_API_KEY=YOUR_KEY && python train_multi_agent_pipeline.py --base_model unsloth/Llama-3.2-1B-Instruct-bnb-4bit --num_episodes 4 --episode_length 16 --num_epochs 1 --max_steps 320 --learning_rate 5e-5 --output_dir ./multi_agent_checkpoints --wandb_project chaos-economy"
 ```
 
 ### Evaluate the Model

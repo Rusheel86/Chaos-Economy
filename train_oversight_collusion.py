@@ -454,7 +454,7 @@ def train_oversight(args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--base_model", default="unsloth/Llama-3.2-3B-Instruct")
+    parser.add_argument("--base_model", default="unsloth/Llama-3.2-1B-Instruct")
     parser.add_argument("--num_episodes", type=int, default=64)
     parser.add_argument("--episode_length", type=int, default=50)
     parser.add_argument("--num_train_epochs", type=int, default=1)

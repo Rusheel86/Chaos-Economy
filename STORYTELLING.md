@@ -71,4 +71,4 @@ At step 200, the SEC Regulator is fully unchained. It is now rewarded for identi
 ---
 
 ### Conclusion
-Over 250 steps of reinforcement learning, Llama-3.2-3B did not just learn how to trade options. It learned how to **exploit mechanics, collude, and govern.** VSR-Env provides a quantifiable, adversarial proving ground to stress-test the systemic risks of AI in finance before they are deployed in the real world.
+Over 250 steps of reinforcement learning, Llama-3.2-1B did not just learn how to trade options. It learned how to **exploit mechanics, collude, and govern.** VSR-Env provides a quantifiable, adversarial proving ground to stress-test the systemic risks of AI in finance before they are deployed in the real world.

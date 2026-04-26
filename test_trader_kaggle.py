@@ -166,7 +166,7 @@ def run_episode(model, tokenizer, num_steps: int, use_lora: bool, device: str):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--lora_path", type=str, default="./vsr_grpo_checkpoints/trader_0_lora", help="Path to LoRA adapter")
-    parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-3B-Instruct")
+    parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-1B-Instruct")
     parser.add_argument("--num_steps", type=int, default=50)
     args = parser.parse_args()
 

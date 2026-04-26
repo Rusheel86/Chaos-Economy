@@ -568,7 +568,7 @@ def train_traders_with_emergent_collusion(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Train traders for emergent collusion")
-    parser.add_argument("--base_model", default="unsloth/Llama-3.2-3B-Instruct")
+    parser.add_argument("--base_model", default="unsloth/Llama-3.2-1B-Instruct")
     parser.add_argument("--num_traders", type=int, default=2, help="Number of LLM traders (rest scripted)")
     parser.add_argument("--num_episodes", type=int, default=64)
     parser.add_argument("--episode_length", type=int, default=100)

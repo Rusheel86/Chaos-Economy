@@ -429,7 +429,7 @@ def run_training(args) -> None:
 def main():
     parser = argparse.ArgumentParser(description="Episode-level GRPO training for trader on Kaggle")
     parser.add_argument("--trader_id", type=int, default=0)
-    parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-3B-Instruct")
+    parser.add_argument("--base_model", type=str, default="unsloth/Llama-3.2-1B-Instruct")
     parser.add_argument("--num_episodes", type=int, default=64)
     parser.add_argument("--episode_length", type=int, default=50, help="Steps per episode")
     parser.add_argument("--group_size", type=int, default=4)
