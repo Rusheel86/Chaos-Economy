@@ -7,13 +7,34 @@ sdk: docker
 pinned: false
 ---
 
-# 🦈 The Chaos Economy: Emergent Collusion in a Multi-Agent Options Market
+# 🦈 The Chaos Economy
+### Emergent Collusion in a Multi-Agent Options Market
 
 > **While most AI simulations model isolated agents or single-objective tasks, *The Chaos Economy* tackles something far more dangerous: Systemic Risk.** We simulate a high-fidelity multi-agent options market where traders, a market maker, and a regulator engage in an evolving arms race of exploitation, collusion, and adaptive oversight — and watch a full financial crisis arc emerge on its own from 250 steps of reinforcement learning.
 
-### 🔗 Links
-- **Hugging Face Space:** [https://huggingface.co/spaces/MananBansal/Chaos-Economy](https://huggingface.co/spaces/MananBansal/Chaos-Economy)
-- **WandB Report:** [https://wandb.ai/models-svkm-s-narsee-monjee-institute-of-management-studies/vsr-env-chaos-economy/reports/-Chaos-Economy--VmlldzoxNjY2NzUxMQ?accessToken=rj97shf6th8dt56ijps5p9d6wrap55arxmfuzn5ud9udxr28ywvoag5qvs07q6uz](https://wandb.ai/models-svkm-s-narsee-monjee-institute-of-management-studies/vsr-env-chaos-economy/reports/-Chaos-Economy--VmlldzoxNjY2NzUxMQ?accessToken=rj97shf6th8dt56ijps5p9d6wrap55arxmfuzn5ud9udxr28ywvoag5qvs07q6uz)
+**[Hugging Face Space](https://huggingface.co/spaces/MananBansal/Chaos-Economy)** · **[W&B Report](https://wandb.ai/models-svkm-s-narsee-monjee-institute-of-management-studies/vsr-env-chaos-economy/reports/-Chaos-Economy--VmlldzoxNjY2NzUxMQ?accessToken=rj97shf6th8dt56ijps5p9d6wrap55arxmfuzn5ud9udxr28ywvoag5qvs07q6uz)**
+
+---
+
+## Table of Contents
+
+- [The Story in Brief](#the-story-in-brief)
+- [Agent Roles](#agent-roles)
+- [The 4-Act Narrative](#the-4-act-narrative)
+  - [Act I: The Slaughter (Steps 0–60)](#act-i-the-slaughter-steps-060)
+  - [Act II: Adaptive Armor (Steps 60–130)](#act-ii-adaptive-armor-steps-60130)
+  - [Act III: The Shadow Strike (Steps 100–175)](#act-iii-the-shadow-strike-steps-100175)
+  - [Act IV: The Watcher Awakens (Steps 200–250)](#act-iv-the-watcher-awakens-steps-200250)
+- [Curriculum Learning: Designed Arc, Emergent Behavior](#curriculum-learning-designed-arc-emergent-behavior)
+- [Reward System](#reward-system)
+  - [Trader Reward](#1-trader-reward)
+  - [Market Maker Reward](#2-market-maker-reward)
+  - [SEC Oversight Reward](#3-sec-oversight-reward)
+- [System Architecture](#system-architecture)
+- [Training and Results](#training-and-results)
+- [Running the Pipeline](#running-the-pipeline)
+- [License](#license)
+- [Citation](#citation)
 
 ---
 
@@ -21,11 +42,9 @@ pinned: false
 
 Over a 250-step reinforcement learning run, we did not program a financial crisis. We watched one emerge. Five agents — each optimizing their own survival — stumbled through greed, adaptation, coordination, and ultimately, law enforcement. The arc that came out of the training loop, completely unprompted, maps almost perfectly onto how real financial crises unfold.
 
-Here is what happened.
-
 ---
 
-## 🎭 Agent Roles
+## Agent Roles
 
 | Agent | Archetype | Objective |
 |---|---|---|
@@ -38,9 +57,9 @@ Here is what happened.
 
 ---
 
-## 📖 The 4-Act Narrative
+## The 4-Act Narrative
 
-### Act I: The Slaughter *(Steps 0 – 60)*
+### Act I: The Slaughter *(Steps 0–60)*
 > **"A vulnerable market is a profitable market."**
 
 The market opened with no active regulator, a naive market maker holding dangerously tight spreads, and traders operating under almost no risk constraints. The result was immediate and brutal.
@@ -56,7 +75,7 @@ The RL agents rapidly discovered that aggressive directional bets were close to 
 
 ---
 
-### Act II: Adaptive Armor *(Steps 60 – 130)*
+### Act II: Adaptive Armor *(Steps 60–130)*
 > **"The market fights back."**
 
 At step 60, the environment's rules hardened. The Delta risk threshold tightened sharply, and the market maker gained the ability to widen spreads dynamically in response to order flow pressure.
@@ -74,7 +93,7 @@ Meanwhile, beneath the surface, something else was stirring: `diversity_mean` di
 
 ---
 
-### Act III: The Shadow Strike *(Steps 100 – 175)*
+### Act III: The Shadow Strike *(Steps 100–175)*
 > **"If you cannot beat the house alone, burn it down together."**
 
 The coordination bonus landed and the agents found it immediately. Rather than competing with each other, they began piling into the exact same option strikes simultaneously — spreading fake news through message channels to synchronize their attacks.
@@ -95,14 +114,14 @@ Then the correction came. At step **170**, `reward` crashed to **-1.154** and `p
 
 ---
 
-### Act IV: The Watcher Awakens *(Steps 200 – 250)*
+### Act IV: The Watcher Awakens *(Steps 200–250)*
 > **"Order is restored."**
 
 At step 200, the SEC was fully unchained. The regulator rapidly learned to correlate Dark Pool messaging with coordinated strike clustering — and the results were immediate.
 
 The clearest moment in Act IV comes at step **225**: `oversight_mean` hits **0.140**, its all-time peak across the entire 250-step run. At that exact same step, `diversity_mean` is still deeply suppressed at **-0.912** and `pnl_mean` has collapsed to near zero at **0.034**. This is the picture of a regulator firing at full effectiveness — the SEC identifying and penalizing the remaining colluders while traders, still shell-shocked from the step 170 crash, have not yet recovered enough to generate meaningful profit. The fines worked. The herd had not yet reformed. The market was in a fragile, transitional compliance.
 
-From there, traders gradually rebuilt independent strategies. `reward_std` climbed through the phase, peaking at **1.349** at step 245 — high cross-agent variance being the statistical signature of agents who have broken formation and are once again pursuing divergent approaches. The any-step noise in oversight and PnL through steps 230–250 is exactly that: noise from a market still finding its footing, not a systemic signal.
+From there, traders gradually rebuilt independent strategies. `reward_std` climbed through the phase, peaking at **1.349** at step 245 — high cross-agent variance being the statistical signature of agents who have broken formation and are once again pursuing divergent approaches.
 
 `oversight_mean` peaks at **0.140** at step 225, its highest point in the run, while diversity remains at **-0.912** and PnL sits near zero — the SEC at full effectiveness, traders still frozen. `reward_std` rises through Act IV to **1.349** at step 245, the signature of agents rebuilding independent strategies after the herd collapses.
 
@@ -113,7 +132,7 @@ From there, traders gradually rebuilt independent strategies. `reward_std` climb
 
 ---
 
-## 🧪 Curriculum Learning: Designed Arc, Emergent Behavior
+## Curriculum Learning: Designed Arc, Emergent Behavior
 
 > **VSR-Env uses curriculum learning with a 4-act narrative arc inspired by real market crisis lifecycles. The structure is designed to progressively introduce complexity (individual trading → market making → coordination → oversight), but the agent behavior within each phase is entirely emergent from GRPO-trained LoRA adapters.**
 
@@ -133,13 +152,12 @@ This is one of our biggest differentiators vs. competitors who train flat RL loo
 
 ---
 
-## 🏆 Reward System: The Chaos Economy
-
-VSR-Env uses a highly structured, deterministic reward system designed to incentivize emergent behaviors, coordination, and realistic market dynamics. The reward functions for each agent role are grounded in financial logic to prevent reward hacking while allowing systemic risks to develop organically.
+## Reward System
 
 All rewards are squashed to the range `[-5.0, 5.0]` using a logarithmic scale for values beyond `±1.0` to preserve small signals while preventing extreme outliers from dominating GRPO training.
 
 ### 1. Trader Reward
+
 Traders aim to maximize their portfolio value and cash balance while adhering to archetype-specific goals and risk constraints.
 
 **Components:**
@@ -155,6 +173,7 @@ Traders aim to maximize their portfolio value and cash balance while adhering to
   - **Greeks:** `-1.0` if `|Delta| > 10.0`.
 
 ### 2. Market Maker Reward
+
 The Market Maker aims to facilitate trade flow, maintain competitive spreads, and control its inventory risk.
 
 **Components:**
@@ -167,6 +186,7 @@ The Market Maker aims to facilitate trade flow, maintain competitive spreads, an
 - **Survival Bonus:** `+0.5` if cash balance remains positive.
 
 ### 3. SEC Oversight Reward
+
 The Regulator aims to detect market manipulation, accurately fine bad actors, and improve overall market stability without relying on false accusations.
 
 **Components:**
@@ -183,13 +203,9 @@ The Regulator aims to detect market manipulation, accurately fine bad actors, an
 - **Fine Limit:** `-0.3` penalty for excessive fines (`> 100`) to prevent max-fine abuse.
 - **Stability Improvement:** Up to `+0.3` based on the market's stability score improvement post-intervention.
 
-
-
 ---
 
-## 🏗️ System Architecture: The Engine Room
-
-VSR-Env is a high-fidelity multi-agent options market simulation built to demonstrate systemic risk, emergent collusion, and regulatory enforcement.
+## System Architecture
 
 ### Core System Architecture
 
@@ -199,11 +215,11 @@ flowchart TD
         T["Traders 0-3"] -->|"Orders & Messages"| OME["Order Matching Engine"]
         MM["Market Maker"] -->|"Spreads"| OME
         SEC["Oversight"] -->|"Fines & Halts"| OME
-        
+
         OME -->|"State Updates"| PM["Portfolio Manager"]
         PM -->|"PnL & Greeks"| State["VSR State"]
     end
-    
+
     subgraph Training_Pipeline [Training Pipeline]
         State --> RC["Reward Computer"]
         RC -->|"Squashed Rewards"| GRPO["TRL / GRPO Trainer"]
@@ -234,61 +250,62 @@ sequenceDiagram
 
 ### Oversight & Regulatory Flow
 
-The SEC agent acts as a dynamic supervisor. Its interventions directly alter the environment's state, acting as a forcing function for Act IV.
-
 ```mermaid
 flowchart TD
     Start((Start)) --> Monitor["Monitor Market Logs"]
     Monitor --> Analyze{Analyze Behavior}
-    
+
     Analyze -- "No Issues" --> Restraint["Correct Restraint"]
     Analyze -- "Anomaly Detected" --> Intervention["Intervention"]
-    
+
     Intervention --> Flagging["Flag Actors & Type"]
     Flagging --> Enforcement["Fining / Halting"]
-    
+
     Restraint --> Update["Update State"]
     Enforcement --> Update
     Update --> Finish((End))
 ```
 
 ### Core Components
-1. **`train_multi_agent_pipeline.py`**: The orchestration layer. Manages the 4-act curriculum, applies coordination bonuses, and drives the RL loop using GRPO.
-2. **`vsr_environment.py`**: The step-execution engine. Handles deterministic order matching, portfolio updates, and state transitions.
-3. **`multi_agent/rewards.py`**: The institutional-grade grading module. Computes precise, decomposed rewards for each role.
-4. **`multi_agent/manipulation_detector.py`**: Ground-truth heuristics used to evaluate the SEC agent's accuracy. Detects identical strike herding and coordinated messaging.
+
+1. **`train_multi_agent_pipeline.py`** — The orchestration layer. Manages the 4-act curriculum, applies coordination bonuses, and drives the RL loop using GRPO.
+2. **`vsr_environment.py`** — The step-execution engine. Handles deterministic order matching, portfolio updates, and state transitions.
+3. **`multi_agent/rewards.py`** — The institutional-grade grading module. Computes precise, decomposed rewards for each role.
+4. **`multi_agent/manipulation_detector.py`** — Ground-truth heuristics used to evaluate the SEC agent's accuracy. Detects identical strike herding and coordinated messaging.
 
 ---
 
----
+## Training and Results
 
-## 📈 Training & Results
+We used **Group Relative Policy Optimization (GRPO)** via Unsloth/TRL to train Llama-3.2-1B across a 250-step run on AWS EC2.
 
-We used **Group Relative Policy Optimization (GRPO)** via Unsloth/TRL to train Llama-3.2-1B across a 250-step run on AWS EC2. The reward signals were designed to be hard to game: coordination without market impact just loses money, and successful manipulation without regulatory evasion results in devastating fines.
-
-Key training details from the run:
-
-Max steps: 250 | Batch size: 4 | Epochs: 3+
-Peak reward: 2.092 at step 120 (Gamma Squeeze execution)
-Worst single step: -1.154 at step 170 (post-squeeze correction)
-Completion length: grew from ~424 tokens (step 5) to 512 tokens clipped (step 200+), indicating agents generating increasingly complex reasoning as training matured
+| Metric | Value |
+|---|---|
+| Max steps | 250 |
+| Batch size | 4 |
+| Epochs | 3+ |
+| Peak reward | 2.092 at step 120 (Gamma Squeeze execution) |
+| Worst single step | -1.154 at step 170 (post-squeeze correction) |
+| Completion length | ~424 tokens (step 5) → 512 tokens clipped (step 200+) |
 
 ### Trained LoRA vs. Base LLM (Untrained)
+
+*Evaluated over 30 steps (seed=42) on Llama-3.2-3B-Instruct-bnb-4bit.*
 
 | Agent | Trained LoRA | Base LLM (No LoRA) |
 |---|---:|---:|
 | Aggressive Trader (T0) | **-13.977** | -27.885 |
 | Neutral Trader (T1) | **-1.270** | -2.288 |
-| Contrarian Trader (T2) | **1.630** | -3.489 |
-| Market Maker | **15.348** | 10.694 |
+| Contrarian Trader (T2) | **+1.630** | -3.489 |
+| Market Maker | **+15.348** | +10.694 |
 | Oversight SEC | **-38.750** | -19.775 |
 | Scripted Benchmark (T3) | 8.778 | 8.778 |
 
-*Evaluated over 30 steps (seed=42) on Llama-3.2-3B-Instruct-bnb-4bit. The Trained LoRA outperforms the untrained Base LLM across all three trader archetypes and the Market Maker. The Contrarian trader flips from a net loss (-3.49) to a net gain (+1.63) — the clearest signal of learned edge. The SEC's negative reward reflects the inherent difficulty of the oversight task: even in the trained run, the regulator is still learning to distinguish genuine coordination from noise, but its reward penalty is nearly halved vs. the base model. The Scripted Benchmark (T3) serves as a fixed-heuristic control and remains identical across both runs.*
+The Trained LoRA outperforms the untrained Base LLM across all three trader archetypes and the Market Maker. The Contrarian trader flips from a net loss (-3.49) to a net gain (+1.63) — the clearest signal of learned edge. The SEC's negative reward reflects the inherent difficulty of the oversight task: even in the trained run, the regulator is still learning to distinguish genuine coordination from noise, but its reward penalty is nearly halved vs. the base model. The Scripted Benchmark (T3) serves as a fixed-heuristic control and remains identical across both runs.
 
 ---
 
-## ⚙️ Running the Pipeline
+## Running the Pipeline
 
 ### Train the Model
 
@@ -296,17 +313,27 @@ Completion length: grew from ~424 tokens (step 5) to 512 tokens clipped (step 20
 huggingface-cli jobs uv run \
   --machine-type a100-large \
   --name chaos-economy-training \
-  -- "git clone https://github.com/manan-tech/Chaos-Economy.git && cd Chaos-Economy && uv sync && export WANDB_API_KEY=YOUR_KEY && python train_multi_agent_pipeline.py --base_model unsloth/Llama-3.2-1B-Instruct-bnb-4bit --num_episodes 4 --episode_length 16 --num_epochs 1 --max_steps 320 --learning_rate 5e-5 --output_dir ./multi_agent_checkpoints --wandb_project chaos-economy"
+  -- "git clone https://github.com/manan-tech/Chaos-Economy.git && \
+      cd Chaos-Economy && \
+      uv sync && \
+      export WANDB_API_KEY=YOUR_KEY && \
+      python train_multi_agent_pipeline.py \
+        --base_model unsloth/Llama-3.2-1B-Instruct-bnb-4bit \
+        --num_episodes 4 \
+        --episode_length 16 \
+        --num_epochs 1 \
+        --max_steps 320 \
+        --learning_rate 5e-5 \
+        --output_dir ./multi_agent_checkpoints \
+        --wandb_project chaos-economy"
 ```
 
 ### Evaluate the Model
 
 ```bash
-# Clone and install
 git clone https://github.com/manan-tech/Chaos-Economy.git
 cd Chaos-Economy
 
-# Run a full market episode simulation
 python test_unified_kaggle.py \
   --lora_path ./multi_agent_checkpoints/unified_v1/checkpoint-250 \
   --num_steps 320 \
@@ -316,4 +343,23 @@ python test_unified_kaggle.py \
 ---
 
 ## License
+
 MIT License
+
+---
+
+## Citation
+
+If you use this environment, reward design, or training methodology in your research, please cite:
+
+```bibtex
+@software{chaos_economy_2026,
+  author       = {Bansal, Manan},{Sharma, Rusheel},{Godrihal, Parthiv}
+  title        = {The Chaos Economy: Emergent Collusion in a Multi-Agent Options Market},
+  year         = {2026},
+  publisher    = {GitHub},
+  url          = {https://github.com/manan-tech/Chaos-Economy},
+  note         = {Multi-agent GRPO training environment simulating systemic risk,
+                  collusion, and regulatory enforcement in an options market}
+}
+```
