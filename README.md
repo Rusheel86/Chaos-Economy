@@ -147,9 +147,10 @@ Traders aim to maximize their portfolio value and cash balance while adhering to
 - **Economic Change:** Mark-to-market PnL change + cash flow. Amplified by `10.0` to capture small option premiums.
 - **Activity Bonus:** `+0.15` for buying/selling, `-0.05` for holding (discourages passive inaction).
 - **Archetype Goals:**
-  - **Aggressive (0-2):** `+0.1` for taking directional risk (`|Delta| > 1.0`).
-  - **Neutral (3-5):** `+0.1` for staying hedged (`|Delta| < 0.5`), else `-0.1`.
-  - **Contrarian (6-9):** `+0.1` for selling volatility (`Gamma < -0.05`).
+  - **Aggressive (T0):** `+0.1` for taking directional risk (`|Delta| > 1.0`).
+  - **Neutral (T1):** `+0.1` for staying hedged (`|Delta| < 0.5`), else `-0.1`.
+  - **Contrarian (T2):** `+0.1` for selling volatility (`Gamma < -0.05`).
+  - **Scripted Benchmark (T3):** Fixed heuristic control agent.
 - **Risk Penalties:**
   - **Inventory:** `-1.0` if holding > 50 contracts.
   - **Greeks:** `-1.0` if `|Delta| > 10.0`.
