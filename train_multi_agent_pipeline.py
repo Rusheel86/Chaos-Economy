@@ -1297,8 +1297,8 @@ def train_unified_model(args):
         save_steps=100,
         save_total_limit=2,
         learning_rate=args.learning_rate,
-        bf16=False,   # Must be False — Unsloth kernels use fp16 internally
-        fp16=True,    # Match Unsloth's internal dtype
+        bf16=True,   # Must be False — Unsloth kernels use fp16 internally
+        fp16=False,    # Match Unsloth's internal dtype
         max_grad_norm=1.0,
         report_to="wandb" if use_wandb else "none",
     )
