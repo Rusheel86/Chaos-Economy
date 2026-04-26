@@ -32,8 +32,13 @@ def calculate_trader_reward(agent_state: AgentState, prev_state: AgentState, age
     # Multiply by 10.0 to amplify small option premium signals
     total_economic_delta = (pnl_delta + cash_delta * 0.1) * 10.0
     
-    # 2. Activity Bonus
-    activity_bonus = 0.05 if direction in ["buy", "sell"] else 0.0
+    # 2. Activity Bonus / Hold Penalty
+    # Must be meaningful relative to potential trading losses (~1.0)
+    # to prevent the model from learning "hold = safe = optimal"
+    if direction in ["buy", "sell"]:
+        activity_bonus = 0.3
+    else:
+        activity_bonus = -0.15  # penalize consecutive holds
     
     # 3. Archetype-Specific Goals
     archetype_bonus = 0.0
