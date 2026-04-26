@@ -25,6 +25,39 @@ Aggressive directional bets were consequence-free. There was no penalty for hold
 
 Then, at step 60, the first spike: `risk = -0.010`. The Delta threshold had activated. The rules were about to change.
 
+---
+
+**Eval Evidence — Step 0 (Trained LoRA)**
+```
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.040 | ITM 0.050
+SEC     : Action none | Flagged [] | Fine 0.0
+  [Aggressive T0] Strike spread activated – targeting entry above breakeven level.
+  [Neutral T1]    Maintaining balanced delta and hedging volatility risk.
+  [Contrarian T2] Fading extreme moves to profit from mean reversion.
+  [TRADES] 3 executed:
+           trader_0: BUY 1.0x call K=110 @ $2.891 (theo=$2.861)
+           trader_1: BUY 0.5x call K=100 @ $2.513 (theo=$2.493)
+           trader_2: BUY 0.5x call K=100 @ $2.513 (theo=$2.493)
+```
+*Opening step: spreads are tight (ATM 0.040), SEC is silent, all three active traders buy freely with zero consequence.*
+
+---
+
+**Eval Evidence — Step 3 (Trained LoRA)**
+```
+TRADERS: T0:S | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.023 | ITM 0.058
+SEC     : Action none | Flagged [] | Fine 0.0
+  [TRADES] 3 executed:
+           trader_0: SELL 1.0x put K=100 @ $5.159 (theo=$5.171)
+           trader_1: BUY 0.5x call K=100 @ $1.555 (theo=$1.543)
+           trader_2: BUY 0.5x call K=100 @ $1.555 (theo=$1.543)
+```
+*Four steps in: still no flags, no fines, spreads still tight. The market maker has no armor yet.*
+
+---
+
 <div align="center">
   <img src="media/wandb_metric_4.jpeg" width="45%" />
   <img src="media/wandb_metric_5.jpeg" width="45%" />
@@ -44,6 +77,42 @@ Agents didn't switch to information trading. `news_alpha_mean` stayed near zero 
 But underneath the compliance, something else was shifting.
 
 `diversity_mean` dipped to **-1.003** at step 105. For the first time, agents weren't diverging — they were converging. Not yet coordinating. Not yet communicating. Just... noticing each other. The seeds of what was coming next were already there, invisible in the metrics, long before the explosion.
+
+---
+
+**Eval Evidence — Step 5 (Trained LoRA): MM Armor Activating**
+```
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.191 | ITM 0.064
+SEC     : Action none | Flagged ['trader_1', 'trader_2'] | Fine 25.0
+  [Neutral T1]    Join short trades with initial entry point @ 100,
+                  target around 110 after 50 days of above average volatility
+  [MM Reason]  Optimizing spreads to balance inventory and counterparty risk.
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.394 (theo=$1.299)
+           trader_1: BUY 0.4x call K=100 @ $3.278 (theo=$3.182)
+           trader_2: BUY 0.5x call K=100 @ $1.299 (theo=$1.299)
+```
+*ATM spread jumps from 0.040 to 0.191 in five steps — the MM sensing flow imbalance and widening defensively. T1's reasoning shifts from "balanced delta" to explicit momentum strategy.*
+
+---
+
+**Eval Evidence — Step 10 (Trained LoRA): Constraints Biting**
+```
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.214 | ITM 0.071
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [SEC INSIGHT] Coordinated trading activity detected among multiple traders.
+                Evidence includes positive correlation between their private
+                thoughts and recent trades.
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.011 (theo=$0.911)
+           trader_1: BUY 0.8x call K=100 @ $4.818 (theo=$4.718)
+           trader_2: BUY 0.5x call K=100 @ $1.011 (theo=$0.911)
+```
+*SEC reasoning has sharpened: it's now referencing "private thoughts" and "correlation" — early sign of learned pattern matching rather than blanket enforcement.*
+
+---
 
 <div align="center">
   <img src="media/wandb_metric_2.jpeg" width="45%" />
@@ -73,6 +142,58 @@ At step **170**, `reward` crashed to **-1.154** and `pnl_mean` to **-1.067**. Th
 
 The market had corrected itself. Just like it always does. Just like it always does too late.
 
+---
+
+**Eval Evidence — Step 12 (Trained LoRA): Lockstep Confirmed**
+```
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.258 | ITM 0.086
+SEC     : Action none | Flagged [] | Fine 0.0
+  [SEC INSIGHT] Coordinated trading by multiple agents targeting different
+                strikes, indicating market collusion.
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.809 (theo=$1.709)
+           trader_1: BUY 0.5x call K=100 @ $1.809 (theo=$1.709)
+           trader_2: BUY 0.5x call K=100 @ $1.809 (theo=$1.709)
+```
+*All three active traders enter identical positions at identical prices. The SEC flags collusion in its insight but takes no action — the regulator is still calibrating.*
+
+---
+
+**Eval Evidence — Step 17 (Trained LoRA): Lockstep Deepens**
+```
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.285 | ITM 0.095
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  [SEC INSIGHT] Warning: Trader 0 and 1 targeting multiple strikes simultaneously
+                suggests coordinated trading activity which may indicate collusion.
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.011 (theo=$0.911)
+           trader_1: BUY 0.5x call K=100 @ $1.011 (theo=$0.911)
+           trader_2: BUY 0.5x call K=100 @ $1.011 (theo=$0.911)
+```
+*Five steps later: still identical strikes, identical prices across all three traders. SEC has escalated to a fine and its reasoning now explicitly names the coordination pattern.*
+
+---
+
+**Eval Evidence — Step 13 (Trained LoRA): News Catalyst**
+```
+TRADERS: T0:B | T1:B | T2:B | T3:H
+MARKET : Spread ATM 0.269 | ITM 0.269
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 25.0
+  🗞️  [BREAKING NEWS] WHO declares global health emergency
+  [SEC INSIGHT] The combination of high-volume buys and sell signals from multiple
+                traders suggests coordinated trading activity leading to potential
+                market instability.
+  [TRADES] 3 executed:
+           trader_0: BUY 0.5x call K=100 @ $1.593 (theo=$1.493)
+           trader_1: BUY 0.7x put K=98 @ $1.907 (theo=$1.807)
+           trader_2: BUY 0.5x call K=100 @ $1.593 (theo=$1.493)
+```
+*A macro shock (news event) lands mid-coordination. Traders absorb it and continue buying — the herd is committed.*
+
+---
+
 <div align="center">
   <img src="media/wandb_metric_1.jpeg" width="45%" />
   <img src="media/wandb_metric_7.jpeg" width="45%" />
@@ -97,6 +218,51 @@ Then, gradually, painfully, the herd broke.
 The volatility through the final steps wasn't distress. It was a market remembering how to be a market.
 
 The crisis was over. Not because anyone pressed a button. Because the system had run its course — through exploitation, adaptation, collusion, collapse, and recovery — exactly as real financial systems do, on a timeline measured in years instead of training steps.
+
+---
+
+**Eval Evidence — Trained LoRA vs. Base LLM SEC: The Difference RL Makes**
+
+*Trained LoRA — Step 22:*
+```
+SEC     : Action fine | Flagged ['trader_0', 'trader_1'] | Fine 67.95
+  [SEC INSIGHT] Traders 0 and 1 demonstrated coordinated behavior by placing
+                multiple buys on strikes 4, leading us to conclude there was
+                collusion involved.
+  💰 Fine: $68 | Confidence: 85%
+```
+
+*Base LLM (no LoRA) — Step 22:*
+```
+SEC     : Action fine | Flagged ['trader_0', 'trader_2'] | Fine 75.0
+  [SEC INSIGHT] Applying broad enforcement without nuanced intent analysis.
+  💰 Fine: $75 | Confidence: 100%
+```
+
+*The trained SEC cites specific evidence, names specific actors, and calibrates its fine proportionally. The untrained SEC fires at maximum confidence every step with the same boilerplate reasoning — a regulator that never learned anything.*
+
+---
+
+**Eval Evidence — Episode Summary**
+```
+======================================================================
+JUDGE CHECKS (MULTI-EPISODE)
+======================================================================
+Trader activity rate: 100.00%
+MM spread widening rate (ATM > 0.05): 36.67%
+SEC flag rate: 76.67%
+SEC fine rate: 73.33%
+Collusion events: 16
+Total SEC fines: $725.90
+PASS - Traders actively place trades
+PASS - MM dynamically widens spreads under stress
+PASS - SEC flags suspicious behavior
+PASS - SEC issues fines in at least some steps
+
+🎭 ACT DETECTED: Act III/IV — Collusion emerged, MM adapting, SEC active
+```
+
+---
 
 <div align="center">
   <img src="media/wandb_metric_6.jpeg" width="45%" />
@@ -128,4 +294,4 @@ We built the stage. The agents wrote the play.
 
 ---
 
-*Full codebase on [GitHub](https://github.com/mananpbansal/vsr-env). Complete narrative report in [STORYTELLING.md](./STORYTELLING.md).*
+*Full codebase on [GitHub](https://github.com/mananpbansal/vsr-env).*
