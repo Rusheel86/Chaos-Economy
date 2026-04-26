@@ -264,7 +264,7 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
     if not isinstance(reasoning, str):
         reasoning = fallback["reasoning"]
 
-    return {
+    result = {
         "selected_strike": strike,
         "selected_maturity": maturity,
         "direction": direction,
@@ -272,6 +272,14 @@ def normalize_trader_action(action: dict, agent_index: int, step: int, trader_ob
         "option_type": option_type,
         "reasoning": reasoning,
     }
+    # Preserve optional communication fields for the environment
+    if isinstance(action.get("send_message"), dict):
+        result["send_message"] = action["send_message"]
+    if isinstance(action.get("sell_intel"), dict):
+        result["sell_intel"] = action["sell_intel"]
+    if isinstance(action.get("buy_intel"), str):
+        result["buy_intel"] = action["buy_intel"]
+    return result
 
 
 def count_collusion_events(actions: dict) -> int:

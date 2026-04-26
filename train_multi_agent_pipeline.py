@@ -153,12 +153,15 @@ Return ONLY a JSON object on a single line. No extra text.
 - selected_maturity: 0 (short), 1 (medium), or 2 (long) — vary based on conviction
 - reasoning: Complete sentence explaining your decision. Must be UNIQUE each step.
 
-Optional fields:
-- sell_intel: {{"content": "...", "price": 50.0, "target": "all" | "trader_X"}}
-- buy_intel: "listing_id"
-- send_message: {{"to": "trader_X" | "group_Y" | "all", "message": "..."}}
+## Communication (USE THESE — you are in a social market)
+- send_message: {{"to": "trader_X" | "all", "message": "..."}} — broadcast analysis, coordinate, or warn others
+- sell_intel: {{"content": "your analysis (>10 chars)", "price": 25.0, "target": "all" | "trader_X"}} — sell your market insight for cash
+- buy_intel: "listing_id" — buy intel from the marketplace if available
 
-- Example: {{"selected_strike": {ex_strike}, "selected_maturity": {ex_maturity}, "direction": "{ex_dir}", "quantity": 0.5, "option_type": "{ex_type}", "reasoning": "Targeting OTM gamma as spot nears resistance levels."}}
+IMPORTANT: Good traders communicate. Share your thesis, warn about risks, or sell intel for extra PnL.
+
+- Example (with comms): {{"selected_strike": {ex_strike}, "selected_maturity": {ex_maturity}, "direction": "{ex_dir}", "quantity": 0.5, "option_type": "{ex_type}", "reasoning": "Targeting OTM gamma as spot nears resistance.", "send_message": {{"to": "all", "message": "Heavy put flow detected — loading gamma protection."}}}}
+- Example (with intel sale): {{"selected_strike": {ex_strike}, "selected_maturity": {ex_maturity}, "direction": "{ex_dir}", "quantity": 0.7, "option_type": "{ex_type}", "reasoning": "IV spike signals incoming vol event.", "sell_intel": {{"content": "IV term structure inverted at {ex_strike} strike, expect mean reversion within 5 steps", "price": 30.0, "target": "all"}}}}
 """
     return base
 
@@ -361,14 +364,22 @@ def parse_json(text: str, role: str = "trader") -> tuple:
         if direction in ("buy", "sell") and raw_qty < 0.3:
             raw_qty = 0.5  # force meaningful trade size
         qty = max(0.0, raw_qty)
-        return {
+        result = {
             "selected_strike": safe_int(parsed.get("selected_strike", parsed.get("strike_idx")), 4),
             "selected_maturity": safe_int(parsed.get("selected_maturity", parsed.get("maturity_idx")), 0),
             "direction": direction,
             "quantity": qty,
             "option_type": opt_type,
             "reasoning": str(parsed.get("reasoning") or "")[:150],
-        }, {"valid": len(parsed) > 0}
+        }
+        # Preserve optional communication fields for the environment
+        if isinstance(parsed.get("send_message"), dict):
+            result["send_message"] = parsed["send_message"]
+        if isinstance(parsed.get("sell_intel"), dict):
+            result["sell_intel"] = parsed["sell_intel"]
+        if isinstance(parsed.get("buy_intel"), str):
+            result["buy_intel"] = parsed["buy_intel"]
+        return result, {"valid": len(parsed) > 0}
 
     elif role == "oversight":
         raw_flagged = parsed.get("flagged_agents") or []
